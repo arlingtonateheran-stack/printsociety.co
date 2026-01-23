@@ -86,6 +86,8 @@ export default function Signup() {
         acceptTerms: formData.acceptTerms,
         acceptMarketing: formData.acceptMarketing,
         signupType,
+        businessType: formData.businessType,
+        businessWebsite: formData.businessWebsite,
       });
 
       navigate(response.redirectUrl);
