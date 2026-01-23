@@ -94,7 +94,7 @@ export interface SubscriptionPlan {
   discountPercentage: number;
   savingsPercentage: number;
   features: string[];
-  populari ty: number; // 1-5 stars
+  popularity: number; // 1-5 stars
   recommended: boolean;
 }
 
