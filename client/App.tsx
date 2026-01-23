@@ -16,6 +16,7 @@ import Support from "./pages/Support";
 import OrderLookup from "./pages/OrderLookup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminShipping from "./pages/admin/AdminShipping";
