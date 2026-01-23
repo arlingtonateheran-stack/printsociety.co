@@ -33,6 +33,8 @@ import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
