@@ -40,42 +40,159 @@ const queryClient = new QueryClient();
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:slug" element={<ProductDetail />} />
-            <Route path="/proofs" element={<Proofs />} />
-            <Route path="/proofs/:proofId" element={<ProofDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/help" element={<HelpCenter />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/order-lookup" element={<OrderLookup />} />
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/:slug" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/help" element={<HelpCenter />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/order-lookup" element={<OrderLookup />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/pricing" element={<AdminPricing />} />
-            <Route path="/admin/shipping" element={<AdminShipping />} />
-            <Route path="/admin/seo" element={<AdminSEO />} />
-            <Route path="/admin/customers" element={<AdminCustomers />} />
-            <Route path="/admin/discounts" element={<AdminDiscounts />} />
-            <Route path="/admin/tickets" element={<AdminTickets />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              {/* Auth Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/email-verification" element={<EmailVerification />} />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              {/* Protected Customer Routes */}
+              <Route
+                path="/proofs"
+                element={
+                  <ProtectedRoute>
+                    <Proofs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/proofs/:proofId"
+                element={
+                  <ProtectedRoute>
+                    <ProofDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Protected Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminOrders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/orders/:orderId"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminOrderDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/products"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminProducts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/pricing"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPricing />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/shipping"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminShipping />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/seo"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminSEO />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/customers"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminCustomers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/discounts"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminDiscounts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/tickets"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminTickets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminUsers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
