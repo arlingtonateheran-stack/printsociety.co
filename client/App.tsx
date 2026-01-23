@@ -61,8 +61,12 @@ export default function App() {
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/support" element={<Support />} />
               <Route path="/order-lookup" element={<OrderLookup />} />
+              <Route path="/quote" element={<Quote />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/shipping-policy" element={<ShippingPolicy />} />
+              <Route path="/accessibility" element={<Accessibility />} />
 
               {/* Auth Routes */}
               <Route path="/login" element={<Login />} />
