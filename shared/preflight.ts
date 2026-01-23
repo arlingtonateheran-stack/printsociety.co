@@ -1,296 +1,344 @@
-// Pre-Flight Validation System
-// Automated checks for artwork files before proofing
+// Pre-flight validation types and logic for artwork submission
+// Checks file format, dimensions, color space, resolution, and bleed requirements
 
-// ============================================================================
-// 1. FILE SPECIFICATIONS
-// ============================================================================
+export type ValidationLevel = "critical" | "warning" | "info";
+export type FileFormat = "pdf" | "png" | "jpg" | "svg" | "ai" | "psd";
 
-export interface FileSpecs {
-  filename: string;
-  filesize: number; // in bytes
-  dimensions?: {
-    width: number;
-    height: number;
-    unit: 'px' | 'in' | 'mm';
-  };
-  resolution?: number; // DPI
-  colorMode?: 'RGB' | 'CMYK' | 'Grayscale' | 'Indexed';
-  hasTransparency?: boolean;
-  hasBleed?: boolean;
-  hasGuidelines?: boolean;
-  fonts?: string[];
-  fileFormat: 'PDF' | 'PNG' | 'JPG' | 'AI' | 'PSD' | 'EPS' | 'SVG' | 'TIFF';
-}
-
-// ============================================================================
-// 2. PRE-FLIGHT CHECKS
-// ============================================================================
-
-export type CheckSeverity = 'pass' | 'warning' | 'error';
-
-export interface PreFlightCheck {
+export interface ValidationError {
   id: string;
-  name: string;
-  category: 'resolution' | 'color' | 'format' | 'content' | 'fonts' | 'safety';
-  severity: CheckSeverity;
+  level: ValidationLevel;
   message: string;
+  field: string;
   suggestion?: string;
-  isBlocking: boolean; // prevents approval if true
 }
 
-export interface PreFlightResult {
-  fileId: string;
-  filename: string;
-  timestamp: Date;
-  checks: PreFlightCheck[];
+export interface PreflightResult {
+  isValid: boolean;
   printReadyScore: number; // 0-100
-  overallStatus: 'pass' | 'warning' | 'error';
-  canProceedToProof: boolean;
-  estimatedIssues: string[];
+  errors: ValidationError[];
+  warnings: ValidationError[];
+  metadata: ArtworkMetadata;
 }
 
-// ============================================================================
-// 3. VALIDATION RULES
-// ============================================================================
-
-export const VALIDATION_RULES = {
-  // Resolution checks
-  minDPI: 300,
-  minDPIWarning: 250, // warning threshold
-  
-  // File size
-  maxFileSize: 100 * 1024 * 1024, // 100MB
-  recommendedMaxSize: 50 * 1024 * 1024, // 50MB
-  
-  // Color modes
-  acceptableColorModes: ['RGB', 'CMYK', 'Grayscale'],
-  preferredColorMode: 'RGB', // will convert
-  
-  // File formats
-  acceptableFormats: ['PDF', 'PNG', 'JPG', 'AI', 'PSD', 'EPS', 'SVG', 'TIFF'],
-  preferredFormats: ['PDF', 'PNG', 'AI'],
-  
-  // Bleed requirements
-  minBleedPixels: 12, // for 300 DPI
-  recommendedBleedInches: 0.125, // 1/8 inch
-  
-  // Safe zones (avoid content here)
-  minSafeZonePixels: 24, // for 300 DPI
-  
-  // Transparency warnings
-  transparencyAllowed: true,
-  transparencyWarningIfSmall: true, // warn if using transparency for small details
-};
-
-// ============================================================================
-// 4. CHECK CATEGORIES
-// ============================================================================
-
-export const CHECK_CATEGORIES = {
-  resolution: {
-    label: 'Resolution',
-    icon: '📐',
-    description: 'DPI and image quality checks',
-  },
-  color: {
-    label: 'Color Mode',
-    icon: '🎨',
-    description: 'RGB/CMYK and color space checks',
-  },
-  format: {
-    label: 'File Format',
-    icon: '📄',
-    description: 'File type and compatibility checks',
-  },
-  content: {
-    label: 'Content',
-    icon: '📍',
-    description: 'Layout, bleed, and safe zone checks',
-  },
-  fonts: {
-    label: 'Fonts',
-    icon: '🔤',
-    description: 'Font embedding and outlining checks',
-  },
-  safety: {
-    label: 'Safety',
-    icon: '🛡️',
-    description: 'File integrity and corruption checks',
-  },
-};
-
-// ============================================================================
-// 5. PRINT-READY SCORE CALCULATION
-// ============================================================================
-
-export interface ScoreBreakdown {
-  resolution: number; // 0-20
-  colorMode: number; // 0-20
-  fileFormat: number; // 0-15
-  bleedAndSafeZone: number; // 0-20
-  fonts: number; // 0-15
-  transparency: number; // 0-10
-  total: number; // 0-100
+export interface ArtworkMetadata {
+  filename: string;
+  fileFormat: FileFormat;
+  fileSize: number; // in bytes
+  width: number; // in pixels
+  height: number; // in pixels
+  dpi: number;
+  colorSpace: ColorSpace;
+  hasAlpha: boolean;
+  bleedPresent: boolean;
 }
 
-// Scoring thresholds
-export const SCORE_THRESHOLDS = {
-  excellent: 90, // 90-100: Ready to print
-  good: 75, // 75-89: Minor issues
-  fair: 50, // 50-74: Needs review
-  poor: 0, // 0-49: Major issues
-};
+export type ColorSpace = "rgb" | "cmyk" | "grayscale" | "lab" | "unknown";
 
-export const SCORE_LABELS = {
-  excellent: '✅ Print-Ready',
-  good: '⚠️ Review Needed',
-  fair: '🔧 Needs Work',
-  poor: '❌ Not Ready',
-};
-
-// ============================================================================
-// 6. COMMON ISSUES (Pre-defined messages)
-// ============================================================================
-
-export const COMMON_ISSUES = {
-  // Resolution
-  lowResolution: {
-    name: 'Low Resolution',
-    message: 'Image resolution is below 300 DPI',
-    suggestion: 'Use high-resolution artwork (300 DPI minimum)',
-    severity: 'error' as CheckSeverity,
-    category: 'resolution' as const,
-  },
-  lowResolutionWarning: {
-    name: 'Resolution Below Optimal',
-    message: 'Image resolution is below 300 DPI but acceptable',
-    suggestion: 'Ideally use 300+ DPI for best results',
-    severity: 'warning' as CheckSeverity,
-    category: 'resolution' as const,
-  },
-  
-  // Color
-  rgbMode: {
-    name: 'RGB Color Mode',
-    message: 'File is in RGB mode (will be converted to CMYK for printing)',
-    suggestion: 'Consider converting to CMYK for accurate color matching',
-    severity: 'warning' as CheckSeverity,
-    category: 'color' as const,
-  },
-  
-  // Format
-  unsupportedFormat: {
-    name: 'Unsupported Format',
-    message: 'File format is not supported',
-    suggestion: 'Use PDF, PNG, JPG, AI, PSD, EPS, SVG, or TIFF',
-    severity: 'error' as CheckSeverity,
-    category: 'format' as const,
-  },
-  jpgFormat: {
-    name: 'JPG Format',
-    message: 'JPG files may lose quality. PNG or PDF preferred',
-    suggestion: 'Use PNG or PDF for better quality',
-    severity: 'warning' as CheckSeverity,
-    category: 'format' as const,
-  },
-  
-  // Bleed
-  missingBleed: {
-    name: 'No Bleed',
-    message: 'File does not have bleed area (content extends to edge)',
-    suggestion: 'Add 1/8" (0.125") bleed on all edges',
-    severity: 'error' as CheckSeverity,
-    category: 'content' as const,
-  },
-  insufficientBleed: {
-    name: 'Insufficient Bleed',
-    message: 'Bleed is less than recommended',
-    suggestion: 'Add at least 1/8" (0.125") bleed on all edges',
-    severity: 'warning' as CheckSeverity,
-    category: 'content' as const,
-  },
-  
-  // Safe zone
-  contentInSafeZone: {
-    name: 'Content Too Close to Edge',
-    message: 'Important content is too close to cut line',
-    suggestion: 'Keep content at least 1/4" away from edge',
-    severity: 'warning' as CheckSeverity,
-    category: 'content' as const,
-  },
-  
-  // Fonts
-  unembeddedFonts: {
-    name: 'Fonts Not Embedded',
-    message: 'Some fonts are not embedded in the file',
-    suggestion: 'Outline all fonts or embed them in the PDF',
-    severity: 'error' as CheckSeverity,
-    category: 'fonts' as const,
-  },
-  rasterizedText: {
-    name: 'Text is Rasterized',
-    message: 'Text has been converted to pixels and cannot be edited',
-    suggestion: 'This is OK for printing, but ensure spelling is correct',
-    severity: 'warning' as CheckSeverity,
-    category: 'fonts' as const,
-  },
-  
-  // Transparency
-  transparencyIssues: {
-    name: 'Transparency Detected',
-    message: 'File contains transparency/alpha channels',
-    suggestion: 'Ensure transparency is intentional and not accidental',
-    severity: 'warning' as CheckSeverity,
-    category: 'safety' as const,
-  },
-  
-  // File issues
-  corruptedFile: {
-    name: 'File May Be Corrupted',
-    message: 'Unable to fully read file structure',
-    suggestion: 'Try re-exporting or re-saving the file',
-    severity: 'error' as CheckSeverity,
-    category: 'safety' as const,
-  },
-  fileTooLarge: {
-    name: 'File Size Too Large',
-    message: 'File is larger than recommended maximum',
-    suggestion: 'Compress images or split into multiple files',
-    severity: 'warning' as CheckSeverity,
-    category: 'safety' as const,
-  },
-};
-
-// ============================================================================
-// 7. VALIDATION WORKFLOW
-// ============================================================================
-
-export interface ValidationWorkflow {
-  fileId: string;
-  uploadedAt: Date;
-  results: PreFlightResult[];
-  customerNotified: boolean;
-  customerReadyToProceed: boolean;
-  adminApproved?: boolean;
-  adminNotes?: string;
-  retries: number; // number of re-uploads
-  status: 'pending' | 'pass' | 'warning' | 'fail';
+export interface BleedRequirements {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
 }
 
-// ============================================================================
-// 8. CUSTOMER FEEDBACK
-// ============================================================================
+export interface PrintSpecifications {
+  width: number; // in inches
+  height: number; // in inches
+  minDPI: number;
+  maxDPI: number;
+  recommendedDPI: number;
+  bleedRequirements: BleedRequirements;
+  allowedFormats: FileFormat[];
+  preferredColorSpace: ColorSpace;
+  requiresCMYK: boolean;
+}
 
-export interface PrintReadyFeedback {
-  score: number;
-  scoreLabel: string;
-  status: 'ready' | 'review' | 'needs_work' | 'not_ready';
-  summary: string;
-  issues: {
-    errors: string[];
-    warnings: string[];
-    tips: string[];
+// Standard print specifications for different product types
+export const PRINT_SPECS: Record<string, PrintSpecifications> = {
+  sticker: {
+    width: 4,
+    height: 4,
+    minDPI: 150,
+    maxDPI: 600,
+    recommendedDPI: 300,
+    bleedRequirements: { top: 0.125, right: 0.125, bottom: 0.125, left: 0.125 },
+    allowedFormats: ["pdf", "png", "jpg", "ai", "psd"],
+    preferredColorSpace: "cmyk",
+    requiresCMYK: false, // Can accept RGB but CMYK is preferred
+  },
+  label: {
+    width: 3,
+    height: 2,
+    minDPI: 200,
+    maxDPI: 600,
+    recommendedDPI: 300,
+    bleedRequirements: { top: 0.125, right: 0.125, bottom: 0.125, left: 0.125 },
+    allowedFormats: ["pdf", "png", "jpg", "ai", "psd"],
+    preferredColorSpace: "cmyk",
+    requiresCMYK: true,
+  },
+  custom: {
+    width: 12,
+    height: 12,
+    minDPI: 150,
+    maxDPI: 600,
+    recommendedDPI: 300,
+    bleedRequirements: { top: 0.125, right: 0.125, bottom: 0.125, left: 0.125 },
+    allowedFormats: ["pdf", "png", "jpg", "ai", "psd", "svg"],
+    preferredColorSpace: "cmyk",
+    requiresCMYK: false,
+  },
+};
+
+// Validation functions
+export function validateFileFormat(
+  filename: string,
+  allowedFormats: FileFormat[]
+): ValidationError | null {
+  const ext = filename.split(".").pop()?.toLowerCase() as FileFormat;
+  if (!allowedFormats.includes(ext)) {
+    return {
+      id: "invalid-format",
+      level: "critical",
+      message: `File format .${ext} is not supported. Allowed formats: ${allowedFormats.join(
+        ", "
+      )}`,
+      field: "file",
+      suggestion: `Please convert your file to one of these formats: ${allowedFormats.join(
+        ", "
+      )}`,
+    };
+  }
+  return null;
+}
+
+export function validateResolution(
+  dpi: number,
+  specs: PrintSpecifications
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  if (dpi < specs.minDPI) {
+    errors.push({
+      id: "low-resolution",
+      level: "critical",
+      message: `Resolution is ${dpi} DPI, but minimum required is ${specs.minDPI} DPI`,
+      field: "dpi",
+      suggestion: `Increase image resolution to at least ${specs.minDPI} DPI for print quality`,
+    });
+  }
+
+  if (dpi < specs.recommendedDPI) {
+    errors.push({
+      id: "suboptimal-resolution",
+      level: "warning",
+      message: `Resolution is ${dpi} DPI. Recommended is ${specs.recommendedDPI} DPI for best quality`,
+      field: "dpi",
+      suggestion: `For best results, use ${specs.recommendedDPI} DPI`,
+    });
+  }
+
+  if (dpi > specs.maxDPI) {
+    errors.push({
+      id: "excessive-resolution",
+      level: "info",
+      message: `Resolution is ${dpi} DPI, which exceeds maximum of ${specs.maxDPI} DPI`,
+      field: "dpi",
+      suggestion: `You can reduce to ${specs.recommendedDPI} DPI to reduce file size without quality loss`,
+    });
+  }
+
+  return errors;
+}
+
+export function validateColorSpace(
+  colorSpace: ColorSpace,
+  specs: PrintSpecifications
+): ValidationError | null {
+  if (specs.requiresCMYK && colorSpace !== "cmyk") {
+    return {
+      id: "wrong-color-space",
+      level: "critical",
+      message: `Color space is ${colorSpace}, but CMYK is required for this product`,
+      field: "colorSpace",
+      suggestion: "Convert your file to CMYK color space using design software",
+    };
+  }
+
+  if (colorSpace === "rgb" && specs.preferredColorSpace === "cmyk") {
+    return {
+      id: "non-optimal-color-space",
+      level: "warning",
+      message: "File is in RGB. CMYK is preferred for print accuracy",
+      field: "colorSpace",
+      suggestion: "Convert to CMYK for more accurate color reproduction",
+    };
+  }
+
+  return null;
+}
+
+export function validateDimensions(
+  width: number,
+  height: number,
+  specs: PrintSpecifications
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Convert pixels to inches (assuming 72 DPI for web dimensions)
+  const widthInches = width / 72;
+  const heightInches = height / 72;
+
+  if (widthInches < specs.width * 0.9 || heightInches < specs.height * 0.9) {
+    errors.push({
+      id: "undersized",
+      level: "critical",
+      message: `Image dimensions (${widthInches.toFixed(
+        1
+      )}" × ${heightInches.toFixed(1)}")are smaller than specified size (${
+        specs.width
+      }" × ${specs.height}")`,
+      field: "dimensions",
+      suggestion: `Ensure your file is at least ${specs.width}" × ${specs.height}" at the desired DPI`,
+    });
+  }
+
+  if (widthInches > specs.width * 1.1 || heightInches > specs.height * 1.1) {
+    errors.push({
+      id: "oversized",
+      level: "warning",
+      message: `Image is larger than specified size. Aspect ratio mismatch may cause cropping`,
+      field: "dimensions",
+    });
+  }
+
+  return errors;
+}
+
+export function validateBleed(
+  metadata: ArtworkMetadata,
+  requirements: BleedRequirements
+): ValidationError | null {
+  // This is a simplified check - actual bleed detection would require image analysis
+  if (!metadata.bleedPresent) {
+    return {
+      id: "missing-bleed",
+      level: "warning",
+      message: `No bleed detected. Ensure your design extends ${requirements.top}" beyond cut lines`,
+      field: "bleed",
+      suggestion: `Add ${requirements.top}" of bleed on all sides to prevent white edges`,
+    };
+  }
+  return null;
+}
+
+export function validateTransparency(
+  hasAlpha: boolean,
+  format: FileFormat
+): ValidationError | null {
+  if (hasAlpha && format === "jpg") {
+    return {
+      id: "transparency-with-jpg",
+      level: "critical",
+      message: "JPG files don't support transparency. Use PNG instead",
+      field: "transparency",
+      suggestion: "Export as PNG if your design uses transparency",
+    };
+  }
+
+  if (hasAlpha && format === "pdf") {
+    return {
+      id: "transparency-in-pdf",
+      level: "warning",
+      message: "PDF contains transparent elements that may not render correctly",
+      field: "transparency",
+      suggestion: "Flatten transparency or use opaque backgrounds",
+    };
+  }
+
+  return null;
+}
+
+export async function runPreflightValidation(
+  metadata: ArtworkMetadata,
+  productType: string = "sticker"
+): Promise<PreflightResult> {
+  const specs = PRINT_SPECS[productType] || PRINT_SPECS.custom;
+  const errors: ValidationError[] = [];
+  const warnings: ValidationError[] = [];
+
+  // 1. Validate file format
+  const formatError = validateFileFormat(metadata.filename, specs.allowedFormats);
+  if (formatError) {
+    if (formatError.level === "critical") errors.push(formatError);
+    else if (formatError.level === "warning") warnings.push(formatError);
+  }
+
+  // 2. Validate resolution
+  const resolutionErrors = validateResolution(metadata.dpi, specs);
+  resolutionErrors.forEach((err) => {
+    if (err.level === "critical") errors.push(err);
+    else warnings.push(err);
+  });
+
+  // 3. Validate color space
+  const colorSpaceError = validateColorSpace(metadata.colorSpace, specs);
+  if (colorSpaceError) {
+    if (colorSpaceError.level === "critical") errors.push(colorSpaceError);
+    else warnings.push(colorSpaceError);
+  }
+
+  // 4. Validate dimensions
+  const dimensionErrors = validateDimensions(metadata.width, metadata.height, specs);
+  dimensionErrors.forEach((err) => {
+    if (err.level === "critical") errors.push(err);
+    else warnings.push(err);
+  });
+
+  // 5. Validate bleed
+  const bleedError = validateBleed(metadata, specs.bleedRequirements);
+  if (bleedError) {
+    if (bleedError.level === "critical") errors.push(bleedError);
+    else warnings.push(bleedError);
+  }
+
+  // 6. Validate transparency
+  const transparencyError = validateTransparency(metadata.hasAlpha, metadata.fileFormat);
+  if (transparencyError) {
+    if (transparencyError.level === "critical") errors.push(transparencyError);
+    else warnings.push(transparencyError);
+  }
+
+  // Calculate print-ready score (0-100)
+  // Start with 100, deduct points for issues
+  let score = 100;
+  score -= errors.length * 20;
+  score -= warnings.length * 10;
+  score = Math.max(0, Math.min(100, score));
+
+  const isValid = errors.length === 0;
+
+  return {
+    isValid,
+    printReadyScore: score,
+    errors,
+    warnings,
+    metadata,
   };
-  nextSteps: string[];
-  estimatedTimeToFix?: string;
+}
+
+export function getPrintReadyScoreLabel(score: number): {
+  label: string;
+  color: string;
+  icon: string;
+} {
+  if (score >= 90) {
+    return { label: "Print Ready", color: "green", icon: "✓" };
+  } else if (score >= 70) {
+    return { label: "Good", color: "blue", icon: "→" };
+  } else if (score >= 50) {
+    return { label: "Needs Improvement", color: "yellow", icon: "!" };
+  } else {
+    return { label: "Not Ready", color: "red", icon: "✕" };
+  }
 }
