@@ -26,7 +26,7 @@ export interface GalleryItem {
   // Engagement
   views: number;
   likes: number;
-  ctas: GalleryItem CTA[];
+  ctas: GalleryCTA[];
   
   // Metadata
   tags: string[];
