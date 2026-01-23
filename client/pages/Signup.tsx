@@ -60,9 +60,19 @@ export default function Signup() {
       return;
     }
 
-    if (signupType === 'wholesale' && !formData.businessName) {
-      setLocalError('Please enter your business name');
-      return;
+    if (signupType === 'wholesale') {
+      if (!formData.businessName) {
+        setLocalError('Please enter your business name');
+        return;
+      }
+      if (!formData.businessType) {
+        setLocalError('Please select your business type');
+        return;
+      }
+      if (!formData.phone) {
+        setLocalError('Please enter your phone number');
+        return;
+      }
     }
 
     try {
