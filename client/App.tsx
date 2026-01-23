@@ -11,6 +11,9 @@ import ProofDetail from "./pages/ProofDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
+import HelpCenter from "./pages/HelpCenter";
+import Support from "./pages/Support";
+import OrderLookup from "./pages/OrderLookup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +34,9 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/order-lookup" element={<OrderLookup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
