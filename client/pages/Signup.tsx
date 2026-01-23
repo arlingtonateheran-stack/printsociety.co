@@ -208,6 +208,46 @@ export default function Signup() {
               </div>
             )}
 
+            {/* Wholesale Business Type */}
+            {signupType === 'wholesale' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Type *
+                </label>
+                <select
+                  name="businessType"
+                  value={formData.businessType}
+                  onChange={(e) => setFormData(prev => ({ ...prev, businessType: e.target.value }))}
+                  disabled={isLoading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required={signupType === 'wholesale'}
+                >
+                  <option value="">Select your business type</option>
+                  <option value="manufacturer">Manufacturer</option>
+                  <option value="distributor">Distributor</option>
+                  <option value="retailer">Retailer</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            )}
+
+            {/* Wholesale Business Website */}
+            {signupType === 'wholesale' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Website
+                </label>
+                <Input
+                  type="url"
+                  name="businessWebsite"
+                  placeholder="https://www.yourbusiness.com"
+                  value={formData.businessWebsite}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
             {/* Phone Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
