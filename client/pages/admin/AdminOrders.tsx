@@ -61,6 +61,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AdminOrders() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
