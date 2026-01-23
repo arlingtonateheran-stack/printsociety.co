@@ -194,7 +194,13 @@ export default function AdminOrders() {
                       </td>
                       <td className="px-6 py-4 text-gray-600 text-sm">{order.date}</td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-green-600 hover:text-green-700 font-medium text-sm">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/orders/${order.id}`);
+                          }}
+                          className="text-green-600 hover:text-green-700 font-medium text-sm"
+                        >
                           View →
                         </button>
                       </td>
