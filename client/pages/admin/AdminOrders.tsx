@@ -168,11 +168,15 @@ export default function AdminOrders() {
                 </thead>
                 <tbody className="divide-y">
                   {filteredOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50 transition">
+                    <tr
+                      key={order.id}
+                      className="hover:bg-gray-50 transition cursor-pointer"
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    >
                       <td className="px-6 py-4">
-                        <a href="#" className="font-mono font-semibold text-green-600 hover:underline">
+                        <span className="font-mono font-semibold text-green-600 hover:underline">
                           {order.id}
-                        </a>
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-gray-900">{order.customer}</td>
                       <td className="px-6 py-4">
