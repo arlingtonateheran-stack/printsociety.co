@@ -14,6 +14,7 @@ export default function Header() {
         {/* Navigation */}
         <nav className="flex items-center gap-2 md:gap-8 text-xs md:text-base">
           <Link to="/products" className="hidden md:inline hover:opacity-80 transition font-medium">Shop</Link>
+          <Link to="/proofs" className="hidden md:inline hover:opacity-80 transition font-medium">Proofs</Link>
           <Link to="#" className="hidden md:inline hover:opacity-80 transition">Deals</Link>
           <Link to="#" className="hidden md:inline hover:opacity-80 transition">News</Link>
           <Link to="#" className="hidden sm:inline hover:opacity-80 transition">Login</Link>
