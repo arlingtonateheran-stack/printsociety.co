@@ -24,7 +24,7 @@ export default function FeaturedCollection() {
           </div>
         </div>
 
-        <Link to="#" className="inline-block bg-accent text-black px-8 py-3 rounded-lg font-bold hover:opacity-90 transition uppercase text-sm tracking-wider">
+        <Link to="/products" className="inline-block bg-accent text-black px-8 py-3 rounded-lg font-bold hover:opacity-90 transition uppercase text-sm tracking-wider">
           Explore Sticker Designs
         </Link>
       </div>
