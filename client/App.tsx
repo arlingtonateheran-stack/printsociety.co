@@ -14,6 +14,17 @@ import Dashboard from "./pages/Dashboard";
 import HelpCenter from "./pages/HelpCenter";
 import Support from "./pages/Support";
 import OrderLookup from "./pages/OrderLookup";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminPricing from "./pages/admin/AdminPricing";
+import AdminShipping from "./pages/admin/AdminShipping";
+import AdminSEO from "./pages/admin/AdminSEO";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminDiscounts from "./pages/admin/AdminDiscounts";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
