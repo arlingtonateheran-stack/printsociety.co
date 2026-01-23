@@ -15,8 +15,8 @@ import type {
   CartLineItem,
   ShippingOption,
   BillingAddress,
-} from "@/shared/cart";
-import { shippingOptions } from "@/shared/cart";
+} from "@shared/cart";
+import { shippingOptions } from "@shared/cart";
 
 type CheckoutStep =
   | "artwork"

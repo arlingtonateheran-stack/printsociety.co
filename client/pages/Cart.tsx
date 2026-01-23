@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, Minus } from "lucide-react";
-import type { Cart, CartLineItem } from "@/shared/cart";
+import type { Cart, CartLineItem } from "@shared/cart";
 
 // Sample cart data (in a real app, this would come from state management or API)
 const sampleCart: Cart = {

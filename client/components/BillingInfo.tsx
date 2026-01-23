@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BillingAddress, promoCodes } from "@/shared/cart";
+import { BillingAddress, promoCodes } from "@shared/cart";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

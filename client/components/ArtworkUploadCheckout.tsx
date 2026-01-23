@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, CheckCircle, AlertCircle, X } from "lucide-react";
-import type { CartLineItem } from "@/shared/cart";
+import type { CartLineItem } from "@shared/cart";
 
 interface ArtworkUploadCheckoutProps {
   lineItems: CartLineItem[];

@@ -1,4 +1,4 @@
-import { Cart, ShippingOption } from "@/shared/cart";
+import { Cart, ShippingOption } from "@shared/cart";
 import { Card } from "@/components/ui/card";
 
 interface OrderSummaryProps {
