@@ -48,6 +48,20 @@ export default function App() {
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/support" element={<Support />} />
             <Route path="/order-lookup" element={<OrderLookup />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/pricing" element={<AdminPricing />} />
+            <Route path="/admin/shipping" element={<AdminShipping />} />
+            <Route path="/admin/seo" element={<AdminSEO />} />
+            <Route path="/admin/customers" element={<AdminCustomers />} />
+            <Route path="/admin/discounts" element={<AdminDiscounts />} />
+            <Route path="/admin/tickets" element={<AdminTickets />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
