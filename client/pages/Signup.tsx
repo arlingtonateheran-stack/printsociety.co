@@ -19,6 +19,8 @@ export default function Signup() {
     phone: '',
     acceptTerms: false,
     acceptMarketing: false,
+    businessType: '',
+    businessWebsite: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
