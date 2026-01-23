@@ -10,6 +10,7 @@ import Proofs from "./pages/Proofs";
 import ProofDetail from "./pages/ProofDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/proofs/:proofId" element={<ProofDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
