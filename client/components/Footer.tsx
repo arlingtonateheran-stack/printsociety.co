@@ -54,6 +54,11 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Verification Badges */}
+        <div className="border-t border-gray-200 pt-8 mb-8">
+          <FooterVerificationBadges />
+        </div>
+
         {/* Bottom Footer */}
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-600">
           <p>© Sticky Slap, Inc. 2025</p>
