@@ -28,10 +28,10 @@ export default function Hero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link to="#" className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2">
+          <Link to="/products/die-cut-vinyl-stickers" className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2">
             Start Creating <span>→</span>
           </Link>
-          <Link to="#" className="border-2 border-black text-black px-8 py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition">
+          <Link to="/products" className="border-2 border-black text-black px-8 py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition">
             Shop Now <span>→</span>
           </Link>
         </div>
