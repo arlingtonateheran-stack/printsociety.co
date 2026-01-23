@@ -53,6 +53,7 @@ export default function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/pricing" element={<AdminPricing />} />
             <Route path="/admin/shipping" element={<AdminShipping />} />
