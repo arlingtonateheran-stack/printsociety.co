@@ -64,18 +64,7 @@ export default function Hero() {
 
           {/* Right Image */}
           <div className="flex items-center justify-center order-1 lg:order-2">
-            <div className="relative w-full h-80 sm:h-96 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-emerald-500/10 to-transparent rounded-2xl"></div>
-
-              {/* Sticker Group Image Placeholder */}
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F30f59295fe6f49289f53176896cfbcdd"
-                  alt="VW Bus Sticker"
-                  className="w-full h-full object-contain drop-shadow-2xl"
-                />
-              </div>
-            </div>
+            <div className="relative w-full h-80 sm:h-96 flex items-center justify-center" />
           </div>
         </div>
       </div>
