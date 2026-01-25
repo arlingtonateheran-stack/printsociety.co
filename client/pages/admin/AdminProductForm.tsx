@@ -661,17 +661,237 @@ export default function AdminProductForm() {
 
               {/* OPTIONS TAB */}
               {activeTab === "options" && (
-                <Card className="p-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">Product Options</h2>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Options allow customers to customize products with size, material, finish, rush turnaround, etc.
-                  </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-900">
-                      🚀 Coming soon: Add custom options with price behaviors (add, override, multiply)
-                    </p>
-                  </div>
-                </Card>
+                <>
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-bold text-gray-900">Product Options</h2>
+                      <button
+                        type="button"
+                        onClick={addOption}
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                      >
+                        <Plus size={16} />
+                        Add Option
+                      </button>
+                    </div>
+
+                    {product.options.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p className="mb-4">No options yet. Add one to let customers customize products.</p>
+                        <p className="text-sm">Examples: Size, Color, Material, Finish, Rush Turnaround</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {product.options.map((option) => (
+                          <div key={option.id} className="border rounded-lg overflow-hidden">
+                            {/* Option Header */}
+                            <div className="bg-white border-b p-4 flex items-start gap-3">
+                              <button
+                                type="button"
+                                className="text-gray-400 hover:text-gray-600 mt-1 flex-shrink-0"
+                                disabled
+                              >
+                                <GripVertical size={20} />
+                              </button>
+
+                              <div className="flex-1 grid grid-cols-3 gap-4">
+                                {/* Option Name */}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Option Name
+                                  </label>
+                                  <Input
+                                    type="text"
+                                    value={option.name}
+                                    onChange={(e) => updateOption(option.id, "name", e.target.value)}
+                                    placeholder="e.g., Finish, Size, Color"
+                                    className="text-sm"
+                                  />
+                                </div>
+
+                                {/* Type */}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Type
+                                  </label>
+                                  <select
+                                    value={option.type}
+                                    onChange={(e) => updateOption(option.id, "type", e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  >
+                                    <option value="select">Select</option>
+                                    <option value="radio">Radio</option>
+                                    <option value="checkbox">Checkbox</option>
+                                    <option value="dimension">Dimension</option>
+                                  </select>
+                                </div>
+
+                                {/* Default Value */}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Default Value
+                                  </label>
+                                  <select
+                                    value={option.defaultValue || ""}
+                                    onChange={(e) => updateOption(option.id, "defaultValue", e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  >
+                                    <option value="">Select default</option>
+                                    {option.values.map((val) => (
+                                      <option key={val.id} value={val.id}>
+                                        {val.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              {/* Required & Delete */}
+                              <div className="flex items-center gap-4 mt-1">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={option.required}
+                                    onChange={(e) => updateOption(option.id, "required", e.target.checked)}
+                                    className="w-5 h-5"
+                                  />
+                                  <label className="text-sm font-medium text-gray-700">Required</label>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeOption(option.id)}
+                                  className="text-red-600 hover:text-red-700 p-1"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Option Values Section */}
+                            <div className="bg-gray-50 p-4">
+                              <div
+                                className="flex items-center justify-between cursor-pointer mb-4"
+                                onClick={() => toggleOptionExpanded(option.id)}
+                              >
+                                <h4 className="font-semibold text-gray-900">Option Values</h4>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      addOptionValue(option.id);
+                                    }}
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                                  >
+                                    <Plus size={14} />
+                                    Add Value
+                                  </button>
+                                  <ChevronDown
+                                    size={20}
+                                    className={`transition-transform ${
+                                      option.isExpanded ? "rotate-180" : ""
+                                    }`}
+                                  />
+                                </div>
+                              </div>
+
+                              {option.isExpanded && (
+                                <div className="space-y-3">
+                                  {option.values.length === 0 ? (
+                                    <p className="text-gray-500 text-sm py-2">
+                                      No values yet. Add one to give customers choices.
+                                    </p>
+                                  ) : (
+                                    option.values.map((value) => (
+                                      <div key={value.id} className="bg-white border rounded-lg p-4 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                              Value Name
+                                            </label>
+                                            <Input
+                                              type="text"
+                                              value={value.name}
+                                              onChange={(e) =>
+                                                updateOptionValue(option.id, value.id, "name", e.target.value)
+                                              }
+                                              placeholder="e.g., Satin, 5 inches"
+                                              className="text-sm"
+                                            />
+                                          </div>
+
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                              Price Modifier ($)
+                                            </label>
+                                            <Input
+                                              type="number"
+                                              step="0.01"
+                                              value={value.priceModifier}
+                                              onChange={(e) =>
+                                                updateOptionValue(
+                                                  option.id,
+                                                  value.id,
+                                                  "priceModifier",
+                                                  parseFloat(e.target.value)
+                                                )
+                                              }
+                                              placeholder="0.00"
+                                              className="text-sm"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Add to base price</p>
+                                          </div>
+                                        </div>
+
+                                        {/* Swatch Upload */}
+                                        <div>
+                                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Swatch Image (Optional)
+                                          </label>
+                                          <label className="border-2 border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-gray-400 transition">
+                                            <div className="flex items-center gap-2">
+                                              <Upload size={16} className="text-gray-600" />
+                                              <span className="text-sm text-gray-600">Upload swatch</span>
+                                            </div>
+                                            <input
+                                              type="file"
+                                              accept="image/*"
+                                              className="hidden"
+                                              onChange={(e) => {
+                                                // TODO: Handle file upload to Cloudinary
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                  console.log("File selected:", file.name);
+                                                }
+                                              }}
+                                            />
+                                          </label>
+                                        </div>
+
+                                        {/* Remove Value */}
+                                        <div className="flex justify-end mt-3 pt-3 border-t">
+                                          <button
+                                            type="button"
+                                            onClick={() => removeOptionValue(option.id, value.id)}
+                                            className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
+                                          >
+                                            <X size={16} />
+                                            Remove Value
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+                </>
               )}
 
               {/* VARIANTS TAB */}
