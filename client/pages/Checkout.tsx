@@ -35,6 +35,32 @@ export default function Checkout() {
 
   const initialCart: Cart = location.state?.cartData || contextCart;
 
+  // Redirect to cart if no items
+  if (!initialCart.lineItems || initialCart.lineItems.length === 0) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1">
+          <div className="max-w-2xl mx-auto px-4 py-12">
+            <Card className="p-12 text-center">
+              <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
+              <p className="text-gray-600 mb-6">
+                Add some products to your cart before checking out
+              </p>
+              <Button
+                onClick={() => navigate("/products")}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                Continue Shopping
+              </Button>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("artwork");
   const [cart, setCart] = useState<Cart>(initialCart);
   const [billingData, setBillingData] = useState<Partial<BillingAddress>>({});
