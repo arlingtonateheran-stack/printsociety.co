@@ -178,7 +178,7 @@ export default function ProductDetail() {
                 <button
                   key={size.id}
                   onClick={() => setSelectedSize(size.id)}
-                  className={`w-full px-3 py-2 rounded text-sm transition border-2 flex flex-col ${
+                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm transition border-2 flex flex-col ${
                     selectedSize === size.id
                       ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-300 bg-white hover:border-purple-400'
