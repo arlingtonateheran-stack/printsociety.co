@@ -70,6 +70,19 @@ interface ProductVariant {
   pricingBlocks: PriceBlock[];
 }
 
+interface DesignUploadSettings {
+  enabled: boolean;
+  description: string;
+  maxFileSizeMB: number;
+  allowedFormats: {
+    png: boolean;
+    jpg: boolean;
+    jpeg: boolean;
+    gif: boolean;
+    svg: boolean;
+  };
+}
+
 interface ProductData {
   name: string;
   slug: string;
@@ -85,6 +98,7 @@ interface ProductData {
   quantityTiers: QuantityTier[];
   rushOptions: ProductOption[];
   variants: ProductVariant[];
+  designUploadSettings: DesignUploadSettings;
 }
 
 export default function AdminProductForm() {
