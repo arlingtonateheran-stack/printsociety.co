@@ -259,8 +259,8 @@ export default function ProductDetail() {
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2 sm:space-y-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <button className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2">
               <ShoppingCart size={20} />
               Add to Cart
