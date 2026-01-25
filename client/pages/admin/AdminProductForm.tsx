@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import PriceCalculator from "@/components/admin/PriceCalculator";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, Plus, Trash2, ChevronDown } from "lucide-react";
