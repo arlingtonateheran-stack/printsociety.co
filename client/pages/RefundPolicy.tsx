@@ -199,7 +199,7 @@ export default function RefundPolicy() {
                   Contact our customer support team and we'll help resolve any issues:
                 </p>
                 <div className="space-y-2 text-gray-700">
-                  <p>📧 <strong>support@stickyslap.com</strong></p>
+                  <p>📧 <strong>support@printsociety.co</strong></p>
                   <p>📞 <strong>(555) 000-0000</strong></p>
                   <p className="text-sm text-gray-600">Response time: 24 hours</p>
                 </div>

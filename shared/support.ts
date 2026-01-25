@@ -223,7 +223,7 @@ Select your preferred:
 - Receive your order and enjoy!
 
 ## Need Help?
-Each step has support available. Use the help icons or contact us at support@stickyslap.com
+Each step has support available. Use the help icons or contact us at support@printsociety.co
     `,
     excerpt: 'Complete walkthrough of placing your first order from product selection to delivery.',
     imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop',

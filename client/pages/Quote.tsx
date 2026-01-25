@@ -335,7 +335,7 @@ export default function Quote() {
                   Have questions about your custom project? Our team is here to help:
                 </p>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>📧 Email: support@stickyslap.com</p>
+                  <p>📧 Email: support@printsociety.co</p>
                   <p>📞 Phone: (555) 000-0000</p>
                   <p>💬 Chat with us during business hours (9 AM - 5 PM EST)</p>
                 </div>
