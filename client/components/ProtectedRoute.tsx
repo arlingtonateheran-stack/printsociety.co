@@ -20,8 +20,13 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user, permissions } = useAuth();
 
+  // Development: Allow admin routes without authentication
+  const isDevelopment = import.meta.env.DEV;
+  const isAdminRoute = window.location.pathname.startsWith('/admin');
+  const bypassAuth = isDevelopment && isAdminRoute;
+
   // Still loading auth state
-  if (isLoading) {
+  if (isLoading && !bypassAuth) {
     return fallback ? (
       <>{fallback}</>
     ) : (
@@ -36,8 +41,11 @@ export function ProtectedRoute({
     );
   }
 
-  // Not authenticated
+  // Not authenticated - but allow admin routes in development
   if (!isAuthenticated || !user) {
+    if (bypassAuth) {
+      return <>{children}</>;
+    }
     return <Navigate to={redirectTo} replace />;
   }
 
