@@ -1,39 +1,60 @@
-import { Package, Award, CheckCircle } from 'lucide-react';
+import { Truck, Sparkles, CheckCircle } from 'lucide-react';
 
 const features = [
   {
-    icon: Package,
+    icon: Truck,
     title: 'Free ground shipping',
-    subtitle: 'on all orders'
+    subtitle: 'on all orders',
+    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2Faafc179699d44dcf9866ed923d2b9ca1'
   },
   {
-    icon: Award,
+    icon: Sparkles,
     title: 'Out for this world quality',
-    subtitle: 'made in the USA'
+    subtitle: 'made in the US',
+    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F389300f52ff64546871c24bf11cbbd2f',
+    isAnimated: true
   },
   {
     icon: CheckCircle,
     title: 'Free Online Proof',
-    subtitle: 'with all orders'
+    subtitle: 'with all orders',
+    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F1e97651d4cac412f8e78e6aa02358bfe'
   }
 ];
 
 export default function FeatureCards() {
   return (
-    <section className="py-16 px-4 max-w-7xl mx-auto">
-      <div className="grid md:grid-cols-3 gap-8">
-        {features.map((feature, idx) => {
-          const Icon = feature.icon;
-          return (
-            <div key={idx} className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-blue-100 p-4 rounded-full">
-                <Icon className="text-blue-600" size={32} />
+    <section className="w-full bg-white py-4 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {features.map((feature, idx) => (
+            <div
+              key={idx}
+              className="backdrop-blur-sm bg-white/40 border border-gray-200/50 rounded-3xl p-4 flex items-center gap-3 transition-all duration-150 hover:bg-white/60"
+            >
+              {/* Icon */}
+              <div className="flex-shrink-0">
+                <img
+                  src={feature.imgSrc}
+                  alt={feature.title}
+                  loading="lazy"
+                  className={`w-12 h-12 ${feature.isAnimated ? 'animate-spin' : ''}`}
+                  style={feature.isAnimated ? { animationDuration: '4s' } : {}}
+                />
               </div>
-              <h3 className="font-semibold text-lg text-black">{feature.title}</h3>
-              <p className="text-gray-600 text-sm">{feature.subtitle}</p>
+
+              {/* Content */}
+              <div className="flex-1">
+                <h3 className="text-gray-900 text-sm font-semibold leading-5 mb-0.5">
+                  <span className="block">{feature.title}</span>
+                  <span className="text-gray-500 text-xs font-normal leading-4">
+                    {feature.subtitle}
+                  </span>
+                </h3>
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </section>
   );
