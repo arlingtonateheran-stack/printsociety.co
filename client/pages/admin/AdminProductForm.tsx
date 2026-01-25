@@ -110,6 +110,7 @@ interface ProductData {
   variants: ProductVariant[];
   designUploadSettings: DesignUploadSettings;
   conditionLogic: ConditionLogic;
+  quantitySettings: QuantitySettings;
 }
 
 export default function AdminProductForm() {
