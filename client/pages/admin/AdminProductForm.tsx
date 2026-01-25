@@ -494,6 +494,112 @@ export default function AdminProductForm() {
                       </div>
                     </div>
                   </Card>
+
+                  {/* Design Upload Settings */}
+                  <Card className="p-6 border-t-2 border-t-gray-200">
+                    <div className="space-y-6">
+                      {/* Enable Toggle */}
+                      <div className="flex items-center gap-4">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateDesignUploadSettings(
+                              "enabled",
+                              !product.designUploadSettings.enabled
+                            )
+                          }
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            product.designUploadSettings.enabled
+                              ? "bg-slate-900"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                              product.designUploadSettings.enabled
+                                ? "translate-x-5"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                        <label className="text-sm font-medium text-gray-700">
+                          Enable customer design uploads
+                        </label>
+                      </div>
+
+                      {product.designUploadSettings.enabled && (
+                        <>
+                          {/* Upload Description */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Upload Description
+                            </label>
+                            <Input
+                              type="text"
+                              value={product.designUploadSettings.description}
+                              onChange={(e) =>
+                                updateDesignUploadSettings("description", e.target.value)
+                              }
+                              placeholder="e.g., Upload your custom sticker design"
+                            />
+                            <p className="text-sm text-gray-500 mt-1">
+                              This text will appear on the product page
+                            </p>
+                          </div>
+
+                          {/* Max File Size */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Max File Size (MB)
+                            </label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={product.designUploadSettings.maxFileSizeMB}
+                              onChange={(e) =>
+                                updateDesignUploadSettings(
+                                  "maxFileSizeMB",
+                                  parseInt(e.target.value)
+                                )
+                              }
+                            />
+                          </div>
+
+                          {/* Allowed File Formats */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                              Allowed File Formats
+                            </label>
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+                              {(
+                                ["png", "jpg", "jpeg", "gif", "svg"] as const
+                              ).map((format) => (
+                                <label
+                                  key={format}
+                                  className="flex items-center gap-3 cursor-pointer"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      product.designUploadSettings.allowedFormats[format]
+                                    }
+                                    onChange={(e) =>
+                                      updateDesignUploadFormat(format, e.target.checked)
+                                    }
+                                    className="w-4 h-4 rounded"
+                                  />
+                                  <span className="text-sm font-medium text-gray-700 uppercase">
+                                    {format}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </Card>
                 </>
               )}
 
