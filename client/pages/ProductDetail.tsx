@@ -35,6 +35,10 @@ export default function ProductDetail() {
     setQuantity(Math.max(product.minQuantity, Math.min(newQuantity, product.maxQuantity)));
   };
 
+  const handleDesignUpload = (file: File, preview: string) => {
+    setUploadedDesign({ file, preview });
+  };
+
   // Calculate pricing
   const material = product.specifications.materialOptions.find(m => m.id === selectedMaterial);
   const finish = product.specifications.finishOptions.find(f => f.id === selectedFinish);
