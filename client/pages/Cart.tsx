@@ -186,9 +186,9 @@ export default function Cart() {
                       Apply
                     </Button>
                   </div>
-                  {cart.promoCodeApplied && (
+                  {discountAmount > 0 && (
                     <p className="text-sm text-green-600 mt-2">
-                      Code "{cart.promoCodeApplied}" applied
+                      Discount applied
                     </p>
                   )}
                 </div>
