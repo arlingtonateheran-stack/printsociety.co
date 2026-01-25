@@ -18,32 +18,32 @@ export default function Header() {
         <nav className="flex items-center gap-2 md:gap-4 text-xs md:text-base">
           <Link
             to="/products"
-            className="hidden md:inline hover:opacity-80 transition font-medium border border-gray-400 rounded-lg px-3 py-2"
+            className="hidden md:inline hover:opacity-80 transition font-medium"
           >
             Shop
           </Link>
           <Link
             to="/proofs"
-            className="hidden md:inline hover:opacity-80 transition font-medium border border-gray-400 rounded-lg px-3 py-2"
+            className="hidden md:inline hover:opacity-80 transition font-medium"
           >
             Proofs
           </Link>
-          <Link to="#" className="hidden md:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2">
+          <Link to="#" className="hidden md:inline hover:opacity-80 transition">
             Deals
           </Link>
           <Link
             to="/login"
-            className="hidden sm:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2"
+            className="hidden sm:inline hover:opacity-80 transition"
           >
             Login
           </Link>
           <Link
             to="/signup"
-            className="hidden sm:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2"
+            className="hidden sm:inline hover:opacity-80 transition"
           >
             Sign Up
           </Link>
-          <Link to="#" className="hover:opacity-80 transition p-2 border border-gray-400 rounded-lg">
+          <Link to="#" className="hover:opacity-80 transition p-2">
             <ShoppingCart size={18} className="md:w-5 md:h-5" />
           </Link>
         </nav>
