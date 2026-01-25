@@ -40,6 +40,12 @@ const adminNavItems = [
     category: "Catalog",
   },
   {
+    label: "Gallery",
+    href: "/admin/gallery",
+    icon: Image,
+    category: "Catalog",
+  },
+  {
     label: "Pricing Rules",
     href: "/admin/pricing",
     icon: DollarSign,
