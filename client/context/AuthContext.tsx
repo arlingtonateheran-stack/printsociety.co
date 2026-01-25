@@ -47,6 +47,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // For now, simulate successful check
           await new Promise((resolve) => setTimeout(resolve, 500));
           // In production, call API to verify token
+        } else {
+          // Development: Auto-authenticate for dashboard preview
+          const mockUser: User = {
+            id: 'dev-user-1',
+            email: 'admin@stickyslap.com',
+            name: 'Admin User',
+            role: 'admin',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isVerified: true,
+            isActive: true,
+          };
+
+          const mockSession: AuthSession = {
+            id: 'dev-session-1',
+            userId: mockUser.id,
+            token: 'dev-token-' + Math.random().toString(36),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            createdAt: new Date(),
+            lastActive: new Date(),
+            ipAddress: '127.0.0.1',
+            userAgent: navigator.userAgent,
+            isActive: true,
+          };
+
+          const permissions = ROLE_PERMISSIONS[mockUser.role];
+
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            user: mockUser,
+            session: mockSession,
+            permissions,
+            error: null,
+            lastChecked: new Date(),
+          });
+
+          return;
         }
       } catch (error) {
         console.error('Auth check failed:', error);
