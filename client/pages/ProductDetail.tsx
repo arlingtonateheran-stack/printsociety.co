@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
-import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, ChevronRight, Sliders } from 'lucide-react';
 import { products } from '@shared/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
