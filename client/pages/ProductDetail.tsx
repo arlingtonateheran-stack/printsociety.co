@@ -17,6 +17,7 @@ export default function ProductDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(product?.minQuantity || 50);
   const [selectedBorderCut, setSelectedBorderCut] = useState('full-bleed');
+  const [uploadedDesign, setUploadedDesign] = useState<{ file: File; preview: string } | null>(null);
 
   if (!product) {
     return <Navigate to="/products" />;
