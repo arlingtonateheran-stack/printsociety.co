@@ -42,13 +42,15 @@ export default function ProductDetail() {
     setQuantity(Math.max(product.minQuantity, Math.min(newQuantity, product.maxQuantity)));
   };
 
-  const handleDesignUpload = (file: File, preview: string) => {
-    setUploadedDesign({ file, preview });
-    // Store in localStorage for checkout page
+  const handleDesignUpload = (design: UploadedDesign) => {
+    setUploadedDesign(design);
+    // Store in localStorage for checkout page - save the file reference (URL) instead of preview
     localStorage.setItem('uploadedDesign', JSON.stringify({
-      name: file.name,
-      size: file.size,
-      preview: preview
+      name: design.file.name,
+      size: design.file.size,
+      preview: design.preview,
+      path: design.path,
+      url: design.url
     }));
   };
 
