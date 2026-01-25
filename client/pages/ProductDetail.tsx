@@ -197,7 +197,7 @@ export default function ProductDetail() {
             <div className="space-y-1">
               <button
                 onClick={() => setSelectedBorderCut('full-bleed')}
-                className={`w-full px-3 py-2 rounded text-sm font-medium transition border-2 relative ${
+                className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm font-medium transition border-2 relative ${
                   selectedBorderCut === 'full-bleed'
                     ? 'border-purple-500 bg-purple-50'
                     : 'border-gray-300 bg-white hover:border-purple-400'
