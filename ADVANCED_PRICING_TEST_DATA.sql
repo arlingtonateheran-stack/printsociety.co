@@ -4,7 +4,7 @@
 
 -- Insert a test user
 INSERT INTO auth_users (email, role) VALUES
-  ('admin@stickyslap.com', 'admin'),
+  ('admin@printsociety.co', 'admin'),
   ('customer@example.com', 'customer');
 
 -- ============================================================================
