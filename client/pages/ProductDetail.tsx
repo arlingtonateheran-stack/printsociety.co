@@ -263,6 +263,30 @@ export default function ProductDetail() {
           </div>
         </div>
 
+        {/* Design Preview */}
+        {uploadedDesign && (
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 mb-3">
+            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Design Preview</h3>
+            <div className="flex gap-3 items-start">
+              <img
+                src={uploadedDesign.preview}
+                alt="Design preview"
+                className="w-20 h-20 object-cover rounded border border-gray-300"
+              />
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-gray-900">{uploadedDesign.file.name}</p>
+                <p className="text-xs text-gray-600 mb-2">{(uploadedDesign.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                <button
+                  onClick={() => setUploadedDesign(null)}
+                  className="text-xs text-red-600 hover:text-red-700 font-semibold"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="space-y-2 sm:space-y-3">
           <div className="grid grid-cols-2 gap-2 sm:gap-4">
