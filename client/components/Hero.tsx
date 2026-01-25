@@ -50,7 +50,7 @@ export default function Hero() {
                 to="/products/die-cut-vinyl-stickers"
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-lg px-8 py-3 rounded-lg transition flex items-center justify-center gap-2 whitespace-nowrap"
               >
-                Make custom stickers
+                <p>Join the society</p>
               </Link>
               <Link
                 to="/products"
