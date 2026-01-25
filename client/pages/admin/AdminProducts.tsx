@@ -136,7 +136,10 @@ export default function AdminProducts() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-green-600 hover:text-green-700 font-medium text-sm">
+                        <button
+                          onClick={() => navigate(`/admin/products/${product.id}`)}
+                          className="text-green-600 hover:text-green-700 font-medium text-sm"
+                        >
                           Edit →
                         </button>
                       </td>
