@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Upload, X } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { Upload, X } from "lucide-react";
 
 interface CloudinaryUploadProps {
   onUploadSuccess: (result: any) => void;
@@ -19,21 +19,24 @@ export default function CloudinaryUpload({
   onUploadSuccess,
   onUploadError,
   multiple = false,
-  folder = 'sticky-slap',
+  folder = "sticky-slap",
   maxFileSize = 10,
 }: CloudinaryUploadProps) {
   const widgetRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 
-  const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo';
-  const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default';
+  const CLOUDINARY_CLOUD_NAME =
+    import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "demo";
+  const CLOUDINARY_UPLOAD_PRESET =
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "ml_default";
 
   useEffect(() => {
     // Load Cloudinary script
     if (!window.cloudinary) {
-      const script = document.createElement('script');
-      script.src = 'https://upload-widget.cloudinary.com/latest/CloudinaryUploadWidget.js';
+      const script = document.createElement("script");
+      script.src =
+        "https://upload-widget.cloudinary.com/latest/CloudinaryUploadWidget.js";
       script.async = true;
       document.body.appendChild(script);
     }
@@ -41,7 +44,7 @@ export default function CloudinaryUpload({
 
   const openWidget = () => {
     if (!window.cloudinary) {
-      console.error('Cloudinary widget not loaded');
+      console.error("Cloudinary widget not loaded");
       return;
     }
 
@@ -54,31 +57,31 @@ export default function CloudinaryUpload({
         folder: folder,
         multiple: multiple,
         maxFileSize: maxFileSize * 1024 * 1024, // Convert MB to bytes
-        sources: ['local', 'url', 'camera'],
-        resourceType: 'image',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        sources: ["local", "url", "camera"],
+        resourceType: "image",
+        clientAllowedFormats: ["jpg", "jpeg", "png", "gif", "webp"],
         showAdvancedOptions: false,
         cropping: false,
         styles: {
           palette: {
-            window: '#000000',
-            windowBorder: '#3A64FF',
-            tabIcon: '#ffffff',
-            menuIcons: '#3A64FF',
-            textDark: '#000000',
-            textLight: '#ffffff',
-            link: '#3A64FF',
-            action: '#3A64FF',
-            inactiveTabIcon: '#ffffff',
-            error: '#FF0000',
-            inProgress: '#3A64FF',
-            complete: '#20B44B',
-            sourceBg: '#E8E8E8',
+            window: "#000000",
+            windowBorder: "#3A64FF",
+            tabIcon: "#ffffff",
+            menuIcons: "#3A64FF",
+            textDark: "#000000",
+            textLight: "#ffffff",
+            link: "#3A64FF",
+            action: "#3A64FF",
+            inactiveTabIcon: "#ffffff",
+            error: "#FF0000",
+            inProgress: "#3A64FF",
+            complete: "#20B44B",
+            sourceBg: "#E8E8E8",
           },
           fonts: {
             default: null,
             "'Fira Sans', sans-serif": {
-              url: 'https://fonts.googleapis.com/css?family=Fira+Sans',
+              url: "https://fonts.googleapis.com/css?family=Fira+Sans",
               active: true,
             },
           },
@@ -88,17 +91,17 @@ export default function CloudinaryUpload({
         setIsLoading(false);
 
         if (error) {
-          console.error('Upload error:', error);
+          console.error("Upload error:", error);
           onUploadError?.(error);
           return;
         }
 
-        if (result && result.event === 'success') {
+        if (result && result.event === "success") {
           const uploadResult = result.info;
           setUploadedFiles([...uploadedFiles, uploadResult]);
           onUploadSuccess(uploadResult);
         }
-      }
+      },
     );
 
     widgetRef.current = widget;
@@ -118,7 +121,7 @@ export default function CloudinaryUpload({
         className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition"
       >
         <Upload size={20} />
-        {isLoading ? 'Uploading...' : 'Upload Image'}
+        {isLoading ? "Uploading..." : "Upload Image"}
       </button>
 
       {/* Uploaded Files */}

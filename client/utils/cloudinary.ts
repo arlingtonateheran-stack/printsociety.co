@@ -2,7 +2,8 @@
  * Cloudinary utility functions for image transformation and delivery
  */
 
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo';
+const CLOUDINARY_CLOUD_NAME =
+  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "demo";
 
 /**
  * Generate optimized Cloudinary image URL with transformations
@@ -12,12 +13,12 @@ export function getCloudinaryUrl(
   options?: {
     width?: number;
     height?: number;
-    crop?: 'fill' | 'fit' | 'thumb' | 'scale' | 'crop' | 'pad';
-    quality?: 'auto' | 'low' | 'good' | 'best';
-    format?: 'auto' | 'webp' | 'jpg' | 'png' | 'gif';
-    gravity?: 'center' | 'face' | 'faces' | 'auto';
-    dpr?: 'auto' | '1.0' | '2.0' | '3.0';
-  }
+    crop?: "fill" | "fit" | "thumb" | "scale" | "crop" | "pad";
+    quality?: "auto" | "low" | "good" | "best";
+    format?: "auto" | "webp" | "jpg" | "png" | "gif";
+    gravity?: "center" | "face" | "faces" | "auto";
+    dpr?: "auto" | "1.0" | "2.0" | "3.0";
+  },
 ): string {
   const transformations: string[] = [];
 
@@ -29,8 +30,9 @@ export function getCloudinaryUrl(
   if (options?.gravity) transformations.push(`g_${options.gravity}`);
   if (options?.dpr) transformations.push(`dpr_${options.dpr}`);
 
-  const transformationString = transformations.length > 0 ? transformations.join(',') : '';
-  const urlPath = transformationString ? `${transformationString}/` : '';
+  const transformationString =
+    transformations.length > 0 ? transformations.join(",") : "";
+  const urlPath = transformationString ? `${transformationString}/` : "";
 
   return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${urlPath}${publicId}`;
 }
@@ -44,11 +46,11 @@ export function getCloudinarySrcSet(
     crop?: string;
     quality?: string;
     format?: string;
-  }
+  },
 ): string {
   const widths = [100, 200, 400, 600, 800, 1200, 1600, 2000];
-  
-  const srcSetParts = widths.map(width => {
+
+  const srcSetParts = widths.map((width) => {
     const url = getCloudinaryUrl(publicId, {
       width,
       ...baseOptions,
@@ -56,7 +58,7 @@ export function getCloudinarySrcSet(
     return `${url} ${width}w`;
   });
 
-  return srcSetParts.join(', ');
+  return srcSetParts.join(", ");
 }
 
 /**
@@ -64,15 +66,15 @@ export function getCloudinarySrcSet(
  */
 export function getCloudinaryThumbnail(
   publicId: string,
-  size: number = 150
+  size: number = 150,
 ): string {
   return getCloudinaryUrl(publicId, {
     width: size,
     height: size,
-    crop: 'fill',
-    gravity: 'auto',
-    quality: 'auto',
-    format: 'webp',
+    crop: "fill",
+    gravity: "auto",
+    quality: "auto",
+    format: "webp",
   });
 }
 
@@ -81,12 +83,12 @@ export function getCloudinaryThumbnail(
  */
 export function getCloudinaryGalleryImage(
   publicId: string,
-  width: number = 600
+  width: number = 600,
 ): string {
   return getCloudinaryUrl(publicId, {
     width,
-    quality: 'good',
-    format: 'auto',
+    quality: "good",
+    format: "auto",
   });
 }
 
@@ -95,8 +97,8 @@ export function getCloudinaryGalleryImage(
  */
 export function extractPublicId(url: string): string {
   // If it's already a public ID, return it
-  if (!url.includes('/')) return url;
-  
+  if (!url.includes("/")) return url;
+
   // Extract from Cloudinary URL
   const match = url.match(/upload\/(?:v\d+\/)?(.+?)(?:\?|$)/);
   return match ? match[1] : url;
@@ -106,11 +108,11 @@ export function extractPublicId(url: string): string {
  * Format file size in human-readable format
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
 export type CloudinaryUploadResult = {

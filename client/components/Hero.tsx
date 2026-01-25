@@ -1,5 +1,5 @@
-import { Star, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Star, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   const stars = Array.from({ length: 5 }, (_, i) => i);
@@ -32,7 +32,7 @@ export default function Hero() {
                 ))}
               </div>
               <div className="text-white">
-                <span className="font-bold">4.7</span> out of{' '}
+                <span className="font-bold">4.7</span> out of{" "}
                 <span className="font-bold">17,801</span> reviews
               </div>
             </a>
@@ -40,7 +40,8 @@ export default function Hero() {
             {/* Benefit Text */}
             <div className="space-y-4">
               <p className="text-xl text-gray-300 leading-relaxed">
-                Express delivery as fast as 2-4 business days. Get an instant proof and free shipping!
+                Express delivery as fast as 2-4 business days. Get an instant
+                proof and free shipping!
               </p>
             </div>
 
@@ -70,11 +71,11 @@ export default function Hero() {
                 srcSet="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9"
                 className="w-full object-cover object-center"
                 style={{
-                  aspectRatio: '1.1',
-                  marginLeft: '20px',
-                  minHeight: '20px',
-                  minWidth: '20px',
-                  overflow: 'hidden',
+                  aspectRatio: "1.1",
+                  marginLeft: "20px",
+                  minHeight: "20px",
+                  minWidth: "20px",
+                  overflow: "hidden",
                 }}
               />
             </div>

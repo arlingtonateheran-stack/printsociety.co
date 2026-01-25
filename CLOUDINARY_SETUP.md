@@ -37,27 +37,27 @@ VITE_CLOUDINARY_UPLOAD_PRESET=ml_default
 ### Using the Utility Functions
 
 ```typescript
-import { 
-  getCloudinaryUrl, 
+import {
+  getCloudinaryUrl,
   getCloudinarySrcSet,
   getCloudinaryThumbnail,
-  getCloudinaryGalleryImage 
-} from '@/utils/cloudinary';
+  getCloudinaryGalleryImage,
+} from "@/utils/cloudinary";
 
 // Simple image URL
-const imageUrl = getCloudinaryUrl('products/sticker-1');
+const imageUrl = getCloudinaryUrl("products/sticker-1");
 
 // Responsive srcSet
-const srcSet = getCloudinarySrcSet('products/sticker-1', {
-  quality: 'auto',
-  format: 'auto'
+const srcSet = getCloudinarySrcSet("products/sticker-1", {
+  quality: "auto",
+  format: "auto",
 });
 
 // Thumbnail (150x150, optimized)
-const thumb = getCloudinaryThumbnail('products/sticker-1');
+const thumb = getCloudinaryThumbnail("products/sticker-1");
 
 // Gallery image (600px wide, good quality)
-const galleryImg = getCloudinaryGalleryImage('products/sticker-1');
+const galleryImg = getCloudinaryGalleryImage("products/sticker-1");
 ```
 
 ### Using in Components
@@ -67,7 +67,7 @@ import { getCloudinaryUrl, getCloudinarySrcSet } from '@/utils/cloudinary';
 
 export function ProductImage() {
   const publicId = 'products/my-sticker';
-  
+
   return (
     <img
       src={getCloudinaryUrl(publicId, { width: 600 })}
@@ -146,13 +146,13 @@ const thumbnails = [
 
 ```typescript
 getCloudinaryUrl(publicId, {
-  width: 600,              // Image width in pixels
-  height: 400,             // Image height in pixels
-  crop: 'fill',            // 'fill', 'fit', 'thumb', 'scale', 'crop', 'pad'
-  quality: 'auto',         // 'auto', 'low', 'good', 'best'
-  format: 'auto',          // 'auto', 'webp', 'jpg', 'png', 'gif'
-  gravity: 'auto',         // 'center', 'face', 'faces', 'auto'
-  dpr: 'auto',             // Device pixel ratio: 'auto', '1.0', '2.0', '3.0'
+  width: 600, // Image width in pixels
+  height: 400, // Image height in pixels
+  crop: "fill", // 'fill', 'fit', 'thumb', 'scale', 'crop', 'pad'
+  quality: "auto", // 'auto', 'low', 'good', 'best'
+  format: "auto", // 'auto', 'webp', 'jpg', 'png', 'gif'
+  gravity: "auto", // 'center', 'face', 'faces', 'auto'
+  dpr: "auto", // Device pixel ratio: 'auto', '1.0', '2.0', '3.0'
 });
 ```
 
@@ -186,15 +186,18 @@ When uploading, set the folder to `sticky-slap/products` for product images.
 ## Troubleshooting
 
 ### "Cloudinary widget not loaded"
+
 - Ensure VITE_CLOUDINARY_CLOUD_NAME is set in .env
 - Restart the dev server after adding .env variables
 
 ### Images not displaying
+
 - Check that the Cloud Name matches your Cloudinary account
 - Verify public IDs exist in your Cloudinary media library
 - Test URLs in the Cloudinary dashboard
 
 ### Upload preset errors
+
 - Go to Settings → Upload and verify the preset name
 - Ensure the preset mode is set to "Unsigned"
 

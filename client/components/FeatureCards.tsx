@@ -1,25 +1,28 @@
-import { Truck, Sparkles, CheckCircle } from 'lucide-react';
+import { Truck, Sparkles, CheckCircle } from "lucide-react";
 
 const features = [
   {
     icon: Truck,
-    title: 'Free ground shipping',
-    subtitle: 'on all orders',
-    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2Faafc179699d44dcf9866ed923d2b9ca1'
+    title: "Free ground shipping",
+    subtitle: "on all orders",
+    imgSrc:
+      "https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2Faafc179699d44dcf9866ed923d2b9ca1",
   },
   {
     icon: Sparkles,
-    title: 'Out for this world quality',
-    subtitle: 'made in the US',
-    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F389300f52ff64546871c24bf11cbbd2f',
-    isAnimated: true
+    title: "Out for this world quality",
+    subtitle: "made in the US",
+    imgSrc:
+      "https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F389300f52ff64546871c24bf11cbbd2f",
+    isAnimated: true,
   },
   {
     icon: CheckCircle,
-    title: 'Free Online Proof',
-    subtitle: 'with all orders',
-    imgSrc: 'https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F1e97651d4cac412f8e78e6aa02358bfe'
-  }
+    title: "Free Online Proof",
+    subtitle: "with all orders",
+    imgSrc:
+      "https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F1e97651d4cac412f8e78e6aa02358bfe",
+  },
 ];
 
 export default function FeatureCards() {
@@ -38,8 +41,8 @@ export default function FeatureCards() {
                   src={feature.imgSrc}
                   alt={feature.title}
                   loading="lazy"
-                  className={`w-12 h-12 ${feature.isAnimated ? 'animate-spin' : ''}`}
-                  style={feature.isAnimated ? { animationDuration: '4s' } : {}}
+                  className={`w-12 h-12 ${feature.isAnimated ? "animate-spin" : ""}`}
+                  style={feature.isAnimated ? { animationDuration: "4s" } : {}}
                 />
               </div>
 

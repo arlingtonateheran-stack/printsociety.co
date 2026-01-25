@@ -1,16 +1,18 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ChevronDown } from 'lucide-react';
-import { products, categories, type ProductCategory } from '@shared/products';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { Search, ChevronDown } from "lucide-react";
+import { products, categories, type ProductCategory } from "@shared/products";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-type SortOption = 'relevance' | 'price-low' | 'price-high' | 'popular';
+type SortOption = "relevance" | "price-low" | "price-high" | "popular";
 
 export default function Products() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
-  const [sortBy, setSortBy] = useState<SortOption>('relevance');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<
+    ProductCategory | "all"
+  >("all");
+  const [sortBy, setSortBy] = useState<SortOption>("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter and sort products
@@ -18,30 +20,31 @@ export default function Products() {
     let filtered = products;
 
     // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === selectedCategory);
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
     // Filter by search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.tags.some(tag => tag.includes(query))
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          p.tags.some((tag) => tag.includes(query)),
       );
     }
 
     // Sort
     const sorted = [...filtered];
     switch (sortBy) {
-      case 'price-low':
+      case "price-low":
         sorted.sort((a, b) => a.basePrice - b.basePrice);
         break;
-      case 'price-high':
+      case "price-high":
         sorted.sort((a, b) => b.basePrice - a.basePrice);
         break;
-      case 'popular':
+      case "popular":
         sorted.sort((a, b) => b.tags.length - a.tags.length);
         break;
       default:
@@ -58,8 +61,12 @@ export default function Products() {
       {/* Hero Section */}
       <section className="bg-black text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Shop Custom Products</h1>
-          <p className="text-gray-300 text-lg">Choose from a variety of custom printing options</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Shop Custom Products
+          </h1>
+          <p className="text-gray-300 text-lg">
+            Choose from a variety of custom printing options
+          </p>
         </div>
       </section>
 
@@ -68,7 +75,10 @@ export default function Products() {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
+            <Search
+              className="absolute left-4 top-3.5 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search products, materials, finishes..."
@@ -83,23 +93,23 @@ export default function Products() {
             {/* Category Filter */}
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setSelectedCategory('all')}
+                onClick={() => setSelectedCategory("all")}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
-                  selectedCategory === 'all'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-black hover:bg-gray-200'
+                  selectedCategory === "all"
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-black hover:bg-gray-200"
                 }`}
               >
                 All Products
               </button>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id as ProductCategory)}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
                     selectedCategory === cat.id
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-black hover:bg-gray-200'
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-black hover:bg-gray-200"
                   }`}
                 >
                   {cat.label}
@@ -119,13 +129,18 @@ export default function Products() {
                 <option value="price-high">Price: High to Low</option>
                 <option value="popular">Most Popular</option>
               </select>
-              <ChevronDown className="absolute right-2 top-3 text-gray-400 pointer-events-none" size={18} />
+              <ChevronDown
+                className="absolute right-2 top-3 text-gray-400 pointer-events-none"
+                size={18}
+              />
             </div>
           </div>
 
           {/* Results Count */}
           <p className="text-gray-600">
-            Showing <span className="font-semibold">{filteredProducts.length}</span> product{filteredProducts.length !== 1 ? 's' : ''}
+            Showing{" "}
+            <span className="font-semibold">{filteredProducts.length}</span>{" "}
+            product{filteredProducts.length !== 1 ? "s" : ""}
           </p>
         </div>
       </section>
@@ -157,8 +172,12 @@ export default function Products() {
                         <p className="text-sm text-primary font-semibold uppercase tracking-wider">
                           {product.category}
                         </p>
-                        <h3 className="text-xl font-bold text-black mt-2">{product.name}</h3>
-                        <p className="text-gray-600 text-sm mt-2">{product.description}</p>
+                        <h3 className="text-xl font-bold text-black mt-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-gray-600 text-sm mt-2">
+                          {product.description}
+                        </p>
                       </div>
 
                       {/* Price */}
@@ -167,7 +186,9 @@ export default function Products() {
                         <p className="text-2xl font-bold text-primary">
                           ${product.basePrice.toFixed(2)}
                         </p>
-                        <p className="text-gray-500 text-xs">per unit (qty: {product.minQuantity}+)</p>
+                        <p className="text-gray-500 text-xs">
+                          per unit (qty: {product.minQuantity}+)
+                        </p>
                       </div>
 
                       {/* Features */}
@@ -194,8 +215,8 @@ export default function Products() {
               <p className="text-xl text-gray-600 mb-4">No products found</p>
               <button
                 onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('all');
+                  setSearchQuery("");
+                  setSelectedCategory("all");
                 }}
                 className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition"
               >

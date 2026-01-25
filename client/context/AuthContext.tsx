@@ -5,7 +5,7 @@ import {
   useCallback,
   useEffect,
   ReactNode,
-} from 'react';
+} from "react";
 import {
   AuthContextValue,
   AuthState,
@@ -20,7 +20,7 @@ import {
   ROLE_PERMISSIONS,
   LoginResponse,
   SignupResponse,
-} from '@shared/auth';
+} from "@shared/auth";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (token) {
           // Validate token with backend
           // For now, simulate successful check
@@ -50,10 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           // Development: Auto-authenticate for dashboard preview
           const mockUser: User = {
-            id: 'dev-user-1',
-            email: 'admin@stickyslap.com',
-            name: 'Admin User',
-            role: 'admin',
+            id: "dev-user-1",
+            email: "admin@stickyslap.com",
+            name: "Admin User",
+            role: "admin",
             createdAt: new Date(),
             updatedAt: new Date(),
             isVerified: true,
@@ -61,13 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
 
           const mockSession: AuthSession = {
-            id: 'dev-session-1',
+            id: "dev-session-1",
             userId: mockUser.id,
-            token: 'dev-token-' + Math.random().toString(36),
+            token: "dev-token-" + Math.random().toString(36),
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
             createdAt: new Date(),
             lastActive: new Date(),
-            ipAddress: '127.0.0.1',
+            ipAddress: "127.0.0.1",
             userAgent: navigator.userAgent,
             isActive: true,
           };
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
       } finally {
         setAuthState((prev) => ({
           ...prev,
@@ -100,48 +100,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  const validatePassword = useCallback((password: string): PasswordValidation => {
-    const errors: string[] = [];
-    let strength: 'weak' | 'fair' | 'good' | 'strong' = 'weak';
+  const validatePassword = useCallback(
+    (password: string): PasswordValidation => {
+      const errors: string[] = [];
+      let strength: "weak" | "fair" | "good" | "strong" = "weak";
 
-    if (password.length < PASSWORD_REQUIREMENTS.minLength) {
-      errors.push(
-        `Password must be at least ${PASSWORD_REQUIREMENTS.minLength} characters`
-      );
-    }
-
-    if (PASSWORD_REQUIREMENTS.requireUppercase && !/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
-    }
-
-    if (PASSWORD_REQUIREMENTS.requireNumber && !/\d/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-
-    if (
-      PASSWORD_REQUIREMENTS.requireSpecialChar &&
-      !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
-    ) {
-      errors.push('Password must contain at least one special character');
-    }
-
-    // Calculate strength
-    if (errors.length === 0) {
-      if (password.length >= 12 && /[A-Z]/.test(password) && /\d/.test(password)) {
-        strength = 'strong';
-      } else if (password.length >= 10) {
-        strength = 'good';
-      } else {
-        strength = 'fair';
+      if (password.length < PASSWORD_REQUIREMENTS.minLength) {
+        errors.push(
+          `Password must be at least ${PASSWORD_REQUIREMENTS.minLength} characters`,
+        );
       }
-    }
 
-    return {
-      isValid: errors.length === 0,
-      errors,
-      strength,
-    };
-  }, []);
+      if (PASSWORD_REQUIREMENTS.requireUppercase && !/[A-Z]/.test(password)) {
+        errors.push("Password must contain at least one uppercase letter");
+      }
+
+      if (PASSWORD_REQUIREMENTS.requireNumber && !/\d/.test(password)) {
+        errors.push("Password must contain at least one number");
+      }
+
+      if (
+        PASSWORD_REQUIREMENTS.requireSpecialChar &&
+        !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      ) {
+        errors.push("Password must contain at least one special character");
+      }
+
+      // Calculate strength
+      if (errors.length === 0) {
+        if (
+          password.length >= 12 &&
+          /[A-Z]/.test(password) &&
+          /\d/.test(password)
+        ) {
+          strength = "strong";
+        } else if (password.length >= 10) {
+          strength = "good";
+        } else {
+          strength = "fair";
+        }
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+        strength,
+      };
+    },
+    [],
+  );
 
   const login = useCallback(
     async (credentials: LoginCredentials): Promise<LoginResponse> => {
@@ -155,10 +162,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const mockUser: User = {
-          id: '1',
+          id: "1",
           email: credentials.email,
-          name: 'John Doe',
-          role: 'customer',
+          name: "John Doe",
+          role: "customer",
           createdAt: new Date(),
           updatedAt: new Date(),
           isVerified: true,
@@ -166,20 +173,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         const mockSession: AuthSession = {
-          id: 'session-1',
+          id: "session-1",
           userId: mockUser.id,
-          token: 'mock-token-' + Math.random().toString(36),
+          token: "mock-token-" + Math.random().toString(36),
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
           createdAt: new Date(),
           lastActive: new Date(),
-          ipAddress: '127.0.0.1',
+          ipAddress: "127.0.0.1",
           userAgent: navigator.userAgent,
           isActive: true,
         };
 
         // Store token
-        localStorage.setItem('authToken', mockSession.token);
-        localStorage.setItem('userId', mockUser.id);
+        localStorage.setItem("authToken", mockSession.token);
+        localStorage.setItem("userId", mockUser.id);
 
         const permissions = ROLE_PERMISSIONS[mockUser.role];
 
@@ -196,12 +203,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           user: mockUser,
           session: mockSession,
-          redirectUrl: mockUser.role === 'admin' ? '/admin' : '/account',
+          redirectUrl: mockUser.role === "admin" ? "/admin" : "/account",
         };
       } catch (error) {
         const authError: AuthError = {
-          code: 'invalid_credentials',
-          message: 'Invalid email or password',
+          code: "invalid_credentials",
+          message: "Invalid email or password",
           statusCode: 401,
         };
 
@@ -214,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw authError;
       }
     },
-    []
+    [],
   );
 
   const signup = useCallback(
@@ -225,8 +232,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Validate passwords match
         if (data.password !== data.confirmPassword) {
           throw {
-            code: 'password_mismatch',
-            message: 'Passwords do not match',
+            code: "password_mismatch",
+            message: "Passwords do not match",
             statusCode: 400,
           };
         }
@@ -235,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const validation = validatePassword(data.password);
         if (!validation.isValid) {
           throw {
-            code: 'weak_password',
+            code: "weak_password",
             message: validation.errors[0],
             statusCode: 400,
           };
@@ -247,10 +254,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const mockUser: User = {
-          id: 'user-' + Math.random().toString(36),
+          id: "user-" + Math.random().toString(36),
           email: data.email,
           name: data.name,
-          role: 'customer',
+          role: "customer",
           createdAt: new Date(),
           updatedAt: new Date(),
           isVerified: false,
@@ -260,12 +267,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           user: mockUser,
           verificationEmailSent: true,
-          redirectUrl: '/email-verification?userId=' + mockUser.id,
+          redirectUrl: "/email-verification?userId=" + mockUser.id,
         };
       } catch (error) {
         const authError: AuthError = {
-          code: 'email_already_exists',
-          message: (error as any).message || 'Signup failed',
+          code: "email_already_exists",
+          message: (error as any).message || "Signup failed",
           statusCode: (error as any).statusCode || 400,
         };
 
@@ -278,7 +285,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw authError;
       }
     },
-    [validatePassword]
+    [validatePassword],
   );
 
   const logout = useCallback(async () => {
@@ -291,12 +298,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Clear local storage
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userId');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userId");
 
       setAuthState(initialAuthState);
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   }, []);
 
@@ -309,12 +316,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userId');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userId");
 
       setAuthState(initialAuthState);
     } catch (error) {
-      console.error('Logout all sessions failed:', error);
+      console.error("Logout all sessions failed:", error);
     }
   }, []);
 
@@ -330,8 +337,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     } catch (error) {
       const authError: AuthError = {
-        code: 'account_not_found',
-        message: 'No account found with this email',
+        code: "account_not_found",
+        message: "No account found with this email",
         statusCode: 404,
       };
 
@@ -353,7 +360,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const validation = validatePassword(request.newPassword);
         if (!validation.isValid) {
           throw {
-            code: 'weak_password',
+            code: "weak_password",
             message: validation.errors[0],
             statusCode: 400,
           };
@@ -361,8 +368,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (request.newPassword !== request.confirmPassword) {
           throw {
-            code: 'password_mismatch',
-            message: 'Passwords do not match',
+            code: "password_mismatch",
+            message: "Passwords do not match",
             statusCode: 400,
           };
         }
@@ -375,8 +382,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthState((prev) => ({ ...prev, isLoading: false }));
       } catch (error) {
         const authError: AuthError = {
-          code: 'token_expired',
-          message: (error as any).message || 'Password reset failed',
+          code: "token_expired",
+          message: (error as any).message || "Password reset failed",
           statusCode: (error as any).statusCode || 400,
         };
 
@@ -389,7 +396,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw authError;
       }
     },
-    [validatePassword]
+    [validatePassword],
   );
 
   const verifyEmail = useCallback(async (token: string) => {
@@ -409,8 +416,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
     } catch (error) {
       const authError: AuthError = {
-        code: 'token_expired',
-        message: 'Verification token has expired',
+        code: "token_expired",
+        message: "Verification token has expired",
         statusCode: 400,
       };
 
@@ -460,8 +467,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     } catch (error) {
       const authError: AuthError = {
-        code: 'account_not_found',
-        message: 'Failed to resend verification email',
+        code: "account_not_found",
+        message: "Failed to resend verification email",
         statusCode: 400,
       };
 
@@ -491,8 +498,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     } catch (error) {
       const authError: AuthError = {
-        code: 'account_not_found',
-        message: 'No account found with this email',
+        code: "account_not_found",
+        message: "No account found with this email",
         statusCode: 404,
       };
 
@@ -528,7 +535,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
