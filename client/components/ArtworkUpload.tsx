@@ -1,25 +1,70 @@
 import { useState } from 'react';
-import { Upload, X, CheckCircle } from 'lucide-react';
+import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { uploadDesignFile } from '../lib/supabase';
+
+interface UploadedDesign {
+  file: File;
+  preview: string;
+  path: string;
+  url: string;
+}
 
 interface ArtworkUploadProps {
-  onUpload?: (file: File, preview: string) => void;
+  onUpload?: (design: UploadedDesign) => void;
 }
 
 export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadedDesign, setUploadedDesign] = useState<UploadedDesign | null>(null);
 
-  const handleFile = (selectedFile: File) => {
+  const handleFile = async (selectedFile: File) => {
+    setError(null);
+
+    // Validate file size (50MB)
+    if (selectedFile.size > 50 * 1024 * 1024) {
+      setError(`File size exceeds 50MB limit. Your file is ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB.`);
+      return;
+    }
+
     if (selectedFile.type.startsWith('image/')) {
       setFile(selectedFile);
+
+      // Generate preview
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const previewData = e.target?.result as string;
         setPreview(previewData);
-        onUpload?.(selectedFile, previewData);
+
+        // Upload to Supabase Storage
+        try {
+          setUploading(true);
+          const { path, url } = await uploadDesignFile(selectedFile);
+
+          const design: UploadedDesign = {
+            file: selectedFile,
+            preview: previewData,
+            path,
+            url
+          };
+
+          setUploadedDesign(design);
+          onUpload?.(design);
+        } catch (err) {
+          const errorMsg = err instanceof Error ? err.message : 'Upload failed';
+          setError(errorMsg);
+          setPreview(null);
+          setFile(null);
+        } finally {
+          setUploading(false);
+        }
       };
       reader.readAsDataURL(selectedFile);
+    } else {
+      setError('Please upload an image file (PNG, JPG, GIF, etc.)');
     }
   };
 
