@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
 import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
