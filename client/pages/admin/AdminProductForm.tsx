@@ -562,6 +562,65 @@ export default function AdminProductForm() {
                     </div>
                   </div>
 
+                  {/* Quantity Settings Section */}
+                  <div className="border-t border-gray-200 bg-white bg-opacity-5 pt-6 space-y-6">
+                    {/* Show Quantity Selection Panel */}
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <label className="text-sm font-medium text-gray-700">
+                          Show Quantity Selection Panel
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantitySettings(
+                              "showSelectionPanel",
+                              !product.quantitySettings.showSelectionPanel
+                            )
+                          }
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            product.quantitySettings.showSelectionPanel
+                              ? "bg-slate-400"
+                              : "bg-slate-200"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                              product.quantitySettings.showSelectionPanel
+                                ? "translate-x-5"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        Allow customers to select quantity tiers on the product page
+                      </p>
+                    </div>
+
+                    {/* Fixed Quantity (Optional) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Fixed Quantity (Optional)
+                      </label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={product.quantitySettings.fixedQuantity || ""}
+                        onChange={(e) =>
+                          updateQuantitySettings(
+                            "fixedQuantity",
+                            e.target.value ? parseInt(e.target.value) : null
+                          )
+                        }
+                        placeholder="e.g., 100"
+                      />
+                      <p className="text-sm text-gray-500 mt-1">
+                        If set, customers will order this fixed quantity
+                      </p>
+                    </div>
+                  </div>
+
                   {/* Design Upload Settings */}
                   <Card className="p-6 border-t-2 border-t-gray-200">
                     <div className="space-y-6">
