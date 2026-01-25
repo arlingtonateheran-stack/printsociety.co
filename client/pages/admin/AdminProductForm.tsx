@@ -515,6 +515,33 @@ export default function AdminProductForm() {
                     </div>
                   </Card>
 
+                  {/* Condition Logic Section */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="bg-green-100 border border-green-300 rounded-lg p-2">
+                        <Plus size={20} className="text-green-600" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">Condition Logic</h2>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Logic Type
+                      </label>
+                      <select
+                        value={product.conditionLogic.type}
+                        onChange={(e) => updateConditionLogic(e.target.value as "all" | "any")}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      >
+                        <option value="all">All conditions must be met</option>
+                        <option value="any">Any condition can be met</option>
+                      </select>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Define how conditions interact with this product's options
+                      </p>
+                    </div>
+                  </div>
+
                   {/* Design Upload Settings */}
                   <Card className="p-6 border-t-2 border-t-gray-200">
                     <div className="space-y-6">
