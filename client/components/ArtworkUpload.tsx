@@ -169,23 +169,18 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
               <X size={14} />
               Clear
             </button>
-            <label>
-              <input
-                type="file"
-                accept=".png,.jpg,.jpeg,.gif,.pdf,.ai,.psd"
-                onChange={handleChange}
-                disabled={uploading}
-                className="hidden"
-              />
-              <span className={`flex items-center justify-center gap-1 px-3 py-1 bg-gray-200 rounded text-xs font-semibold text-gray-800 ${
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className={`flex items-center justify-center gap-1 px-3 py-1 bg-gray-200 rounded text-xs font-semibold text-gray-800 ${
                 uploading
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:bg-gray-300 transition cursor-pointer'
-              }`}>
-                <Upload size={14} />
-                {uploading ? 'Uploading...' : 'Replace'}
-              </span>
-            </label>
+              }`}
+            >
+              <Upload size={14} />
+              {uploading ? 'Uploading...' : 'Replace'}
+            </button>
           </div>
         </div>
       )}
