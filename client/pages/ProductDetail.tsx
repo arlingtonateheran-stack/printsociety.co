@@ -227,14 +227,14 @@ export default function ProductDetail() {
                 <button
                   key={q}
                   onClick={() => handleQuantityChange(q)}
-                  className={`w-full px-2 py-2 rounded text-xs transition flex justify-between items-center ${
+                  className={`w-full px-2 py-1 sm:py-2 rounded text-xs transition flex justify-between items-center gap-1 ${
                     quantity === q
                       ? 'border-2 border-yellow-400 bg-yellow-400/20'
                       : 'border border-gray-600 hover:border-gray-400'
                   }`}
                 >
                   <span className="font-semibold">{q.toLocaleString()}</span>
-                  <span>${(pricePerUnit * q + setupFee).toFixed(2)}</span>
+                  <span className="text-xs">${(pricePerUnit * q + setupFee).toFixed(2)}</span>
                 </button>
               ))}
             </div>
