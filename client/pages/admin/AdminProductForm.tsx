@@ -104,6 +104,7 @@ interface ProductData {
   rushOptions: ProductOption[];
   variants: ProductVariant[];
   designUploadSettings: DesignUploadSettings;
+  conditionLogic: ConditionLogic;
 }
 
 export default function AdminProductForm() {
