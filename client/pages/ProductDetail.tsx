@@ -53,10 +53,10 @@ export default function ProductDetail() {
       <Header />
 
       {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition text-sm sm:text-base"
         >
           <ChevronLeft size={20} />
           Back
