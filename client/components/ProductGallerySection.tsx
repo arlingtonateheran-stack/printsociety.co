@@ -97,7 +97,7 @@ export default function ProductGallerySection() {
               >
                 <img
                   src={thumb}
-                  alt={`Thumbnail ${idx + 1}`}
+                  alt={images[idx]?.alt_text || `Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>
