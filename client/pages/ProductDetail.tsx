@@ -291,7 +291,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Quantity */}
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-2 text-white">
+          <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg p-2 text-white">
             <h3 className="text-xs font-bold uppercase mb-2">Select Quantity</h3>
             <div className="space-y-1">
               {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
