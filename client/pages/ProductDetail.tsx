@@ -291,7 +291,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Quantity */}
-          <div className="backdrop-blur-md bg-white/5 rounded-lg p-3 border border-white/10 shadow-lg">
+          <div className="backdrop-blur-md bg-white/5 rounded-lg p-3 border border-gray-300 shadow-lg">
             <h3 className="text-xs font-bold text-black uppercase mb-3 flex items-center gap-2">
               <Sliders size={16} className="text-black" />
               Select a quantity
