@@ -171,8 +171,8 @@ export default function ProductDetail() {
           </div>
 
           {/* Sticker Size */}
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-3">Select Size & Price</h3>
+          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Size & Price</h3>
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {product.specifications.sizeOptions.map(size => (
                 <button
