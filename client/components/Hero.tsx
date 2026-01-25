@@ -39,7 +39,7 @@ export default function Hero() {
 
             {/* Benefit Text */}
             <div className="space-y-4">
-              <p className="text-xl text-gray-700 leading-relaxed">
+              <p className="text-xl text-gray-300 leading-relaxed">
                 Express delivery as fast as 2-4 business days. Get an instant proof and free shipping!
               </p>
             </div>
