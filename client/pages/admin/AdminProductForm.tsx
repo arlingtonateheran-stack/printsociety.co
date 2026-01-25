@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import PriceCalculator from "@/components/admin/PriceCalculator";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChevronDown, GripVertical, Upload, X } from "lucide-react";
 
 type PriceBlockType = "fixed" | "matrix" | "formula";
 
