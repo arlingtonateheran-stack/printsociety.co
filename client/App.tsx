@@ -138,6 +138,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/admin/gallery"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminGallery />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/pricing"
                 element={
                   <ProtectedRoute requiredRole="admin">
