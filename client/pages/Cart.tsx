@@ -14,70 +14,18 @@ export default function Cart() {
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
 
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    const updatedCart = {
-      ...cart,
-      lineItems: cart.lineItems.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              quantity: newQuantity,
-              subtotal: newQuantity * item.unitPrice,
-            }
-          : item
-      ),
-    };
-    recalculateCart(updatedCart);
-  };
-
-  const handleRemoveItem = (itemId: string) => {
-    const updatedCart = {
-      ...cart,
-      lineItems: cart.lineItems.filter((item) => item.id !== itemId),
-    };
-    recalculateCart(updatedCart);
-  };
-
-  const recalculateCart = (updatedCart: Cart) => {
-    const subtotal = updatedCart.lineItems.reduce(
-      (sum, item) => sum + item.subtotal,
-      0
-    );
-    setCart({
-      ...updatedCart,
-      subtotal,
-      total: subtotal + updatedCart.shippingCost - updatedCart.discountAmount,
-      updatedAt: new Date(),
-    });
-  };
-
   const handleApplyPromo = (code: string) => {
     // In a real app, validate against backend
     if (code.length > 0) {
       // Mock discount of 10%
       const discount = Math.min(cart.subtotal * 0.1, 50);
-      setCart({
-        ...cart,
-        discountAmount: discount,
-        promoCodeApplied: code,
-        total: cart.subtotal + cart.shippingCost - discount,
-      });
+      setDiscountAmount(discount);
       setPromoCode("");
     }
   };
 
   const handleProceedToCheckout = () => {
-    // Check if any items have pending artwork
-    const pendingArtwork = cart.lineItems.filter(
-      (item) => item.artworkStatus === "pending"
-    );
-    
-    if (pendingArtwork.length > 0) {
-      navigate("/checkout", { state: { cartData: cart } });
-    } else {
-      navigate("/checkout", { state: { cartData: cart } });
-    }
+    navigate("/checkout", { state: { cartData: { ...cart, discountAmount } } });
   };
 
   return (
