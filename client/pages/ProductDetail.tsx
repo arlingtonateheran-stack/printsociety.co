@@ -71,7 +71,7 @@ export default function ProductDetail() {
             {/* Gallery - Left (spans 2 columns) */}
             <div className="col-span-2 space-y-2">
               {/* Main Image */}
-              <div className="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+              <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
