@@ -5,6 +5,8 @@ import { products } from '@shared/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArtworkUpload from '@/components/ArtworkUpload';
+import { useCart } from '@/contexts/CartContext';
+import type { CartLineItem } from '@shared/cart';
 
 interface UploadedDesign {
   file: File;
