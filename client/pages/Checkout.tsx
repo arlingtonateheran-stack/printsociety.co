@@ -9,7 +9,8 @@ import { BillingInfo } from "@/components/BillingInfo";
 import { ArtworkUploadCheckout } from "@/components/ArtworkUploadCheckout";
 import { OrderSummary } from "@/components/OrderSummary";
 import { TermsAndConditions } from "@/components/TermsAndConditions";
-import { ChevronRight, CheckCircle } from "lucide-react";
+import { ChevronRight, CheckCircle, AlertCircle } from "lucide-react";
+import { createOrder } from "@/lib/supabase";
 import type {
   Cart,
   CartLineItem,
