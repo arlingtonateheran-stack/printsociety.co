@@ -12,7 +12,7 @@ export default function Hero() {
           <div className="flex flex-col justify-center space-y-6 order-2 lg:order-1">
             {/* Heading */}
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 leading-tight">
                 Print Custom Stickers and Labels
               </h1>
             </div>
