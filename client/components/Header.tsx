@@ -1,4 +1,4 @@
-import { ShoppingCart, Hand } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Header() {
@@ -31,9 +31,6 @@ export default function Header() {
           <Link to="#" className="hidden md:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2">
             Deals
           </Link>
-          <Link to="#" className="hidden md:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2">
-            News
-          </Link>
           <Link
             to="/login"
             className="hidden sm:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2"
@@ -46,9 +43,6 @@ export default function Header() {
           >
             Sign Up
           </Link>
-          <button className="hover:opacity-80 transition p-2 border border-gray-400 rounded-lg">
-            <Hand size={18} className="md:w-5 md:h-5" />
-          </button>
           <Link to="#" className="hover:opacity-80 transition p-2 border border-gray-400 rounded-lg">
             <ShoppingCart size={18} className="md:w-5 md:h-5" />
           </Link>
