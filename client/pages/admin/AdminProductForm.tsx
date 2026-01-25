@@ -18,13 +18,23 @@ interface PriceBlock {
   value: number | Record<string, any>;
 }
 
+interface OptionValue {
+  id: string;
+  name: string;
+  priceModifier: number;
+  swatchImage?: string;
+}
+
 interface ProductOption {
   id: string;
   name: string;
-  type: "select" | "checkbox" | "dimension";
+  type: "select" | "checkbox" | "dimension" | "radio";
   required: boolean;
   priceBehavior: "add" | "override" | "multiply";
-  priceBlocks: PriceBlock[];
+  defaultValue?: string;
+  values: OptionValue[];
+  priceBlocks?: PriceBlock[];
+  isExpanded?: boolean;
 }
 
 interface SizeOption {
