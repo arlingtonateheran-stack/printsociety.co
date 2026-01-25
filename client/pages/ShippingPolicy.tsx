@@ -181,7 +181,7 @@ export default function ShippingPolicy() {
                     <li>Check tracking information online</li>
                     <li>Allow additional time (carriers sometimes run late)</li>
                     <li>Contact the carrier directly</li>
-                    <li>Email us at support@stickyslap.com with tracking number</li>
+                    <li>Email us at support@printsociety.co with tracking number</li>
                   </ol>
                 </div>
                 <div className="p-4 bg-red-50 rounded-lg">
@@ -216,7 +216,7 @@ export default function ShippingPolicy() {
               <div className="p-4 bg-blue-50 rounded-lg">
                 <p className="text-blue-900 font-semibold mb-2">To change your address:</p>
                 <ol className="list-decimal list-inside space-y-1 text-blue-800 text-sm">
-                  <li>Contact us immediately at support@stickyslap.com</li>
+                  <li>Contact us immediately at support@printsociety.co</li>
                   <li>Include your order number</li>
                   <li>Provide the correct address</li>
                 </ol>
@@ -234,7 +234,7 @@ export default function ShippingPolicy() {
                   Our support team is ready to help:
                 </p>
                 <div className="space-y-2 text-gray-700">
-                  <p>📧 <strong>support@stickyslap.com</strong></p>
+                  <p>📧 <strong>support@printsociety.co</strong></p>
                   <p>📞 <strong>(555) 000-0000</strong></p>
                   <p className="text-sm text-gray-600">Response time: 24 hours</p>
                 </div>

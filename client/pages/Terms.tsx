@@ -242,7 +242,7 @@ export default function Terms() {
               </p>
               <Card className="bg-green-50 border-green-200 p-4">
                 <p className="font-semibold text-gray-900 mb-2">Print Society .co Support</p>
-                <p className="text-gray-700">📧 support@stickyslap.com</p>
+                <p className="text-gray-700">📧 support@printsociety.co</p>
                 <p className="text-gray-700 text-sm mt-2">Response time: 24-48 hours</p>
               </Card>
             </section>

@@ -278,8 +278,8 @@ export default function Privacy() {
                 <div className="space-y-4">
                   <div>
                     <p className="font-semibold text-gray-900">Print Society .co Privacy Team</p>
-                    <p className="text-gray-700 mt-1">📧 <strong>privacy@stickyslap.com</strong></p>
-                    <p className="text-gray-700">📧 <strong>support@stickyslap.com</strong></p>
+                    <p className="text-gray-700 mt-1">📧 <strong>privacy@printsociety.co</strong></p>
+                    <p className="text-gray-700">📧 <strong>support@printsociety.co</strong></p>
                     <p className="text-gray-600 text-sm mt-3">
                       Response time: 24-48 hours
                     </p>
