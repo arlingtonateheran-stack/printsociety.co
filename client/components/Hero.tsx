@@ -64,7 +64,20 @@ export default function Hero() {
 
           {/* Right Image */}
           <div className="flex items-center justify-center order-1 lg:order-2">
-            <div className="relative w-full h-80 sm:h-96 flex items-center justify-center" />
+            <div className="relative w-full h-80 sm:h-96 flex items-center justify-center">
+              <img
+                loading="lazy"
+                srcSet="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F38bbd1464537462d8e4cf3261e8352b9"
+                className="w-full object-cover object-center"
+                style={{
+                  aspectRatio: '1.1',
+                  marginLeft: '20px',
+                  minHeight: '20px',
+                  minWidth: '20px',
+                  overflow: 'hidden',
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
