@@ -89,7 +89,7 @@ export function TermsAndConditions({
             <h3 className="font-semibold text-gray-900">8. Intellectual Property</h3>
             <p>
               You represent that you own all rights to the artwork you provide.
-              Sticky Slap is not responsible for any copyright or trademark
+              Print Society .co is not responsible for any copyright or trademark
               infringement claims related to customer-provided artwork.
             </p>
 

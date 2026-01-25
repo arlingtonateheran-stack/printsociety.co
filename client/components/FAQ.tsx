@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 const faqItems = [
   {
     id: 1,
-    question: 'What makes Sticky Slap\'s custom stickers special?',
+    question: 'What makes Print Society .co\'s custom stickers special?',
     answer: 'Our stickers stand out due to their exceptional quality, durability, and vibrant colors. We use premium materials and printing techniques to ensure your designs look amazing and last for years.'
   },
   {
@@ -24,7 +24,7 @@ const faqItems = [
   },
   {
     id: 5,
-    question: 'Are Sticky Slap stickers waterproof?',
+    question: 'Are Print Society .co stickers waterproof?',
     answer: 'Absolutely! Our stickers are 100% waterproof and designed to last 3-5 years outdoors. Perfect for water bottles, laptops, cars, and outdoor gear.'
   },
   {
@@ -42,7 +42,7 @@ export default function FAQ() {
       <div className="space-y-8">
         <div>
           <h2 className="text-4xl font-bold text-black">Frequently Asked Questions</h2>
-          <p className="text-gray-600 mt-2">Learn more about Sticky Slap custom stickers and our services</p>
+          <p className="text-gray-600 mt-2">Learn more about Print Society .co custom stickers and our services</p>
         </div>
 
         <div className="space-y-3">
