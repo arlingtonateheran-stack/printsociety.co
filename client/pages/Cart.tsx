@@ -5,53 +5,14 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, Minus } from "lucide-react";
-import type { Cart, CartLineItem } from "@shared/cart";
-
-// Sample cart data (in a real app, this would come from state management or API)
-const sampleCart: Cart = {
-  id: "cart-001",
-  userId: "user-001",
-  lineItems: [
-    {
-      id: "item-1",
-      productId: "die-cut-stickers-vinyl",
-      productName: "Die-Cut Vinyl Stickers",
-      productSlug: "die-cut-vinyl-stickers",
-      quantity: 100,
-      size: "3\" - 4\"",
-      material: "vinyl",
-      finish: "glossy",
-      unitPrice: 0.28,
-      subtotal: 28,
-      artworkStatus: "pending",
-    },
-    {
-      id: "item-2",
-      productId: "sticker-sheets",
-      productName: "Sticker Sheets",
-      productSlug: "sticker-sheets",
-      quantity: 50,
-      size: "A4 (8.5\" x 11\")",
-      material: "vinyl",
-      finish: "matte",
-      unitPrice: 1.25,
-      subtotal: 62.5,
-      artworkStatus: "pending",
-    },
-  ],
-  subtotal: 90.5,
-  shippingCost: 0,
-  discountAmount: 0,
-  total: 90.5,
-  termsAccepted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+import { useCart } from "@/contexts/CartContext";
+import type { Cart } from "@shared/cart";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const [cart, setCart] = useState<Cart>(sampleCart);
+  const { cart, removeFromCart, updateQuantity } = useCart();
   const [promoCode, setPromoCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
