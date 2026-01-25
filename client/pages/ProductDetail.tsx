@@ -146,7 +146,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Selection Options Grid */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-3">
           {/* Vinyl Finish */}
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <h3 className="text-xs font-bold text-gray-700 uppercase mb-3">Select a Vinyl Finish</h3>
