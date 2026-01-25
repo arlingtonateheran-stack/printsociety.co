@@ -59,7 +59,7 @@ export default function ProductGallerySection() {
         <div className="md:col-span-2 relative bg-black rounded-lg overflow-hidden aspect-video">
           <img
             src={galleryImages[currentSlide]}
-            alt={`Product ${currentSlide + 1}`}
+            alt={images[currentSlide]?.alt_text || `Product ${currentSlide + 1}`}
             className="w-full h-full object-cover"
           />
 
