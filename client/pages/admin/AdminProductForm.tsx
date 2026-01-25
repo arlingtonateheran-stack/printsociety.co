@@ -357,6 +357,16 @@ export default function AdminProductForm() {
     }));
   };
 
+  const updateConditionLogic = (type: "all" | "any") => {
+    setProduct((prev) => ({
+      ...prev,
+      conditionLogic: {
+        type,
+        description: type === "all" ? "All conditions must be met" : "Any condition can be met",
+      },
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting advanced product:", product);
