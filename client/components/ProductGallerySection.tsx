@@ -1,21 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-// Sample product images - in a real app, these would be from your API
-const galleryImages = [
-  'https://images.unsplash.com/photo-1578926314433-d15bae410c17?w=600&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1599081876663-4d3e7dd1e4a8?w=600&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1578926314433-d15bae410c17?w=600&h=600&fit=crop',
-];
-
-const thumbnails = [
-  'https://images.unsplash.com/photo-1578926314433-d15bae410c17?w=150&h=150&fit=crop',
-  'https://images.unsplash.com/photo-1599081876663-4d3e7dd1e4a8?w=150&h=150&fit=crop',
-  'https://images.unsplash.com/photo-1578926314433-d15bae410c17?w=150&h=150&fit=crop',
-];
+import { supabase, GalleryImage } from '@/lib/supabase';
 
 export default function ProductGallerySection() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadGalleryImages();
+  }, []);
+
+  const loadGalleryImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setImages(data || []);
+    } catch (error) {
+      console.error('Error loading gallery:', error);
+      // Fallback to empty array
+      setImages([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-16 px-4 max-w-7xl mx-auto">
+        <div className="animate-pulse bg-gray-200 aspect-video rounded-lg"></div>
+      </section>
+    );
+  }
+
+  if (images.length === 0) {
+    return null;
+  }
+
+  const galleryImages = images.map(img => img.url);
+  const thumbnails = images.map(img => img.thumbnail_url || img.url);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % galleryImages.length);
