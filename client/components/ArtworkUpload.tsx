@@ -20,6 +20,7 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadedDesign, setUploadedDesign] = useState<UploadedDesign | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFile = async (selectedFile: File) => {
     setError(null);
