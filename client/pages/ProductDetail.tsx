@@ -291,21 +291,24 @@ export default function ProductDetail() {
           </div>
 
           {/* Quantity */}
-          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Quantity</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+          <div className="backdrop-blur-md bg-white/5 rounded-lg p-3 border border-white/10 shadow-lg">
+            <h3 className="text-xs font-bold text-black uppercase mb-3 flex items-center gap-2">
+              <Sliders size={16} className="text-black" />
+              Select a quantity
+            </h3>
+            <div className="space-y-1">
               {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
                 <button
                   key={q}
                   onClick={() => handleQuantityChange(q)}
-                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs transition border-2 flex flex-col ${
+                  className={`w-full px-2 py-1.5 sm:py-2 rounded text-xs transition flex justify-between items-center gap-2 ${
                     quantity === q
-                      ? 'border-yellow-400 bg-yellow-50'
-                      : 'border-gray-300 bg-white hover:border-yellow-300'
+                      ? 'border-2 border-yellow-400 bg-yellow-400/15 backdrop-blur-md'
+                      : 'border border-white/20 bg-white/10 backdrop-blur-md hover:border-white/30'
                   }`}
                 >
-                  <p className="font-semibold text-xs text-gray-900">{q.toLocaleString()} units</p>
-                  <p className="text-gray-600 text-xs">${(pricePerUnit * q + setupFee).toFixed(2)}</p>
+                  <span className="font-medium text-black">{q.toLocaleString()}</span>
+                  <span className="text-xs font-semibold text-black">${(pricePerUnit * q + setupFee).toFixed(2)}</span>
                 </button>
               ))}
             </div>
