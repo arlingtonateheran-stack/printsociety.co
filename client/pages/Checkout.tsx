@@ -230,7 +230,7 @@ export default function Checkout() {
               <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
               <p className="text-lg text-gray-600 mb-6">
                 Thank you for your order. Your order number is{" "}
-                <span className="font-bold text-green-600">#ORD-2025-001234</span>
+                <span className="font-bold text-green-600">#{confirmationData?.orderNumber || 'Processing'}</span>
               </p>
               <p className="text-gray-600 mb-8">
                 We'll send you a digital proof within 24 hours. You can track
