@@ -1,4 +1,4 @@
-import { Star, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Hero() {
@@ -22,19 +22,7 @@ export default function Hero() {
               href="#"
               className="flex items-center gap-4 w-fit hover:opacity-80 transition"
             >
-              <div className="flex gap-1">
-                {stars.map((i) => (
-                  <Star
-                    key={i}
-                    size={24}
-                    className="fill-emerald-500 text-emerald-500"
-                  />
-                ))}
-              </div>
-              <div className="text-white">
-                <span className="font-bold">4.7</span> out of{" "}
-                <span className="font-bold">17,801</span> reviews
-              </div>
+              <div />
             </a>
 
             {/* Benefit Text */}
@@ -76,6 +64,10 @@ export default function Hero() {
                   minHeight: "20px",
                   minWidth: "20px",
                   overflow: "hidden",
+                  "@media (max-width: 991px)": {
+                    width: "auto",
+                    flexGrow: "0",
+                  },
                 }}
               />
             </div>
