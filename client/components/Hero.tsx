@@ -64,10 +64,6 @@ export default function Hero() {
                   minHeight: "20px",
                   minWidth: "20px",
                   overflow: "hidden",
-                  "@media (max-width: 991px)": {
-                    width: "auto",
-                    flexGrow: "0",
-                  },
                 }}
               />
             </div>
