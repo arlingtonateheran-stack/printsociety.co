@@ -5,7 +5,7 @@ export default function Hero() {
   const stars = Array.from({ length: 5 }, (_, i) => i);
 
   return (
-    <section className="w-full bg-gradient-to-b from-[#151515] to-[#1a1a1a] py-12 sm:py-16 flex items-center justify-center overflow-hidden">
+    <section className="w-full bg-white py-12 sm:py-16 flex items-center justify-center overflow-hidden">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left Content */}
