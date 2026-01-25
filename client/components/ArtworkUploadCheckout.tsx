@@ -57,6 +57,20 @@ export function ArtworkUploadCheckout({
         [itemId]: { name: file.name, url: fileUrl },
       }));
       onArtworkUpload(itemId, fileUrl, file.name);
+
+      // Store design preview in localStorage for order summary
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          localStorage.setItem('uploadedDesign', JSON.stringify({
+            name: file.name,
+            size: file.size,
+            preview: e.target?.result as string
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+
       setUploadingItemId(null);
     }, 1000);
   };
