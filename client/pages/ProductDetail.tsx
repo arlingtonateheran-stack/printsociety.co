@@ -6,6 +6,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArtworkUpload from '@/components/ArtworkUpload';
 
+interface UploadedDesign {
+  file: File;
+  preview: string;
+  path: string;
+  url: string;
+}
+
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -17,7 +24,7 @@ export default function ProductDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(product?.minQuantity || 50);
   const [selectedBorderCut, setSelectedBorderCut] = useState('full-bleed');
-  const [uploadedDesign, setUploadedDesign] = useState<{ file: File; preview: string } | null>(null);
+  const [uploadedDesign, setUploadedDesign] = useState<UploadedDesign | null>(null);
 
   if (!product) {
     return <Navigate to="/products" />;
