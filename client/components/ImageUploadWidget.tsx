@@ -9,7 +9,7 @@ interface ImageUploadWidgetProps {
 
 export default function ImageUploadWidget({ onUploadSuccess, onUploadError }: ImageUploadWidgetProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
