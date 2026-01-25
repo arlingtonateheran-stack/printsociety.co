@@ -99,6 +99,8 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
   const clearFile = () => {
     setFile(null);
     setPreview(null);
+    setUploadedDesign(null);
+    setError(null);
   };
 
   return (
@@ -130,6 +132,7 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
               type="file"
               accept=".png,.jpg,.jpeg,.gif,.pdf,.ai,.psd"
               onChange={handleChange}
+              disabled={uploading}
               className="hidden"
             />
           </label>
@@ -157,7 +160,8 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={clearFile}
-              className="flex items-center justify-center gap-1 px-3 py-1 border border-gray-300 rounded text-xs hover:bg-gray-100 transition font-semibold text-gray-700"
+              disabled={uploading}
+              className="flex items-center justify-center gap-1 px-3 py-1 border border-gray-300 rounded text-xs hover:bg-gray-100 transition font-semibold text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X size={14} />
               Clear
@@ -167,14 +171,27 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
                 type="file"
                 accept=".png,.jpg,.jpeg,.gif,.pdf,.ai,.psd"
                 onChange={handleChange}
+                disabled={uploading}
                 className="hidden"
               />
-              <span className="flex items-center justify-center gap-1 px-3 py-1 bg-gray-200 rounded text-xs hover:bg-gray-300 transition font-semibold text-gray-800 cursor-pointer">
+              <span className={`flex items-center justify-center gap-1 px-3 py-1 bg-gray-200 rounded text-xs font-semibold text-gray-800 ${
+                uploading
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-gray-300 transition cursor-pointer'
+              }`}>
                 <Upload size={14} />
-                Replace
+                {uploading ? 'Uploading...' : 'Replace'}
               </span>
             </label>
           </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
+          <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={16} />
+          <p className="text-xs text-red-900">{error}</p>
         </div>
       )}
 
