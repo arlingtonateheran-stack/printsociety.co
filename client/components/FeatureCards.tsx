@@ -30,7 +30,7 @@ export default function FeatureCards() {
           {features.map((feature, idx) => (
             <div
               key={idx}
-              className="backdrop-blur-sm bg-white/40 border border-gray-200/50 rounded-3xl p-4 flex items-center gap-3 transition-all duration-150 hover:bg-white/60"
+              className="backdrop-blur-sm bg-white/10 border border-white/20 rounded-3xl p-4 flex items-center gap-3 transition-all duration-150 hover:bg-white/20"
             >
               {/* Icon */}
               <div className="flex-shrink-0">
@@ -45,9 +45,9 @@ export default function FeatureCards() {
 
               {/* Content */}
               <div className="flex-1">
-                <h3 className="text-gray-900 text-sm font-semibold leading-5 mb-0.5">
+                <h3 className="text-white text-sm font-semibold leading-5 mb-0.5">
                   <span className="block">{feature.title}</span>
-                  <span className="text-gray-500 text-xs font-normal leading-4">
+                  <span className="text-gray-300 text-xs font-normal leading-4">
                     {feature.subtitle}
                   </span>
                 </h3>
