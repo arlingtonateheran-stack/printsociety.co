@@ -8,7 +8,7 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">
           <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F12a1a019a5e14132b14ab96d53286e90?format=webp&width=800&height=1200"
+            src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2Fdc0d573640c04a0f81b1a11991f519d2?format=webp&width=800&height=1200"
             alt="Print Society Co"
             className="h-10 md:h-12 w-auto"
           />
