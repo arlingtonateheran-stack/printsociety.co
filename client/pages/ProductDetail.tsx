@@ -66,10 +66,10 @@ export default function ProductDetail() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pb-20">
         {/* Product Section with Gallery and Info */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
-          <div className="grid grid-cols-3 gap-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 mb-3">
+          <div className="grid grid-cols-3 gap-3">
             {/* Gallery - Left (spans 2 columns) */}
-            <div className="col-span-2 space-y-4">
+            <div className="col-span-2 space-y-2">
               {/* Main Image */}
               <div className="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden">
                 <img
