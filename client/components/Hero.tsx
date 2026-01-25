@@ -13,7 +13,7 @@ export default function Hero() {
             {/* Heading */}
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-                Print Custom Stickers and Labels
+                <p>Print Custom Stickers and Prints</p>
               </h1>
             </div>
 
