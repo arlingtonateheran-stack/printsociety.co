@@ -47,6 +47,7 @@ const sampleProducts = [
 ];
 
 export default function AdminProducts() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredProducts = sampleProducts.filter(
