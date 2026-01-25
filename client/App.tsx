@@ -139,6 +139,22 @@ export default function App() {
                 }
               />
               <Route
+                path="/admin/products/new"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminProductForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/products/:productId"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminProductForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/gallery"
                 element={
                   <ProtectedRoute requiredRole="admin">
