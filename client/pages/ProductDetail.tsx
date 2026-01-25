@@ -99,9 +99,9 @@ export default function ProductDetail() {
               </div>
 
               {/* Thumbnail Gallery */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <h3 className="text-xs font-bold text-gray-600 uppercase">Gallery</h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {product.images.map((img, idx) => (
                     <button
                       key={idx}
