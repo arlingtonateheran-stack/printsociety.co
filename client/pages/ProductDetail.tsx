@@ -155,7 +155,7 @@ export default function ProductDetail() {
                 <button
                   key={finish.id}
                   onClick={() => setSelectedFinish(finish.id)}
-                  className={`w-full px-3 py-2 rounded text-sm font-medium transition border-2 ${
+                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm font-medium transition border-2 ${
                     selectedFinish === finish.id
                       ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-300 bg-white hover:border-purple-400'
