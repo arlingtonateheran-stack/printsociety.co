@@ -88,6 +88,11 @@ interface ConditionLogic {
   description?: string;
 }
 
+interface QuantitySettings {
+  showSelectionPanel: boolean;
+  fixedQuantity?: number | null;
+}
+
 interface ProductData {
   name: string;
   slug: string;
