@@ -129,7 +129,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Carousel Dots */}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-2 mt-2">
             {product.images.map((_, idx) => (
               <button
                 key={idx}
