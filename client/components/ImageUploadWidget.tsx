@@ -21,8 +21,10 @@ export default function ImageUploadWidget({ onUploadSuccess, onUploadError }: Im
       const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
       const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
+      console.log('Upload config:', { cloudName, uploadPreset, fileName: file.name });
+
       if (!cloudName || !uploadPreset) {
-        throw new Error('Cloudinary configuration missing');
+        throw new Error('Cloudinary configuration missing. Please check .env file.');
       }
 
       const formData = new FormData();
@@ -30,16 +32,23 @@ export default function ImageUploadWidget({ onUploadSuccess, onUploadError }: Im
       formData.append('upload_preset', uploadPreset);
       formData.append('folder', 'print-society/gallery');
 
+      console.log('Uploading to Cloudinary...');
       const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Upload response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Cloudinary error:', errorData);
+        throw new Error(errorData.error?.message || `Upload failed with status ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Upload successful:', data.secure_url);
+
       const imageUrl = data.secure_url;
 
       // Create thumbnail URL (limit to 300x300)
