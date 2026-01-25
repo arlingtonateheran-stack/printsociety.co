@@ -70,7 +70,7 @@ export default function Cart() {
                           </p>
                         </div>
                         <button
-                          onClick={() => handleRemoveItem(item.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <Trash2 size={20} />
