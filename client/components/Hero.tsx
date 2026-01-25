@@ -31,7 +31,7 @@ export default function Hero() {
                   />
                 ))}
               </div>
-              <div className="text-white">
+              <div className="text-gray-900">
                 <span className="font-bold">4.7</span> out of{' '}
                 <span className="font-bold">17,801</span> reviews
               </div>
