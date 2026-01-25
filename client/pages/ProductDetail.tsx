@@ -37,6 +37,12 @@ export default function ProductDetail() {
 
   const handleDesignUpload = (file: File, preview: string) => {
     setUploadedDesign({ file, preview });
+    // Store in localStorage for checkout page
+    localStorage.setItem('uploadedDesign', JSON.stringify({
+      name: file.name,
+      size: file.size,
+      preview: preview
+    }));
   };
 
   // Calculate pricing
