@@ -356,11 +356,17 @@ export default function ProductDetail() {
         {/* Action Buttons */}
         <div className="space-y-2 sm:space-y-3">
           <div className="grid grid-cols-2 gap-2 sm:gap-4">
-            <button className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2">
+            <button
+              onClick={handleAddToCart}
+              className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            >
               <ShoppingCart size={20} />
               Add to Cart
             </button>
-            <button className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
+            <button
+              onClick={handleCheckout}
+              className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
+            >
               🛒 Checkout
             </button>
           </div>
