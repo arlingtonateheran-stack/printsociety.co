@@ -133,6 +133,18 @@ export default function AdminProductForm() {
     ],
     rushOptions: [],
     variants: [],
+    designUploadSettings: {
+      enabled: true,
+      description: "Upload your custom sticker design",
+      maxFileSizeMB: 5,
+      allowedFormats: {
+        png: true,
+        jpg: true,
+        jpeg: true,
+        gif: true,
+        svg: false,
+      },
+    },
   });
 
   const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
