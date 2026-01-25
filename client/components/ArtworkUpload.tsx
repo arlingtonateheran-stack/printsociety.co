@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Upload, X, CheckCircle } from 'lucide-react';
 
 interface ArtworkUploadProps {
-  onUpload?: (file: File) => void;
+  onUpload?: (file: File, preview: string) => void;
 }
 
 export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
