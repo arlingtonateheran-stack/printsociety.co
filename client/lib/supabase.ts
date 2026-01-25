@@ -91,6 +91,54 @@ export interface Discount {
 }
 
 // ============================================================================
+// STORAGE OPERATIONS
+// ============================================================================
+
+const DESIGN_BUCKET = 'customer-designs';
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+export async function uploadDesignFile(file: File): Promise<{ path: string; url: string }> {
+  // Validate file size
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`File size exceeds 50MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`);
+  }
+
+  // Generate unique filename
+  const timestamp = Date.now();
+  const randomId = Math.random().toString(36).substring(2, 9);
+  const ext = file.name.split('.').pop();
+  const fileName = `${timestamp}-${randomId}.${ext}`;
+
+  // Upload to storage
+  const { data, error } = await supabase.storage
+    .from(DESIGN_BUCKET)
+    .upload(`uploads/${fileName}`, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (error) throw error;
+
+  // Get public URL
+  const { data: publicData } = supabase.storage
+    .from(DESIGN_BUCKET)
+    .getPublicUrl(`uploads/${fileName}`);
+
+  return {
+    path: data.path,
+    url: publicData.publicUrl
+  };
+}
+
+export async function deleteDesignFile(filePath: string) {
+  const { error } = await supabase.storage
+    .from(DESIGN_BUCKET)
+    .remove([filePath]);
+
+  if (error) throw error;
+}
+
+// ============================================================================
 // GALLERY OPERATIONS
 // ============================================================================
 
