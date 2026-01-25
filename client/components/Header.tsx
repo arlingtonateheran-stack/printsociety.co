@@ -6,9 +6,12 @@ export default function Header() {
     <header className="bg-black text-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-sm md:text-lg flex-shrink-0">
-          <Hand size={20} className="md:w-6 md:h-6" />
-          <span className="hidden sm:inline">Sticky Slap</span>
+        <Link to="/" className="flex-shrink-0">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F12a1a019a5e14132b14ab96d53286e90?format=webp&width=800&height=1200"
+            alt="Print Society Co"
+            className="h-10 md:h-12 w-auto"
+          />
         </Link>
 
         {/* Navigation */}
