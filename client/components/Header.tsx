@@ -21,7 +21,7 @@ export default function Header() {
           <Link to="#" className="hidden md:inline hover:opacity-80 transition">Deals</Link>
           <Link to="#" className="hidden md:inline hover:opacity-80 transition">News</Link>
           <Link to="/login" className="hidden sm:inline hover:opacity-80 transition">Login</Link>
-          <Link to="#" className="hidden sm:inline hover:opacity-80 transition">Sign Up</Link>
+          <Link to="/signup" className="hidden sm:inline hover:opacity-80 transition">Sign Up</Link>
           <button className="hover:opacity-80 transition p-1">
             <Hand size={18} className="md:w-5 md:h-5" />
           </button>
