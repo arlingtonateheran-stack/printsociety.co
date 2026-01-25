@@ -247,7 +247,7 @@ export default function ProductDetail() {
           <ArtworkUpload />
 
           {/* Order Notes */}
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">📝 Order Notes (optional)</h3>
             <textarea
               placeholder="Add any special requests or notes..."
