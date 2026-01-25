@@ -215,6 +215,89 @@ export default function AdminProductForm() {
     }));
   };
 
+  const addOption = () => {
+    const newOption: ProductOption = {
+      id: `opt-${Date.now()}`,
+      name: "New Option",
+      type: "select",
+      required: false,
+      priceBehavior: "add",
+      defaultValue: "",
+      values: [],
+      isExpanded: true,
+    };
+    setProduct((prev) => ({
+      ...prev,
+      options: [...prev.options, newOption],
+    }));
+  };
+
+  const removeOption = (optionId: string) => {
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.filter((o) => o.id !== optionId),
+    }));
+  };
+
+  const updateOption = (optionId: string, field: string, value: any) => {
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.map((o) =>
+        o.id === optionId ? { ...o, [field]: value } : o
+      ),
+    }));
+  };
+
+  const toggleOptionExpanded = (optionId: string) => {
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.map((o) =>
+        o.id === optionId ? { ...o, isExpanded: !o.isExpanded } : o
+      ),
+    }));
+  };
+
+  const addOptionValue = (optionId: string) => {
+    const newValue: OptionValue = {
+      id: `val-${Date.now()}`,
+      name: "",
+      priceModifier: 0,
+    };
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.map((o) =>
+        o.id === optionId ? { ...o, values: [...o.values, newValue] } : o
+      ),
+    }));
+  };
+
+  const removeOptionValue = (optionId: string, valueId: string) => {
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.map((o) =>
+        o.id === optionId
+          ? { ...o, values: o.values.filter((v) => v.id !== valueId) }
+          : o
+      ),
+    }));
+  };
+
+  const updateOptionValue = (optionId: string, valueId: string, field: string, value: any) => {
+    setProduct((prev) => ({
+      ...prev,
+      options: prev.options.map((o) =>
+        o.id === optionId
+          ? {
+              ...o,
+              values: o.values.map((v) =>
+                v.id === valueId ? { ...v, [field]: value } : v
+              ),
+            }
+          : o
+      ),
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting advanced product:", product);
