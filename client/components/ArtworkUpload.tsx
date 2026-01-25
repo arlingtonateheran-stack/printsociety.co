@@ -110,34 +110,36 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
       <p className="text-xs text-gray-600 mb-2">Upload your artwork for custom stickers</p>
 
       {!preview ? (
-        <div
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-4 text-center transition cursor-pointer ${
-            dragActive
-              ? 'border-green-500 bg-green-50'
-              : 'border-gray-300 hover:border-green-500'
-          }`}
-        >
-          <Upload className="mx-auto mb-2 text-gray-400" size={28} />
-          <p className="text-sm font-semibold text-gray-900 mb-1">
-            Drag or click to upload
-          </p>
-          <p className="text-xs text-gray-600">
-            All formats supported. Max file size: 50 MB | 1 file per order
-          </p>
-          <label className="hidden">
-            <input
-              type="file"
-              accept=".png,.jpg,.jpeg,.gif,.pdf,.ai,.psd"
-              onChange={handleChange}
-              disabled={uploading}
-              className="hidden"
-            />
-          </label>
-        </div>
+        <>
+          <div
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-lg p-4 text-center transition cursor-pointer ${
+              dragActive
+                ? 'border-green-500 bg-green-50'
+                : 'border-gray-300 hover:border-green-500'
+            }`}
+          >
+            <Upload className="mx-auto mb-2 text-gray-400" size={28} />
+            <p className="text-sm font-semibold text-gray-900 mb-1">
+              Drag or click to upload
+            </p>
+            <p className="text-xs text-gray-600">
+              All formats supported. Max file size: 50 MB | 1 file per order
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".png,.jpg,.jpeg,.gif,.pdf,.ai,.psd"
+            onChange={handleChange}
+            disabled={uploading}
+            className="hidden"
+          />
+        </>
       ) : (
         <div className="space-y-2">
           <div className="border border-gray-300 rounded-lg overflow-hidden">
