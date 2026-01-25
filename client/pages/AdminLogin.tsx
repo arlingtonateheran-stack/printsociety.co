@@ -77,180 +77,21 @@ export default function AdminLogin() {
         </div>
 
         <Card className="p-8 shadow-lg bg-slate-800 border-slate-700">
-          {magicLinkSent ? (
-            // Magic Link Sent State
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="text-blue-400" size={24} />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Check your email</h2>
-              <p className="text-slate-300 mb-6">
-                We've sent a magic link to <span className="font-semibold">{email}</span>
-              </p>
-              <p className="text-sm text-slate-400 mb-6">
-                Click the link in your email to sign in. The link will expire in 24 hours.
-              </p>
-              <button
-                onClick={() => setMagicLinkSent(false)}
-                className="text-blue-400 hover:text-blue-300 font-medium text-sm"
-              >
-                ← Back to login
-              </button>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="text-yellow-600" size={24} />
             </div>
-          ) : (
-            <>
-              {/* Error Message */}
-              {(localError || error) && (
-                <div className="p-4 bg-red-900 border border-red-700 rounded-lg mb-6">
-                  <p className="text-sm text-red-200">{localError || error?.message}</p>
-                </div>
-              )}
-
-              {/* Login Tabs */}
-              <div className="flex gap-4 mb-6 border-b border-slate-700">
-                <button
-                  onClick={() => setUseMagicLink(false)}
-                  className={`pb-3 px-2 font-medium text-sm transition ${
-                    !useMagicLink
-                      ? 'text-blue-400 border-b-2 border-blue-400'
-                      : 'text-slate-400 hover:text-slate-300'
-                  }`}
-                >
-                  Password
-                </button>
-                <button
-                  onClick={() => setUseMagicLink(true)}
-                  className={`pb-3 px-2 font-medium text-sm transition ${
-                    useMagicLink
-                      ? 'text-blue-400 border-b-2 border-blue-400'
-                      : 'text-slate-400 hover:text-slate-300'
-                  }`}
-                >
-                  Magic Link
-                </button>
-              </div>
-
-              {!useMagicLink ? (
-                // Password Login Form
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                      <Input
-                        type="email"
-                        placeholder="admin@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 pr-10 bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
-                        disabled={isLoading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-400"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="rounded border-slate-600 bg-slate-700"
-                        disabled={isLoading}
-                      />
-                      <span className="text-sm text-slate-400">Remember me</span>
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-sm text-blue-400 hover:text-blue-300 font-medium"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium flex items-center justify-center gap-2"
-                  >
-                    {isLoading && <Loader size={18} className="animate-spin" />}
-                    {isLoading ? 'Signing in...' : 'Sign In'}
-                  </button>
-                </form>
-              ) : (
-                // Magic Link Form
-                <form onSubmit={handleMagicLink} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                      <Input
-                        type="email"
-                        placeholder="admin@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-slate-400">
-                    We'll send you a secure link to sign in instantly, no password needed.
-                  </p>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium flex items-center justify-center gap-2"
-                  >
-                    {isLoading && <Loader size={18} className="animate-spin" />}
-                    {isLoading ? 'Sending...' : 'Send Magic Link'}
-                  </button>
-                </form>
-              )}
-
-              {/* Back to Login Link */}
-              <div className="mt-6 text-center">
-                <p className="text-sm text-slate-400">
-                  Not an admin?{' '}
-                  <Link
-                    to="/login"
-                    className="text-blue-400 hover:text-blue-300 font-medium"
-                  >
-                    Customer login
-                  </Link>
-                </p>
-              </div>
-            </>
-          )}
+            <h2 className="text-2xl font-bold text-white mb-2">Login Temporarily Disabled</h2>
+            <p className="text-slate-300 mb-6">
+              Admin login is currently disabled. Please check back soon.
+            </p>
+            <Link
+              to="/"
+              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+            >
+              Back to Home
+            </Link>
+          </div>
         </Card>
 
         {/* Footer Text */}
