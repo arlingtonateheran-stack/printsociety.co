@@ -291,21 +291,21 @@ export default function ProductDetail() {
           </div>
 
           {/* Quantity */}
-          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Quantity</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-2 text-white">
+            <h3 className="text-xs font-bold uppercase mb-2">Select Quantity</h3>
+            <div className="space-y-1">
               {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
                 <button
                   key={q}
                   onClick={() => handleQuantityChange(q)}
-                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs transition border-2 flex flex-col ${
+                  className={`w-full px-2 py-1 sm:py-2 rounded text-xs transition flex justify-between items-center gap-1 ${
                     quantity === q
-                      ? 'border-purple-500 bg-purple-50'
-                      : 'border-gray-300 bg-white hover:border-purple-400'
+                      ? 'border-2 border-yellow-400 bg-yellow-400/20'
+                      : 'border border-gray-600 hover:border-gray-400'
                   }`}
                 >
-                  <p className="font-semibold text-xs">{q.toLocaleString()} units</p>
-                  <p className="text-gray-600 text-xs">${(pricePerUnit * q + setupFee).toFixed(2)}</p>
+                  <span className="font-semibold">{q.toLocaleString()}</span>
+                  <span className="text-xs">${(pricePerUnit * q + setupFee).toFixed(2)}</span>
                 </button>
               ))}
             </div>
