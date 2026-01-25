@@ -18,7 +18,7 @@ export function LiveChatWidget() {
       id: "1",
       author: "agent",
       message:
-        "Hi there! 👋 Welcome to Sticky Slap support. How can we help you today?",
+        "Hi there! 👋 Welcome to Print Society .co support. How can we help you today?",
       timestamp: new Date(),
     },
   ]);
@@ -79,7 +79,7 @@ export function LiveChatWidget() {
       {/* Header */}
       <div className="bg-green-600 text-white p-4 rounded-t-lg flex items-center justify-between">
         <div>
-          <h3 className="font-bold">Sticky Slap Support</h3>
+          <h3 className="font-bold">Print Society .co Support</h3>
           <p className="text-sm text-green-100">We typically reply in minutes</p>
         </div>
         <div className="flex items-center gap-2">

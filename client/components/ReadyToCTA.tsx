@@ -6,7 +6,7 @@ export default function ReadyToCTA() {
       <div>
         <h2 className="text-4xl md:text-5xl font-bold text-black">Ready to Create?</h2>
         <p className="text-gray-700 mt-4 max-w-2xl mx-auto text-lg">
-          Join thousands of customers who are creating amazing custom stickers with Sticky Slap
+          Join thousands of customers who are creating amazing custom stickers with Print Society .co
         </p>
       </div>
 

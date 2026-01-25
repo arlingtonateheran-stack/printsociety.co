@@ -102,7 +102,7 @@ export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-gray-900 text-white overflow-y-auto border-r border-gray-800">
       <div className="p-6">
-        <h2 className="text-2xl font-bold">Sticky Slap</h2>
+        <h2 className="text-2xl font-bold">Print Society .co</h2>
         <p className="text-gray-400 text-sm mt-1">Admin Panel</p>
       </div>
 
