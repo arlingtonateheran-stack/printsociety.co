@@ -18,6 +18,7 @@ interface UploadedDesign {
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const product = products.find(p => p.slug === slug);
 
   const [selectedSize, setSelectedSize] = useState(product?.specifications.defaultSize || '');
