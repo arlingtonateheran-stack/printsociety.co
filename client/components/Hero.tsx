@@ -70,8 +70,8 @@ export default function Hero() {
               {/* Sticker Group Image Placeholder */}
               <div className="relative w-full h-full flex items-center justify-center">
                 <img
-                  src="https://stickerapp.com/media/678x674/95396a9703/hero-stickergroup-desktop.png/m/600x0/filters:quality(60)"
-                  alt="Custom Sticker Collections"
+                  src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2F801f417eea0548ce84930cfa0ed65d57?format=webp&width=800&height=1200"
+                  alt="VW Bus Sticker"
                   className="w-full h-full object-contain drop-shadow-2xl"
                 />
               </div>
