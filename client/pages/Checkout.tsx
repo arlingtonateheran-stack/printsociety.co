@@ -65,6 +65,9 @@ export default function Checkout() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [promoCode, setPromoCode] = useState("");
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [confirmationData, setConfirmationData] = useState<{orderNumber: string} | null>(null);
 
   const steps: CheckoutStep[] = [
     "artwork",
