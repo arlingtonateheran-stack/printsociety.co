@@ -192,9 +192,9 @@ export default function ProductDetail() {
           </div>
 
           {/* Border Cut */}
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-3">Select Border Cut</h3>
-            <div className="space-y-2">
+          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Border Cut</h3>
+            <div className="space-y-1">
               <button
                 onClick={() => setSelectedBorderCut('full-bleed')}
                 className={`w-full px-3 py-2 rounded text-sm font-medium transition border-2 relative ${
