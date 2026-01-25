@@ -57,6 +57,54 @@ export default function ProductDetail() {
     }));
   };
 
+  const handleAddToCart = () => {
+    const cartItem: CartLineItem = {
+      id: `${product.id}-${Date.now()}`,
+      productId: product.id,
+      productName: product.name,
+      productSlug: product.slug,
+      quantity,
+      size: selectedSize,
+      material: selectedMaterial,
+      finish: selectedFinish,
+      unitPrice: pricePerUnit,
+      subtotal: pricePerUnit * quantity,
+      artworkUrl: uploadedDesign?.url,
+      artworkStatus: uploadedDesign ? 'uploaded' : 'pending',
+    };
+
+    addToCart(cartItem);
+    // Navigate to cart to show confirmation
+    navigate('/cart');
+  };
+
+  const handleCheckout = () => {
+    if (!uploadedDesign) {
+      // For MVP, require artwork upload before checkout
+      alert('Please upload your artwork before proceeding to checkout');
+      return;
+    }
+
+    const cartItem: CartLineItem = {
+      id: `${product.id}-${Date.now()}`,
+      productId: product.id,
+      productName: product.name,
+      productSlug: product.slug,
+      quantity,
+      size: selectedSize,
+      material: selectedMaterial,
+      finish: selectedFinish,
+      unitPrice: pricePerUnit,
+      subtotal: pricePerUnit * quantity,
+      artworkUrl: uploadedDesign.url,
+      artworkStatus: 'uploaded',
+    };
+
+    addToCart(cartItem);
+    // Navigate to checkout with cart data
+    navigate('/checkout');
+  };
+
   // Calculate pricing
   const material = product.specifications.materialOptions.find(m => m.id === selectedMaterial);
   const finish = product.specifications.finishOptions.find(f => f.id === selectedFinish);
