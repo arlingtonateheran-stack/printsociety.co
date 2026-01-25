@@ -61,7 +61,7 @@ export default function Footer() {
 
         {/* Bottom Footer */}
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-600">
-          <p>© Sticky Slap, Inc. 2025</p>
+          <p>© Print Society .co, Inc. 2025</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-black transition">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-black transition">Terms of Service</Link>

@@ -363,10 +363,10 @@ export function getGalleryItemSEOData(item: GalleryItem): {
     .replace(/^-|-$/g, '');
 
   return {
-    title: item.seoTitle || `${item.title} - Sticky Slap Gallery`,
+    title: item.seoTitle || `${item.title} - Print Society .co Gallery`,
     description:
       item.seoDescription ||
-      `${item.description} Check out this amazing custom work on Sticky Slap.`,
+      `${item.description} Check out this amazing custom work on Print Society .co.`,
     keywords: item.seoKeywords || item.tags,
     slug,
   };

@@ -377,7 +377,7 @@ export function formatInvoiceForEmail(invoice: Invoice): {
   const dueDate = invoice.dueDate.toLocaleDateString();
   const total = invoice.total.toFixed(2);
 
-  const subject = `Invoice ${invoice.invoiceNumber} from Sticky Slap`;
+  const subject = `Invoice ${invoice.invoiceNumber} from Print Society .co`;
 
   const body = `
 Dear ${invoice.customerName},
@@ -394,7 +394,7 @@ ${invoice.notes || ''}
 
 Thank you for your business!
 
-Sticky Slap
+Print Society .co
 ${invoice.billToAddress.phone}
 ${invoice.billToAddress.email}
   `.trim();
@@ -432,7 +432,7 @@ ${invoice.notes ? `<p>${invoice.notes}</p>` : ''}
 <p>Thank you for your business!</p>
 
 <p>
-  Sticky Slap<br>
+  Print Society .co<br>
   ${invoice.billToAddress.phone || ''}<br>
   ${invoice.billToAddress.email || ''}
 </p>
