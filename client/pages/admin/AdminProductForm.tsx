@@ -161,6 +161,10 @@ export default function AdminProductForm() {
       type: "all",
       description: "All conditions must be met",
     },
+    quantitySettings: {
+      showSelectionPanel: false,
+      fixedQuantity: null,
+    },
   });
 
   const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
