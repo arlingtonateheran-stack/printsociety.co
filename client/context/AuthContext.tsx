@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Development: Auto-authenticate for dashboard preview
           const mockUser: User = {
             id: "dev-user-1",
-            email: "admin@stickyslap.com",
+            email: "admin@printsociety.co",
             name: "Admin User",
             role: "admin",
             createdAt: new Date(),
