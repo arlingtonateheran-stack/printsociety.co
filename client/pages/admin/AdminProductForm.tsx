@@ -151,6 +151,10 @@ export default function AdminProductForm() {
         svg: false,
       },
     },
+    conditionLogic: {
+      type: "all",
+      description: "All conditions must be met",
+    },
   });
 
   const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
