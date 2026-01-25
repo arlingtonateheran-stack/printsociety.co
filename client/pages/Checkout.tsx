@@ -159,10 +159,51 @@ export default function Checkout() {
     }
   };
 
-  const handlePlaceOrder = () => {
-    // In a real app, submit order to backend
-    setCurrentStep("confirmation");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
+    setOrderError(null);
+
+    try {
+      // Get uploaded design from localStorage
+      const savedDesignStr = localStorage.getItem('uploadedDesign');
+      const savedDesign = savedDesignStr ? JSON.parse(savedDesignStr) : null;
+
+      // Get first line item (for MVP, assuming single item)
+      const lineItem = cart.lineItems[0];
+      if (!lineItem) {
+        throw new Error('No items in cart');
+      }
+
+      // Create order in Supabase
+      const order = await createOrder({
+        customerEmail: billingData.email || '',
+        customerName: `${billingData.firstName} ${billingData.lastName}`,
+        productId: lineItem.productId,
+        productName: lineItem.productName,
+        quantity: lineItem.quantity,
+        selectedSize: lineItem.size || '',
+        selectedFinish: lineItem.finish || '',
+        selectedBorderCut: 'full-bleed', // TODO: Add to cart model
+        designFilePath: savedDesign?.path,
+        designFileUrl: savedDesign?.url,
+        designFileName: savedDesign?.name,
+        pricePerUnit: lineItem.unitPrice,
+        setupFee: 25,
+        subtotal: cart.subtotal,
+        total: cart.total,
+        customerNotes: ''
+      });
+
+      setConfirmationData({ orderNumber: order.order_number });
+      setCurrentStep("confirmation");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to place order';
+      setOrderError(errorMsg);
+      console.error('Order creation error:', error);
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   const stepLabels: Record<CheckoutStep, string> = {
