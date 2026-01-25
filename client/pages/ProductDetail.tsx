@@ -220,9 +220,9 @@ export default function ProductDetail() {
           </div>
 
           {/* Quantity */}
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-3 text-white">
-            <h3 className="text-xs font-bold uppercase mb-3">Select Quantity</h3>
-            <div className="space-y-2">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-2 text-white">
+            <h3 className="text-xs font-bold uppercase mb-2">Select Quantity</h3>
+            <div className="space-y-1">
               {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
                 <button
                   key={q}
