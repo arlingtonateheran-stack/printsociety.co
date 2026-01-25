@@ -54,7 +54,7 @@ export default function Hero() {
               </Link>
               <Link
                 to="/products"
-                className="text-white font-black text-lg px-8 py-3 rounded-lg hover:opacity-80 transition flex items-center justify-center gap-3 border-b-2 border-white"
+                className="bg-white text-black font-black text-lg px-8 py-3 rounded-lg hover:opacity-80 transition flex items-center justify-center gap-3"
               >
                 All sticker products
                 <ArrowRight size={20} />
