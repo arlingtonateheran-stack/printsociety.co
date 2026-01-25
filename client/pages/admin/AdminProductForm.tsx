@@ -83,6 +83,11 @@ interface DesignUploadSettings {
   };
 }
 
+interface ConditionLogic {
+  type: "all" | "any";
+  description?: string;
+}
+
 interface ProductData {
   name: string;
   slug: string;
