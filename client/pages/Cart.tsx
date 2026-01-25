@@ -82,7 +82,7 @@ export default function Cart() {
                           <div className="flex items-center border rounded-lg">
                             <button
                               onClick={() =>
-                                handleQuantityChange(
+                                updateQuantity(
                                   item.id,
                                   item.quantity - 1
                                 )
@@ -96,7 +96,7 @@ export default function Cart() {
                             </span>
                             <button
                               onClick={() =>
-                                handleQuantityChange(
+                                updateQuantity(
                                   item.id,
                                   item.quantity + 1
                                 )
