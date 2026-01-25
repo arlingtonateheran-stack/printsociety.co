@@ -11,6 +11,7 @@ import { OrderSummary } from "@/components/OrderSummary";
 import { TermsAndConditions } from "@/components/TermsAndConditions";
 import { ChevronRight, CheckCircle, AlertCircle } from "lucide-react";
 import { createOrder } from "@/lib/supabase";
+import { useCart } from "@/contexts/CartContext";
 import type {
   Cart,
   CartLineItem,
@@ -30,33 +31,9 @@ type CheckoutStep =
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { cart: contextCart } = useCart();
 
-  const initialCart: Cart = location.state?.cartData || {
-    id: "cart-001",
-    userId: "user-001",
-    lineItems: [
-      {
-        id: "item-1",
-        productId: "die-cut-stickers-vinyl",
-        productName: "Die-Cut Vinyl Stickers",
-        productSlug: "die-cut-vinyl-stickers",
-        quantity: 100,
-        size: "3\" - 4\"",
-        material: "vinyl",
-        finish: "glossy",
-        unitPrice: 0.28,
-        subtotal: 28,
-        artworkStatus: "pending",
-      },
-    ],
-    subtotal: 28,
-    shippingCost: 0,
-    discountAmount: 0,
-    total: 28,
-    termsAccepted: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  const initialCart: Cart = location.state?.cartData || contextCart;
 
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("artwork");
   const [cart, setCart] = useState<Cart>(initialCart);
