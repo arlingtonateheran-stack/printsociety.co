@@ -377,6 +377,16 @@ export default function AdminProductForm() {
     }));
   };
 
+  const updateQuantitySettings = (field: string, value: any) => {
+    setProduct((prev) => ({
+      ...prev,
+      quantitySettings: {
+        ...prev.quantitySettings,
+        [field]: value,
+      },
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting advanced product:", product);
