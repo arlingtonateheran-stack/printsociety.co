@@ -9,7 +9,7 @@ export default function Hero() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left Content */}
-          <div className="flex flex-col justify-center space-y-8 order-2 lg:order-1">
+          <div className="flex flex-col justify-center space-y-6 order-2 lg:order-1">
             {/* Heading */}
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
