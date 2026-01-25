@@ -73,7 +73,7 @@ export default function AdminLogin() {
             <Shield className="text-blue-400" size={32} />
             <h1 className="text-3xl font-bold text-white">Admin</h1>
           </div>
-          <p className="text-slate-400 mt-1">Sticky Slap Admin Portal</p>
+          <p className="text-slate-400 mt-1">Print Society .co Admin Portal</p>
         </div>
 
         <Card className="p-8 shadow-lg bg-slate-800 border-slate-700">

@@ -64,7 +64,7 @@ export default function Login() {
       <div className="relative w-full max-w-md">
         {/* Logo / Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Sticky Slap</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Print Society .co</h1>
           <p className="text-gray-600 mt-1">Custom Sticker Printing</p>
         </div>
 

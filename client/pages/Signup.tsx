@@ -108,7 +108,7 @@ export default function Signup() {
         {/* Logo / Branding */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-1">Join Sticky Slap today</p>
+          <p className="text-gray-600 mt-1">Join Print Society .co today</p>
         </div>
 
         <Card className="p-8 shadow-lg">
