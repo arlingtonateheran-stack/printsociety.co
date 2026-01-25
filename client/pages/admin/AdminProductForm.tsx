@@ -560,6 +560,9 @@ export default function AdminProductForm() {
                       ))}
                     </div>
                   </Card>
+
+                  {/* Price Calculator */}
+                  <PriceCalculator />
                 </>
               )}
 
