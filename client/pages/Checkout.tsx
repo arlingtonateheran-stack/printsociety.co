@@ -393,6 +393,17 @@ export default function Checkout() {
                 </Card>
               )}
 
+              {/* Error Message */}
+              {orderError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex gap-3">
+                  <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                  <div>
+                    <h3 className="font-semibold text-red-900">Order Error</h3>
+                    <p className="text-sm text-red-800">{orderError}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Navigation Buttons */}
               <div className="flex gap-4 mt-8">
                 {currentStepIndex > 0 && (
@@ -400,6 +411,7 @@ export default function Checkout() {
                     onClick={handlePrevious}
                     variant="outline"
                     className="flex-1"
+                    disabled={isPlacingOrder}
                   >
                     Previous Step
                   </Button>
@@ -410,6 +422,7 @@ export default function Checkout() {
                     onClick={handleNext}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                     disabled={
+                      isPlacingOrder ||
                       (currentStep === "artwork" && !canProceedToShipping) ||
                       (currentStep === "shipping" && !canProceedToBilling) ||
                       (currentStep === "billing" && !canProceedToTerms) ||
@@ -425,8 +438,9 @@ export default function Checkout() {
                     onClick={handlePlaceOrder}
                     className="flex-1 bg-green-600 hover:bg-green-700"
                     size="lg"
+                    disabled={isPlacingOrder}
                   >
-                    Place Order
+                    {isPlacingOrder ? 'Processing...' : 'Place Order'}
                   </Button>
                 )}
               </div>
