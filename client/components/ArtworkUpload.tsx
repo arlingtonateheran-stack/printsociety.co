@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { uploadDesignFile } from '../lib/supabase';
 
