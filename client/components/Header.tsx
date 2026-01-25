@@ -15,41 +15,41 @@ export default function Header() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-2 md:gap-8 text-xs md:text-base">
+        <nav className="flex items-center gap-2 md:gap-4 text-xs md:text-base">
           <Link
             to="/products"
-            className="hidden md:inline hover:opacity-80 transition font-medium"
+            className="hidden md:inline hover:opacity-80 transition font-medium border border-gray-400 rounded-lg px-3 py-2"
           >
             Shop
           </Link>
           <Link
             to="/proofs"
-            className="hidden md:inline hover:opacity-80 transition font-medium"
+            className="hidden md:inline hover:opacity-80 transition font-medium border border-gray-400 rounded-lg px-3 py-2"
           >
             Proofs
           </Link>
-          <Link to="#" className="hidden md:inline hover:opacity-80 transition">
+          <Link to="#" className="hidden md:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2">
             Deals
           </Link>
-          <Link to="#" className="hidden md:inline hover:opacity-80 transition">
+          <Link to="#" className="hidden md:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2">
             News
           </Link>
           <Link
             to="/login"
-            className="hidden sm:inline hover:opacity-80 transition"
+            className="hidden sm:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2"
           >
             Login
           </Link>
           <Link
             to="/signup"
-            className="hidden sm:inline hover:opacity-80 transition"
+            className="hidden sm:inline hover:opacity-80 transition border border-gray-400 rounded-lg px-3 py-2"
           >
             Sign Up
           </Link>
-          <button className="hover:opacity-80 transition p-1">
+          <button className="hover:opacity-80 transition p-2 border border-gray-400 rounded-lg">
             <Hand size={18} className="md:w-5 md:h-5" />
           </button>
-          <Link to="#" className="hover:opacity-80 transition p-1">
+          <Link to="#" className="hover:opacity-80 transition p-2 border border-gray-400 rounded-lg">
             <ShoppingCart size={18} className="md:w-5 md:h-5" />
           </Link>
         </nav>
