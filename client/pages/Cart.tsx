@@ -155,15 +155,15 @@ export default function Cart() {
                     <span>Shipping</span>
                     <span>${cart.shippingCost.toFixed(2)}</span>
                   </div>
-                  {cart.discountAmount > 0 && (
+                  {discountAmount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>-${cart.discountAmount.toFixed(2)}</span>
+                      <span>-${discountAmount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="border-t pt-4 flex justify-between text-xl font-bold">
                     <span>Total</span>
-                    <span>${cart.total.toFixed(2)}</span>
+                    <span>${(cart.subtotal + cart.shippingCost - discountAmount).toFixed(2)}</span>
                   </div>
                 </div>
 
