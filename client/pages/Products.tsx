@@ -56,7 +56,7 @@ export default function Products() {
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-black to-gray-900 text-white py-12 px-4">
+      <section className="bg-black text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Shop Custom Products</h1>
           <p className="text-gray-300 text-lg">Choose from a variety of custom printing options</p>
