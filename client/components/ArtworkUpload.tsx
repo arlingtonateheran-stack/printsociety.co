@@ -15,10 +15,11 @@ export default function ArtworkUpload({ onUpload }: ArtworkUploadProps) {
       setFile(selectedFile);
       const reader = new FileReader();
       reader.onload = (e) => {
-        setPreview(e.target?.result as string);
+        const previewData = e.target?.result as string;
+        setPreview(previewData);
+        onUpload?.(selectedFile, previewData);
       };
       reader.readAsDataURL(selectedFile);
-      onUpload?.(selectedFile);
     }
   };
 
