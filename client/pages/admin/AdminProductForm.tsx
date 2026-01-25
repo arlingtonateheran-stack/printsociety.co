@@ -324,6 +324,29 @@ export default function AdminProductForm() {
     }));
   };
 
+  const updateDesignUploadSettings = (field: string, value: any) => {
+    setProduct((prev) => ({
+      ...prev,
+      designUploadSettings: {
+        ...prev.designUploadSettings,
+        [field]: value,
+      },
+    }));
+  };
+
+  const updateDesignUploadFormat = (format: keyof DesignUploadSettings["allowedFormats"], enabled: boolean) => {
+    setProduct((prev) => ({
+      ...prev,
+      designUploadSettings: {
+        ...prev.designUploadSettings,
+        allowedFormats: {
+          ...prev.designUploadSettings.allowedFormats,
+          [format]: enabled,
+        },
+      },
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting advanced product:", product);
