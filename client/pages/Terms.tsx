@@ -52,7 +52,7 @@ export default function Terms() {
             <section id="section-1" className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Services</h2>
               <p className="text-gray-700 mb-4">
-                Sticky Slap ("Company," "we," "us," or "our") provides custom-printed products
+                Print Society .co ("Company," "we," "us," or "our") provides custom-printed products
                 including, but not limited to, stickers, labels, and related printed materials.
                 All products are made to order based on customer-submitted designs.
               </p>
@@ -89,12 +89,12 @@ export default function Terms() {
               </ul>
               <Card className="bg-yellow-50 border-yellow-200 p-4 mb-4">
                 <p className="text-yellow-900 font-semibold">
-                  ⚠️ Sticky Slap is not responsible for copyright or trademark violations caused
+                  ⚠️ Print Society .co is not responsible for copyright or trademark violations caused
                   by customer-submitted artwork.
                 </p>
               </Card>
               <p className="text-gray-700">
-                You grant Sticky Slap a limited license to use your artwork only to fulfill your
+                You grant Print Society .co a limited license to use your artwork only to fulfill your
                 order and provide proofs.
               </p>
             </section>
@@ -153,7 +153,7 @@ export default function Terms() {
                 Production times are estimates and begin after proof approval. Shipping time is
                 separate from production time.
               </p>
-              <p className="font-semibold text-gray-900 mb-2">Sticky Slap is not responsible for:</p>
+              <p className="font-semibold text-gray-900 mb-2">Print Society .co is not responsible for:</p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li>Carrier delays (USPS, UPS, FedEx, DHL, etc.)</li>
                 <li>Weather disruptions or natural disasters</li>
@@ -173,7 +173,7 @@ export default function Terms() {
                 <p className="font-semibold text-gray-900 mb-2">All sales are final once approved and printed.</p>
                 <p className="text-gray-700 text-sm">
                   We may offer reprints or refunds only if the product is defective or the error
-                  was caused by Sticky Slap.
+                  was caused by Print Society .co.
                 </p>
               </Card>
               <p className="font-semibold text-gray-900 mb-2">To submit a claim:</p>
@@ -184,7 +184,7 @@ export default function Terms() {
               </ul>
               <p className="text-gray-700">
                 Claims submitted after 7 days cannot be processed. All decisions are made at
-                Sticky Slap's discretion.
+                Print Society .co's discretion.
               </p>
             </section>
 
@@ -212,7 +212,7 @@ export default function Terms() {
             <section id="section-9" className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Limitation of Liability</h2>
               <p className="text-gray-700 mb-4">
-                To the maximum extent permitted by law, Sticky Slap is not liable for:
+                To the maximum extent permitted by law, Print Society .co is not liable for:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
                 <li>Lost profits or business interruption</li>
@@ -241,7 +241,7 @@ export default function Terms() {
                 For questions regarding these Terms of Service, please contact us:
               </p>
               <Card className="bg-green-50 border-green-200 p-4">
-                <p className="font-semibold text-gray-900 mb-2">Sticky Slap Support</p>
+                <p className="font-semibold text-gray-900 mb-2">Print Society .co Support</p>
                 <p className="text-gray-700">📧 support@stickyslap.com</p>
                 <p className="text-gray-700 text-sm mt-2">Response time: 24-48 hours</p>
               </Card>

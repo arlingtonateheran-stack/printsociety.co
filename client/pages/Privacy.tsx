@@ -30,7 +30,7 @@ export default function Privacy() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Privacy Matters</h2>
                   <p className="text-gray-700">
-                    Sticky Slap respects your privacy and is committed to protecting your personal
+                    Print Society .co respects your privacy and is committed to protecting your personal
                     information. This policy explains how we collect, use, and protect your data.
                   </p>
                 </div>
@@ -247,7 +247,7 @@ export default function Privacy() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Children's Privacy</h2>
               <Card className="bg-yellow-50 border-yellow-200 p-4">
                 <p className="text-yellow-900">
-                  <strong>⚠️ Important:</strong> Sticky Slap does not knowingly collect personal
+                  <strong>⚠️ Important:</strong> Print Society .co does not knowingly collect personal
                   information from individuals under 13 years old. If we learn that we have
                   collected data from a child, we will delete it promptly. Parents or guardians
                   who believe their child has provided information to us should contact us
@@ -262,7 +262,7 @@ export default function Privacy() {
               <p className="text-gray-700">
                 We may update this Privacy Policy periodically to reflect changes in our practices,
                 technology, or legal requirements. Updates will be posted on this page with a new
-                "Last updated" date. Your continued use of Sticky Slap following any changes
+                "Last updated" date. Your continued use of Print Society .co following any changes
                 constitutes your acceptance of the updated policy.
               </p>
             </section>
@@ -277,7 +277,7 @@ export default function Privacy() {
               <Card className="bg-green-50 border-green-200 p-6">
                 <div className="space-y-4">
                   <div>
-                    <p className="font-semibold text-gray-900">Sticky Slap Privacy Team</p>
+                    <p className="font-semibold text-gray-900">Print Society .co Privacy Team</p>
                     <p className="text-gray-700 mt-1">📧 <strong>privacy@stickyslap.com</strong></p>
                     <p className="text-gray-700">📧 <strong>support@stickyslap.com</strong></p>
                     <p className="text-gray-600 text-sm mt-3">
