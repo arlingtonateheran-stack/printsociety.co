@@ -139,6 +139,84 @@ export async function deleteDesignFile(filePath: string) {
 }
 
 // ============================================================================
+// ORDER OPERATIONS
+// ============================================================================
+
+export interface OrderData {
+  customerEmail: string;
+  customerName: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  selectedSize: string;
+  selectedFinish: string;
+  selectedBorderCut: string;
+  designFilePath?: string;
+  designFileUrl?: string;
+  designFileName?: string;
+  pricePerUnit: number;
+  setupFee: number;
+  subtotal: number;
+  total: number;
+  customerNotes?: string;
+}
+
+export async function createOrder(orderData: OrderData) {
+  // Generate order number
+  const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+
+  const { data, error } = await supabase
+    .from('orders')
+    .insert([
+      {
+        order_number: orderNumber,
+        customer_email: orderData.customerEmail,
+        customer_name: orderData.customerName,
+        product_id: orderData.productId,
+        product_name: orderData.productName,
+        quantity: orderData.quantity,
+        selected_size: orderData.selectedSize,
+        selected_finish: orderData.selectedFinish,
+        selected_border_cut: orderData.selectedBorderCut,
+        design_file_path: orderData.designFilePath,
+        design_file_url: orderData.designFileUrl,
+        design_file_name: orderData.designFileName,
+        price_per_unit: orderData.pricePerUnit,
+        setup_fee: orderData.setupFee,
+        subtotal: orderData.subtotal,
+        total: orderData.total,
+        customer_notes: orderData.customerNotes
+      }
+    ])
+    .select();
+
+  if (error) throw error;
+  return data?.[0];
+}
+
+export async function getOrderByEmail(email: string) {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('customer_email', email)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getOrderById(id: string) {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// ============================================================================
 // GALLERY OPERATIONS
 // ============================================================================
 
