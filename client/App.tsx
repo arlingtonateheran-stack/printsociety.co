@@ -32,6 +32,7 @@ import AdminPricing from "./pages/admin/AdminPricing";
 import AdminShipping from "./pages/admin/AdminShipping";
 import AdminSEO from "./pages/admin/AdminSEO";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminCustomerDetail from "./pages/admin/AdminCustomerDetail";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -201,6 +202,14 @@ export default function App() {
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminCustomers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/customers/:customerId"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminCustomerDetail />
                   </ProtectedRoute>
                 }
               />
