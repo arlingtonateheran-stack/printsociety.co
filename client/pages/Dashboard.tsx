@@ -329,7 +329,17 @@ export default function Dashboard() {
       fetchDashboardData();
     } catch (error: any) {
       console.error("Error saving address details:", error);
-      const errorMessage = error.message || error.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error. Check your RLS policies or database schema.";
+        }
+      }
+
       toast.error(`Failed to save address: ${errorMessage}`);
       throw error; // Re-throw for the modal to handle
     }

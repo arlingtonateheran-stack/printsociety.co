@@ -89,7 +89,16 @@ export function AddressModal({ isOpen, onClose, onSave, address }: AddressModalP
       await onSave(formData);
       onClose();
     } catch (error: any) {
-      const errorMessage = error.message || error.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error occurred while saving the address.";
+        }
+      }
+
       console.error("Error saving address:", errorMessage);
       alert(`Error saving address: ${errorMessage}`);
     } finally {
