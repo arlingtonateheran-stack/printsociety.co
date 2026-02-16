@@ -3,7 +3,8 @@ import { TicketCategory, TicketPriority } from "@shared/support";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader } from "lucide-react";
+import { sendEmail } from "@/utils/email";
 
 interface ContactFormProps {
   onSubmit?: (formData: {
@@ -30,6 +31,7 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const categories: { value: TicketCategory; label: string; description: string }[] = [
@@ -65,27 +67,71 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    onSubmit?.(formData);
-    setSubmitted(true);
+    setIsSubmitting(true);
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        category: "other",
-        priority: "medium",
-        message: "",
-        orderNumber: "",
+    try {
+      // Send notification email to support team
+      await sendEmail({
+        to: "support@printsociety.co", // Replace with actual support email
+        subject: `[Support Ticket] ${formData.subject} - ${formData.category}`,
+        html: `
+          <h2>New Support Ticket Received</h2>
+          <p><strong>Name:</strong> ${formData.name}</p>
+          <p><strong>Email:</strong> ${formData.email}</p>
+          <p><strong>Category:</strong> ${formData.category}</p>
+          <p><strong>Priority:</strong> ${formData.priority}</p>
+          <p><strong>Order Number:</strong> ${formData.orderNumber || 'N/A'}</p>
+          <hr />
+          <p><strong>Message:</strong></p>
+          <p>${formData.message}</p>
+        `,
+        from: `Support Portal <support@printsociety.co>`
       });
-      setSubmitted(false);
-    }, 3000);
+
+      // Send confirmation email to customer
+      await sendEmail({
+        to: formData.email,
+        subject: `We've received your support request: ${formData.subject}`,
+        html: `
+          <p>Hi ${formData.name},</p>
+          <p>Thank you for contacting Print Society support. We have received your message and our team will get back to you within 24 hours.</p>
+          <p><strong>Ticket Details:</strong></p>
+          <ul>
+            <li><strong>Subject:</strong> ${formData.subject}</li>
+            <li><strong>Category:</strong> ${formData.category}</li>
+          </ul>
+          <p>Best regards,<br/>Print Society Support Team</p>
+        `,
+        from: `Print Society <notifications@printsociety.co>`
+      });
+
+      onSubmit?.(formData);
+      setSubmitted(true);
+
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          category: "other",
+          priority: "medium",
+          message: "",
+          orderNumber: "",
+        });
+        setSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Failed to submit ticket:", error);
+      setErrors({ form: "Failed to send message. Please try again later." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -264,9 +310,11 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold"
+          disabled={isSubmitting}
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold flex items-center justify-center gap-2"
         >
-          Create Support Ticket
+          {isSubmitting && <Loader size={18} className="animate-spin" />}
+          {isSubmitting ? "Sending..." : "Create Support Ticket"}
         </Button>
 
         <p className="text-xs text-gray-500 text-center">

@@ -21,6 +21,8 @@ import {
   LoginResponse,
   SignupResponse,
 } from "@shared/auth";
+import { supabase } from "@/lib/supabase";
+import { sendEmail, EMAIL_TEMPLATES } from "@/utils/email";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -41,63 +43,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        if (token) {
-          // Validate token with backend
-          // For now, simulate successful check
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          // In production, call API to verify token
-        } else {
-          // Development: Auto-authenticate for dashboard preview
-          const mockUser: User = {
-            id: "dev-user-1",
-            email: "admin@printsociety.co",
-            name: "Admin User",
-            role: "admin",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            isVerified: true,
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) throw error;
+
+        if (session) {
+          const user = session.user;
+          const role = user.user_metadata?.role || 'customer';
+
+          const mappedUser: User = {
+            id: user.id,
+            email: user.email || '',
+            name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            role: role,
+            createdAt: new Date(user.created_at),
+            updatedAt: new Date(user.updated_at || user.created_at),
+            isVerified: !!user.email_confirmed_at,
             isActive: true,
           };
 
-          const mockSession: AuthSession = {
-            id: "dev-session-1",
-            userId: mockUser.id,
-            token: "dev-token-" + Math.random().toString(36),
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          const mappedSession: AuthSession = {
+            id: session.access_token,
+            userId: user.id,
+            token: session.access_token,
+            refreshToken: session.refresh_token,
+            expiresAt: new Date(Date.now() + (session.expires_in || 3600) * 1000),
             createdAt: new Date(),
             lastActive: new Date(),
-            ipAddress: "127.0.0.1",
+            ipAddress: "unknown",
             userAgent: navigator.userAgent,
             isActive: true,
           };
 
-          const permissions = ROLE_PERMISSIONS[mockUser.role];
-
           setAuthState({
             isAuthenticated: true,
             isLoading: false,
-            user: mockUser,
-            session: mockSession,
-            permissions,
+            user: mappedUser,
+            session: mappedSession,
+            permissions: ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || ROLE_PERMISSIONS.customer,
             error: null,
             lastChecked: new Date(),
           });
-
-          return;
+        } else {
+          setAuthState(prev => ({ ...prev, isLoading: false, lastChecked: new Date() }));
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-      } finally {
-        setAuthState((prev) => ({
-          ...prev,
-          isLoading: false,
-          lastChecked: new Date(),
-        }));
+        setAuthState(prev => ({ ...prev, isLoading: false, lastChecked: new Date() }));
       }
     };
 
     checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        const user = session.user;
+        const role = user.user_metadata?.role || 'customer';
+
+        const mappedUser: User = {
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          role: role,
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at || user.created_at),
+          isVerified: !!user.email_confirmed_at,
+          isActive: true,
+        };
+
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: mappedUser,
+          session: {
+            id: session.access_token,
+            userId: user.id,
+            token: session.access_token,
+            refreshToken: session.refresh_token,
+            expiresAt: new Date(Date.now() + (session.expires_in || 3600) * 1000),
+            createdAt: new Date(),
+            lastActive: new Date(),
+            ipAddress: "unknown",
+            userAgent: navigator.userAgent,
+            isActive: true,
+          },
+          permissions: ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || ROLE_PERMISSIONS.customer,
+          error: null,
+          lastChecked: new Date(),
+        });
+      } else {
+        setAuthState({
+          ...initialAuthState,
+          isLoading: false,
+          lastChecked: new Date(),
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const validatePassword = useCallback(
@@ -155,60 +201,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        // TODO: Replace with actual API call
-        // await api.post('/auth/login', credentials)
-
-        // Simulate API response
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const mockUser: User = {
-          id: "1",
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: credentials.email,
-          name: "John Doe",
-          role: "customer",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isVerified: true,
+          password: credentials.password,
+        });
+
+        if (error) throw error;
+
+        if (!data.session) throw new Error("Login failed - no session returned");
+
+        const user = data.session.user;
+        const role = user.user_metadata?.role || 'customer';
+
+        const mappedUser: User = {
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          role: role,
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at || user.created_at),
+          isVerified: !!user.email_confirmed_at,
           isActive: true,
         };
 
-        const mockSession: AuthSession = {
-          id: "session-1",
-          userId: mockUser.id,
-          token: "mock-token-" + Math.random().toString(36),
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        const mappedSession: AuthSession = {
+          id: data.session.access_token,
+          userId: user.id,
+          token: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+          expiresAt: new Date(Date.now() + (data.session.expires_in || 3600) * 1000),
           createdAt: new Date(),
           lastActive: new Date(),
-          ipAddress: "127.0.0.1",
+          ipAddress: "unknown",
           userAgent: navigator.userAgent,
           isActive: true,
         };
 
-        // Store token
-        localStorage.setItem("authToken", mockSession.token);
-        localStorage.setItem("userId", mockUser.id);
-
-        const permissions = ROLE_PERMISSIONS[mockUser.role];
-
-        setAuthState({
-          isAuthenticated: true,
-          isLoading: false,
-          user: mockUser,
-          session: mockSession,
-          permissions,
-          error: null,
-          lastChecked: new Date(),
-        });
-
         return {
-          user: mockUser,
-          session: mockSession,
-          redirectUrl: mockUser.role === "admin" ? "/admin" : "/account",
+          user: mappedUser,
+          session: mappedSession,
+          redirectUrl: role === "admin" ? "/admin" : "/account",
         };
-      } catch (error) {
+      } catch (error: any) {
         const authError: AuthError = {
           code: "invalid_credentials",
-          message: "Invalid email or password",
+          message: error.message || "Invalid email or password",
           statusCode: 401,
         };
 
@@ -231,49 +268,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // Validate passwords match
         if (data.password !== data.confirmPassword) {
-          throw {
-            code: "password_mismatch",
-            message: "Passwords do not match",
-            statusCode: 400,
-          };
+          throw new Error("Passwords do not match");
         }
 
         // Validate password strength
         const validation = validatePassword(data.password);
         if (!validation.isValid) {
-          throw {
-            code: "weak_password",
-            message: validation.errors[0],
-            statusCode: 400,
-          };
+          throw new Error(validation.errors[0]);
         }
 
-        // TODO: Replace with actual API call
-        // await api.post('/auth/signup', data)
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const mockUser: User = {
-          id: "user-" + Math.random().toString(36),
+        const { data: authData, error } = await supabase.auth.signUp({
           email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              full_name: data.name,
+              role: data.signupType === 'wholesale' ? 'customer' : 'customer', // Default to customer, handle wholesale logic if needed
+              business_name: data.businessName,
+              phone: data.phone,
+            },
+            emailRedirectTo: `${window.location.origin}/email-verification`
+          }
+        });
+
+        if (error) throw error;
+
+        if (!authData.user) throw new Error("Signup failed - no user returned");
+
+        const user = authData.user;
+
+        // Send Welcome Email via Resend
+        try {
+          const template = EMAIL_TEMPLATES.welcome(data.name);
+          await sendEmail({
+            to: data.email,
+            subject: template.subject,
+            html: template.html,
+          });
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError);
+          // Don't fail signup if email fails
+        }
+
+        const mappedUser: User = {
+          id: user.id,
+          email: user.email || '',
           name: data.name,
-          role: "customer",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isVerified: false,
+          role: 'customer',
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at || user.created_at),
+          isVerified: !!user.email_confirmed_at,
           isActive: true,
         };
 
         return {
-          user: mockUser,
+          user: mappedUser,
           verificationEmailSent: true,
-          redirectUrl: "/email-verification?userId=" + mockUser.id,
+          redirectUrl: "/email-verification?userId=" + user.id,
         };
-      } catch (error) {
+      } catch (error: any) {
         const authError: AuthError = {
           code: "email_already_exists",
-          message: (error as any).message || "Signup failed",
-          statusCode: (error as any).statusCode || 400,
+          message: error.message || "Signup failed",
+          statusCode: 400,
         };
 
         setAuthState((prev) => ({
@@ -292,18 +349,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
-      // TODO: Call API to invalidate session
-      // await api.post('/auth/logout')
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Clear local storage
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userId");
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
 
       setAuthState(initialAuthState);
     } catch (error) {
       console.error("Logout failed:", error);
+      setAuthState(prev => ({ ...prev, isLoading: false }));
     }
   }, []);
 
@@ -329,16 +381,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // TODO: Call API
-      // await api.post('/auth/forgot-password', { email })
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (error) throw error;
 
       setAuthState((prev) => ({ ...prev, isLoading: false }));
-    } catch (error) {
+    } catch (error: any) {
       const authError: AuthError = {
         code: "account_not_found",
-        message: "No account found with this email",
+        message: error.message || "No account found with this email",
         statusCode: 404,
       };
 
@@ -359,32 +412,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const validation = validatePassword(request.newPassword);
         if (!validation.isValid) {
-          throw {
-            code: "weak_password",
-            message: validation.errors[0],
-            statusCode: 400,
-          };
+          throw new Error(validation.errors[0]);
         }
 
         if (request.newPassword !== request.confirmPassword) {
-          throw {
-            code: "password_mismatch",
-            message: "Passwords do not match",
-            statusCode: 400,
-          };
+          throw new Error("Passwords do not match");
         }
 
-        // TODO: Call API
-        // await api.post('/auth/reset-password', request)
+        const { error } = await supabase.auth.updateUser({
+          password: request.newPassword,
+        });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (error) throw error;
 
         setAuthState((prev) => ({ ...prev, isLoading: false }));
-      } catch (error) {
+      } catch (error: any) {
         const authError: AuthError = {
           code: "token_expired",
-          message: (error as any).message || "Password reset failed",
-          statusCode: (error as any).statusCode || 400,
+          message: error.message || "Password reset failed",
+          statusCode: 400,
         };
 
         setAuthState((prev) => ({
@@ -490,16 +536,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // TODO: Call API
-      // await api.post('/auth/magic-link', { email })
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/account`,
+        }
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (error) throw error;
 
       setAuthState((prev) => ({ ...prev, isLoading: false }));
-    } catch (error) {
+    } catch (error: any) {
       const authError: AuthError = {
         code: "account_not_found",
-        message: "No account found with this email",
+        message: error.message || "Failed to send magic link",
         statusCode: 404,
       };
 

@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { sendEmail, EMAIL_TEMPLATES } from "@/utils/email";
 import {
   Clock,
   CheckCircle,
@@ -201,6 +202,34 @@ export default function AdminOrderDetail() {
         }]);
 
       if (proofError) throw proofError;
+
+      // Send Email Notification to Customer
+      try {
+        await sendEmail({
+          to: order.customer_email,
+          subject: `A new proof is ready for your order: ${order.order_number || order.id.substring(0, 8)}`,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #16a34a;">New Proof Ready!</h1>
+              <p>Hi ${order.customer_name || 'there'},</p>
+              <p>A new design proof (v${(order.proofs?.length || 0) + 1}) has been uploaded for your order.</p>
+              <p><strong>Message from our designer:</strong></p>
+              <blockquote style="border-left: 4px solid #16a34a; padding-left: 15px; font-style: italic;">
+                ${proofMessage}
+              </blockquote>
+              <p>Please review and approve the proof so we can begin production.</p>
+              <p><a href="${window.location.origin}/proofs" style="color: #16a34a; font-weight: bold;">Review Proof Now</a></p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #666;">
+                Print Society Co · notifications@printsociety.co
+              </p>
+            </div>
+          `,
+          from: `Print Society Design Team <design@printsociety.co>`
+        });
+      } catch (emailError) {
+        console.error("Failed to send proof notification email:", emailError);
+      }
 
       // Update order status to proof-sent if it was awaiting-artwork
       if (order.status === 'awaiting-artwork') {

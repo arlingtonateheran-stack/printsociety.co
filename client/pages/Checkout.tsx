@@ -12,6 +12,7 @@ import { TermsAndConditions } from "@/components/TermsAndConditions";
 import { ChevronRight, CheckCircle, AlertCircle } from "lucide-react";
 import { createOrder } from "@/lib/supabase";
 import { useCart } from "@/contexts/CartContext";
+import { sendEmail, EMAIL_TEMPLATES } from "@/utils/email";
 import type {
   Cart,
   CartLineItem,
@@ -198,6 +199,19 @@ export default function Checkout() {
       });
 
       setConfirmationData({ orderNumber: order.order_number });
+
+      // Send Order Confirmation Email
+      try {
+        const template = EMAIL_TEMPLATES.orderConfirmation(order.order_number, `$${cart.total.toFixed(2)}`);
+        await sendEmail({
+          to: billingData.email || '',
+          subject: template.subject,
+          html: template.html,
+        });
+      } catch (emailError) {
+        console.error("Failed to send order confirmation email:", emailError);
+      }
+
       setCurrentStep("confirmation");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
