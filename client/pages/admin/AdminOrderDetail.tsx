@@ -53,23 +53,42 @@ export default function AdminOrderDetail() {
       // Check if orderId is a valid UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId || "");
 
-      let query = supabase.from("orders").select(`
-        *,
-        proofs(*),
-        artwork_files(*)
-      `);
+      console.log(`Fetching order details for ${isUUID ? 'UUID' : 'number'}: ${orderId}`);
 
-      if (isUUID) {
-        query = query.eq("id", orderId);
-      } else {
-        // Fallback: try to find by order_number if not a UUID
-        query = query.eq("order_number", orderId);
-      }
-
-      const { data, error } = await query.maybeSingle();
+      // Attempt full query with joins
+      const { data, error } = await supabase
+        .from("orders")
+        .select(`
+          *,
+          proofs(*),
+          artwork_files(*)
+        `)
+        .eq(isUUID ? "id" : "order_number", orderId)
+        .maybeSingle();
 
       if (error) {
-        console.error("Supabase error fetching order details:", error);
+        console.error("Supabase error (full query):", error);
+
+        // Fallback: try simple query without joins to see if relationship is the issue
+        console.log("Attempting fallback query without joins...");
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("orders")
+          .select("*")
+          .eq(isUUID ? "id" : "order_number", orderId)
+          .maybeSingle();
+
+        if (fallbackError) {
+          console.error("Supabase error (fallback query):", fallbackError);
+          throw fallbackError;
+        }
+
+        if (fallbackData) {
+          console.warn("Order found without joins, but joined query failed. This usually means a missing relationship/FK in Supabase.");
+          setOrder({ ...fallbackData, proofs: [], artwork_files: [] });
+          toast.warning("Order loaded without proofs/artwork due to database relationship issue.");
+          return;
+        }
+
         throw error;
       }
 
@@ -80,21 +99,22 @@ export default function AdminOrderDetail() {
         setOrder(data);
       }
     } catch (error: any) {
-      console.error("Error fetching order details:", error);
-      let errorMessage = "Unknown error";
+      console.error("Detailed error fetching order details:", error);
 
+      let errorMessage = "Unknown error";
       if (typeof error === 'string') {
         errorMessage = error;
       } else if (error && typeof error === 'object') {
-        // Supabase often returns errors in this format
-        errorMessage = error.message || error.details || error.hint || (error.code ? `DB Error ${error.code}` : JSON.stringify(error));
+        errorMessage = error.message || error.details || error.hint || `Error code: ${error.code}`;
+        // If it's still an object-like string, try to get more info
+        if (errorMessage.includes('[object Object]') || errorMessage === '{}') {
+          errorMessage = `Database error ${error.code || ''}: ${JSON.stringify(error)}`;
+        }
       }
 
-      if (errorMessage === "{}" || errorMessage === "[object Object]") {
-        errorMessage = "Database error. Please check if all required columns (customer_email, product_name, etc.) exist in the orders table.";
-      }
-
-      toast.error(`Failed to load order details: ${errorMessage}`);
+      toast.error(`Failed to load order details: ${errorMessage}`, {
+        duration: 10000, // Show longer so user can read
+      });
     } finally {
       setIsLoading(false);
     }
