@@ -26,15 +26,11 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
-  MoreVertical,
   CheckCircle,
-  XCircle,
   Undo2,
   FileText,
   Ban,
-  Save,
-  CreditCard,
-  RefreshCw
+  Save
 } from "lucide-react";
 import { supabase, getCustomerById } from "@/lib/supabase";
 import { toast } from "sonner";

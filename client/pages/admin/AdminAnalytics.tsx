@@ -28,7 +28,7 @@ const orderData = [
   { day: "Thu", orders: 16, revenue: 3200 },
   { day: "Fri", orders: 22, revenue: 4400 },
   { day: "Sat", orders: 28, revenue: 5600 },
-  { day: "Sun", revenue: 20, revenue: 4000 },
+  { day: "Sun", orders: 20, revenue: 4000 },
 ];
 
 export default function AdminAnalytics() {
