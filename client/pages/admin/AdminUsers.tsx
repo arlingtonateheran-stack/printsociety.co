@@ -7,6 +7,7 @@ import { Plus, Shield, Mail, User, Loader2, CheckCircle, XCircle, Edit2, Trash2 
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { InviteUserModal } from "./components/InviteUserModal";
 
 const roleColors: Record<string, string> = {
   admin: "bg-purple-100 text-purple-800",
@@ -93,10 +94,7 @@ export default function AdminUsers() {
                 <h1 className="text-3xl font-bold text-gray-900">Users & Roles</h1>
                 <p className="text-gray-600 mt-1">Manage staff access, permissions and account status.</p>
               </div>
-              <Button className="bg-green-600 hover:bg-green-700 gap-2">
-                <Plus size={18} />
-                Invite User
-              </Button>
+              <InviteUserModal onSuccess={fetchUsers} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
