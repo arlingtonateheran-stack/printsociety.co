@@ -9,6 +9,7 @@ import { Search, MessageSquare, Clock, AlertCircle, CheckCircle, User, Loader2, 
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { CreateTicketModal } from "./components/CreateTicketModal";
 
 const statusColors: Record<string, string> = {
   open: "bg-red-100 text-red-800",
@@ -86,10 +87,7 @@ export default function AdminTickets() {
                 <h1 className="text-3xl font-bold text-gray-900">Support Tickets</h1>
                 <p className="text-gray-600 mt-1">Manage customer support tickets and communication history.</p>
               </div>
-              <Button className="bg-green-600 hover:bg-green-700 gap-2">
-                <MessageSquare size={18} />
-                New Ticket
-              </Button>
+              <CreateTicketModal onSuccess={fetchTickets} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
