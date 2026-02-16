@@ -1,13 +1,30 @@
+import { useState, useMemo } from "react";
 import { Order, orderStatusColors } from "@shared/account";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Truck, Check, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Package, Truck, Check, ArrowRight, Search } from "lucide-react";
 
 interface MyOrdersProps {
   orders: Order[];
 }
 
 export function MyOrders({ orders }: MyOrdersProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) return orders;
+
+    const query = searchQuery.toLowerCase();
+    return orders.filter((order) => {
+      return (
+        order.orderNumber.toLowerCase().includes(query) ||
+        order.items.some((item) => item.productName.toLowerCase().includes(query)) ||
+        (order.trackingNumber && order.trackingNumber.toLowerCase().includes(query))
+      );
+    });
+  }, [orders, searchQuery]);
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending-proof":
@@ -29,29 +46,53 @@ export function MyOrders({ orders }: MyOrdersProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">My Orders</h2>
-        <p className="text-gray-600">
-          Track your orders from proof approval through delivery
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">My Orders</h2>
+          <p className="text-gray-600">
+            Track your orders from proof approval through delivery
+          </p>
+        </div>
+
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Input
+            placeholder="Search by order #, product, or tracking..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      {orders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <Card className="p-8 text-center">
           <Package size={48} className="mx-auto text-gray-300 mb-4" />
           <h3 className="text-lg font-semibold text-gray-600 mb-2">
-            No Orders Yet
+            {searchQuery ? "No Matching Orders Found" : "No Orders Yet"}
           </h3>
           <p className="text-gray-500 mb-6">
-            Start by creating your first custom order
+            {searchQuery
+              ? `We couldn't find any orders matching "${searchQuery}"`
+              : "Start by creating your first custom order"}
           </p>
-          <Button className="bg-green-600 hover:bg-green-700">
-            Shop Now
-          </Button>
+          {!searchQuery && (
+            <Button className="bg-green-600 hover:bg-green-700">
+              Shop Now
+            </Button>
+          )}
+          {searchQuery && (
+            <Button
+              variant="outline"
+              onClick={() => setSearchQuery("")}
+            >
+              Clear Search
+            </Button>
+          )}
         </Card>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
+          {filteredOrders.map((order) => {
             const colors = orderStatusColors[order.status];
 
             return (
