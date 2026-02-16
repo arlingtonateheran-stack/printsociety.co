@@ -1,18 +1,28 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, AlertCircle, CheckCircle, Clock, Lock } from 'lucide-react';
 import { sampleProofs, proofStatusColors, type ProofStatus } from '@shared/proofs';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/context/AuthContext';
 
 type FilterStatus = ProofStatus | 'all';
 
 export default function Proofs() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
   const filteredProofs = useMemo(() => {
+    if (!isAuthenticated || !user) return [];
+
     let filtered = sampleProofs;
+
+    // Filter by customer email if not an admin
+    if (user.role !== 'admin') {
+      filtered = filtered.filter(p => p.customerEmail.toLowerCase() === user.email.toLowerCase());
+    }
 
     // Filter by status
     if (filterStatus !== 'all') {
@@ -55,6 +65,48 @@ export default function Proofs() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h2>
+            <p className="text-gray-600 mb-8">
+              Please sign in to your account to view and manage your product proofs.
+            </p>
+            <div className="space-y-3">
+              <Link
+                to="/login"
+                className="block w-full py-3 px-4 bg-primary text-white rounded-lg font-bold hover:opacity-90 transition"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="block w-full py-3 px-4 bg-white border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition"
+              >
+                Create Account
+              </Link>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
