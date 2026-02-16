@@ -564,6 +564,8 @@ export default function AdminProductForm() {
 
     try {
       setIsSaving(true);
+      console.log("Starting product save process...");
+
       const productPayload = {
         name: product.name,
         slug: product.slug,
@@ -577,28 +579,34 @@ export default function AdminProductForm() {
       let currentProductId = productId;
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentProductId || "");
 
+      console.log("Saving base product...", { isEditing, isUuid, currentProductId });
+
       if (isEditing && productId && isUuid) {
         const { error } = await supabase
           .from("products")
           .update(productPayload)
           .eq("id", productId);
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase Update Error:", error);
+          throw error;
+        }
       } else {
-        // Use upsert on slug to handle cases where a product with this slug already exists
-        // (common when saving sample products for the first time or re-saving them)
         const { data, error } = await supabase
           .from("products")
           .upsert([productPayload], { onConflict: 'slug' })
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase Upsert Error:", error);
+          throw error;
+        }
         currentProductId = data.id;
+        console.log("Base product saved, ID:", currentProductId);
       }
 
-      // Save related data (Delete old and insert new for simplicity in sync)
-      // We always cleanup first to ensure no stale data remains
-      await Promise.all([
+      console.log("Cleaning up old related data...");
+      const cleanupResults = await Promise.all([
         supabase.from("price_blocks").delete().eq("product_id", currentProductId),
         supabase.from("material_options").delete().eq("product_id", currentProductId),
         supabase.from("quantity_tiers").delete().eq("product_id", currentProductId),
@@ -607,7 +615,13 @@ export default function AdminProductForm() {
         supabase.from("finish_options").delete().eq("product_id", currentProductId)
       ]);
 
-      // Insert new related data
+      const cleanupError = cleanupResults.find(r => r.error)?.error;
+      if (cleanupError) {
+        console.error("Cleanup Error:", cleanupError);
+        throw cleanupError;
+      }
+
+      console.log("Inserting new related data...");
       const insertRelatedData = async () => {
         if (product.pricingBlocks.length > 0) {
           const { error } = await supabase.from("price_blocks").insert(
@@ -620,7 +634,10 @@ export default function AdminProductForm() {
               display_order: idx
             }))
           );
-          if (error) throw error;
+          if (error) {
+            console.error("Price Blocks Insert Error:", error);
+            throw error;
+          }
         }
 
         if (product.materialOptions.length > 0) {
@@ -632,7 +649,10 @@ export default function AdminProductForm() {
               display_order: idx
             }))
           );
-          if (error) throw error;
+          if (error) {
+            console.error("Material Options Insert Error:", error);
+            throw error;
+          }
         }
 
         if (product.quantityTiers.length > 0) {
@@ -645,7 +665,10 @@ export default function AdminProductForm() {
               display_order: idx
             }))
           );
-          if (error) throw error;
+          if (error) {
+            console.error("Quantity Tiers Insert Error:", error);
+            throw error;
+          }
         }
 
         if (product.sizeOptions.length > 0) {
@@ -658,7 +681,10 @@ export default function AdminProductForm() {
               display_order: idx
             }))
           );
-          if (error) throw error;
+          if (error) {
+            console.error("Size Options Insert Error:", error);
+            throw error;
+          }
         }
 
         if (product.options.length > 0) {
@@ -672,7 +698,10 @@ export default function AdminProductForm() {
               display_order: idx
             }))
           );
-          if (error) throw error;
+          if (error) {
+            console.error("Product Options Insert Error:", error);
+            throw error;
+          }
         }
 
         if (product.finishOptions.length > 0) {
@@ -687,7 +716,10 @@ export default function AdminProductForm() {
               .select()
               .single();
 
-            if (finishError) throw finishError;
+            if (finishError) {
+              console.error("Finish Options Insert Error:", finishError);
+              throw finishError;
+            }
 
             if (finish.priceBlocks && finish.priceBlocks.length > 0) {
               const { error: blockError } = await supabase
@@ -700,18 +732,23 @@ export default function AdminProductForm() {
                     value: b.value
                   }))
                 );
-              if (blockError) throw blockError;
+              if (blockError) {
+                console.error("Finish Price Blocks Insert Error:", blockError);
+                throw blockError;
+              }
             }
           }
         }
       };
 
       await insertRelatedData();
+      console.log("All related data saved successfully.");
 
       toast.success(isEditing ? "Product updated successfully" : "Product created successfully");
       navigate("/admin/products");
     } catch (error: any) {
-      console.error("Error saving product:", error);
+      console.error("DETAILED SAVE ERROR:", error);
+
       let errorMessage = "Failed to save product";
 
       if (typeof error === 'string') {
@@ -720,15 +757,23 @@ export default function AdminProductForm() {
         errorMessage = error.message;
       } else if (error?.details) {
         errorMessage = error.details;
-      } else if (typeof error === 'object') {
+      } else if (error?.hint) {
+        errorMessage = `${error.message} (${error.hint})`;
+      } else {
         try {
           errorMessage = JSON.stringify(error);
+          if (errorMessage === '{}') {
+            errorMessage = error.toString() || "Unknown database error";
+          }
         } catch (e) {
-          errorMessage = "Unknown database error";
+          errorMessage = "Unknown critical error during save";
         }
       }
 
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        description: "Check the browser console for more details.",
+        duration: 5000
+      });
     } finally {
       setIsSaving(false);
     }
