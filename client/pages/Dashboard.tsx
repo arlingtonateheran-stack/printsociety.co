@@ -89,7 +89,10 @@ export default function Dashboard() {
       }
     } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
-      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      let errorMessage = error.message || error.details || error.hint || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      if (errorMessage === "{}" || errorMessage === "[object Object]") {
+        errorMessage = "Database error. Check if 'orders' and 'proofs' tables are correctly set up.";
+      }
       toast.error(`Failed to load dashboard: ${errorMessage}`);
     } finally {
       setIsLoading(false);

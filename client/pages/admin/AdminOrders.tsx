@@ -42,7 +42,10 @@ export default function AdminOrders() {
       setOrders(data || []);
     } catch (error: any) {
       console.error("Error fetching orders:", error);
-      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      let errorMessage = error.message || error.details || error.hint || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      if (errorMessage === "{}" || errorMessage === "[object Object]") {
+        errorMessage = "Database error. Check if 'orders' table has all required columns.";
+      }
       toast.error(`Failed to load orders: ${errorMessage}`);
     } finally {
       setIsLoading(false);

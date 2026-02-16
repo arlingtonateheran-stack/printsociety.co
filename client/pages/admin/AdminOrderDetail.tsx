@@ -81,10 +81,19 @@ export default function AdminOrderDetail() {
       }
     } catch (error: any) {
       console.error("Error fetching order details:", error);
-      let errorMessage = error.message || error.details || error.hint || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-      if (errorMessage === "{}" || errorMessage === "[object Object]") {
-        errorMessage = `Unknown error (Code: ${error.code || 'N/A'}). Check browser console.`;
+      let errorMessage = "Unknown error";
+
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        // Supabase often returns errors in this format
+        errorMessage = error.message || error.details || error.hint || (error.code ? `DB Error ${error.code}` : JSON.stringify(error));
       }
+
+      if (errorMessage === "{}" || errorMessage === "[object Object]") {
+        errorMessage = "Database error. Please check if all required columns (customer_email, product_name, etc.) exist in the orders table.";
+      }
+
       toast.error(`Failed to load order details: ${errorMessage}`);
     } finally {
       setIsLoading(false);
