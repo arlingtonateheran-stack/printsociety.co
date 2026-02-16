@@ -122,13 +122,16 @@ export default function AdminOrderDetail() {
         setOrder(data);
       }
     } catch (error: any) {
-      console.error("[DEBUG] Detailed error fetching order details:", error);
+      console.error("[DEBUG] Detailed error fetching order details:", JSON.stringify(error, null, 2));
 
       let errorMessage = "Unknown error";
       if (typeof error === 'string') {
         errorMessage = error;
       } else if (error && typeof error === 'object') {
         errorMessage = error.message || error.details || error.hint || `Error code: ${error.code}`;
+        // Add more detail if available
+        if (error.details) errorMessage += ` - ${error.details}`;
+
         // Force serialization if we still have an object/empty message
         if (errorMessage.includes('[object Object]') || errorMessage === 'undefined' || !errorMessage) {
           errorMessage = JSON.stringify(error);

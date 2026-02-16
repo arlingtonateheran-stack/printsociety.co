@@ -596,7 +596,7 @@ export default function AdminProductForm() {
           .update(productPayload)
           .eq("id", productId);
         if (error) {
-          console.error("Supabase Update Error:", error);
+          console.error("Supabase Update Error (Full):", JSON.stringify(error, null, 2));
           throw error;
         }
       } else {
@@ -607,7 +607,7 @@ export default function AdminProductForm() {
           .single();
 
         if (error) {
-          console.error("Supabase Upsert Error:", error);
+          console.error("Supabase Upsert Error (Full):", JSON.stringify(error, null, 2));
           throw error;
         }
         currentProductId = data.id;
@@ -781,7 +781,7 @@ export default function AdminProductForm() {
       toast.success(isEditing ? "Product updated successfully" : "Product created successfully");
       navigate("/admin/products");
     } catch (error: any) {
-      console.error("DETAILED SAVE ERROR:", error);
+      console.error("DETAILED SAVE ERROR:", JSON.stringify(error, null, 2));
 
       let errorMessage = "Failed to save product";
 
@@ -789,10 +789,8 @@ export default function AdminProductForm() {
         errorMessage = error;
       } else if (error?.message) {
         errorMessage = error.message;
-      } else if (error?.details) {
-        errorMessage = error.details;
-      } else if (error?.hint) {
-        errorMessage = `${error.message} (${error.hint})`;
+        if (error?.details) errorMessage += ` - ${error.details}`;
+        if (error?.hint) errorMessage += ` (${error.hint})`;
       } else {
         try {
           errorMessage = JSON.stringify(error);
