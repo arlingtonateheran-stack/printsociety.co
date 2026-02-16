@@ -7,6 +7,7 @@ import { Search, Filter, Download, Plus, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
   "awaiting-artwork": "bg-gray-100 text-gray-800",
@@ -39,8 +40,10 @@ export default function AdminOrders() {
 
       if (error) throw error;
       setOrders(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching orders:", error);
+      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      toast.error(`Failed to load orders: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -86,8 +87,10 @@ export default function Dashboard() {
           lastName: authUser.name?.split(' ')[1] || ''
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
+      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      toast.error(`Failed to load dashboard: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

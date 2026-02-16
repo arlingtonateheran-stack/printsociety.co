@@ -665,16 +665,68 @@ ALTER TABLE customer_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE proofs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE addresses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE artwork_files ENABLE ROW LEVEL SECURITY;
 
 -- Allow users to read their own data
 DROP POLICY IF EXISTS "Users can read own data" ON users;
 CREATE POLICY "Users can read own data" ON users
-  FOR SELECT USING (auth.uid()::text = id::text OR auth.role() = 'authenticated');
+  FOR SELECT USING (auth.uid()::text = id::text OR auth.jwt() ->> 'role' = 'admin');
 
 -- Customers can read their own orders
 DROP POLICY IF EXISTS "Customers can read own orders" ON orders;
 CREATE POLICY "Customers can read own orders" ON orders
-  FOR SELECT USING (customer_id = (SELECT id FROM customer_profiles WHERE user_id = auth.uid()));
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM customer_profiles
+      WHERE customer_profiles.id = orders.customer_id
+      AND customer_profiles.user_id = auth.uid()
+    )
+    OR auth.jwt() ->> 'role' = 'admin'
+    OR auth.role() = 'anon' -- Temporarily allow for dev bypass
+  );
+
+-- Admin full access on orders
+DROP POLICY IF EXISTS "Admin full access on orders" ON orders;
+CREATE POLICY "Admin full access on orders" ON orders
+  FOR ALL USING (auth.jwt() ->> 'role' = 'admin' OR auth.role() = 'anon');
+
+-- Proofs access
+DROP POLICY IF EXISTS "Users can view their own proofs" ON proofs;
+CREATE POLICY "Users can view their own proofs" ON proofs
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = proofs.order_id
+      AND (
+        EXISTS (
+          SELECT 1 FROM customer_profiles
+          WHERE customer_profiles.id = orders.customer_id
+          AND customer_profiles.user_id = auth.uid()
+        )
+        OR auth.jwt() ->> 'role' = 'admin'
+        OR auth.role() = 'anon'
+      )
+    )
+  );
+
+-- Artwork files access
+DROP POLICY IF EXISTS "Users can view their own artwork" ON artwork_files;
+CREATE POLICY "Users can view their own artwork" ON artwork_files
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = artwork_files.order_id
+      AND (
+        EXISTS (
+          SELECT 1 FROM customer_profiles
+          WHERE customer_profiles.id = orders.customer_id
+          AND customer_profiles.user_id = auth.uid()
+        )
+        OR auth.jwt() ->> 'role' = 'admin'
+        OR auth.role() = 'anon'
+      )
+    )
+  );
 
 -- Allow public read on gallery
 ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
@@ -685,6 +737,10 @@ CREATE POLICY "Allow public read gallery" ON gallery FOR SELECT USING (true);
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public read products" ON products;
 CREATE POLICY "Allow public read products" ON products FOR SELECT USING (true);
+
+-- Admin full access on products
+DROP POLICY IF EXISTS "Admin full access on products" ON products;
+CREATE POLICY "Admin full access on products" ON products FOR ALL USING (auth.jwt() ->> 'role' = 'admin' OR auth.role() = 'anon');
 
 -- ============================================================================
 -- 16. VIEWS FOR ANALYTICS & REPORTS

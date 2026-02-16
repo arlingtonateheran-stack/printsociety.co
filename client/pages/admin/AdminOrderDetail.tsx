@@ -49,21 +49,40 @@ export default function AdminOrderDetail() {
   const fetchOrderDetails = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`
-          *,
-          proofs(*),
-          artwork_files(*)
-        `)
-        .eq("id", orderId)
-        .single();
 
-      if (error) throw error;
-      setOrder(data);
-    } catch (error) {
+      // Check if orderId is a valid UUID
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId || "");
+
+      let query = supabase.from("orders").select(`
+        *,
+        proofs(*),
+        artwork_files(*)
+      `);
+
+      if (isUUID) {
+        query = query.eq("id", orderId);
+      } else {
+        // Fallback: try to find by order_number if not a UUID
+        query = query.eq("order_number", orderId);
+      }
+
+      const { data, error } = await query.maybeSingle();
+
+      if (error) {
+        console.error("Supabase error fetching order details:", error);
+        throw error;
+      }
+
+      if (!data) {
+        console.warn(`No order found with ${isUUID ? 'ID' : 'number'}: ${orderId}`);
+        setOrder(null);
+      } else {
+        setOrder(data);
+      }
+    } catch (error: any) {
       console.error("Error fetching order details:", error);
-      toast.error("Failed to load order details");
+      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      toast.error(`Failed to load order details: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

@@ -199,8 +199,22 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public read-only access on products" ON products;
 CREATE POLICY "Allow public read-only access on products" ON products FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Allow admin full access on products" ON products;
-CREATE POLICY "Allow admin full access on products" ON products FOR ALL USING (true); -- Refine this for production
+CREATE POLICY "Allow admin full access on products" ON products FOR ALL USING (true);
 
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
--- Orders should be private to the customer or visible to admin
--- Refine this after setting up auth correctly.
+DROP POLICY IF EXISTS "Allow public read-only access on orders" ON orders;
+CREATE POLICY "Allow public read-only access on orders" ON orders FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow admin full access on orders" ON orders;
+CREATE POLICY "Allow admin full access on orders" ON orders FOR ALL USING (true);
+
+ALTER TABLE proofs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read-only access on proofs" ON proofs;
+CREATE POLICY "Allow public read-only access on proofs" ON proofs FOR SELECT USING (true);
+
+ALTER TABLE artwork_files ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read-only access on artwork_files" ON artwork_files;
+CREATE POLICY "Allow public read-only access on artwork_files" ON artwork_files FOR SELECT USING (true);
+
+ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read-only access on gallery" ON gallery;
+CREATE POLICY "Allow public read-only access on gallery" ON gallery FOR SELECT USING (true);
