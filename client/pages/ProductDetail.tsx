@@ -217,24 +217,24 @@ export default function ProductDetail() {
         </div>
 
         {/* Selection Options Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
           {/* Vinyl Finish */}
-          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select a Vinyl Finish</h3>
+          <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select a Vinyl Finish</h3>
             <div className="space-y-1">
               {product.specifications.finishOptions.map(finish => (
                 <button
                   key={finish.id}
                   onClick={() => setSelectedFinish(finish.id)}
-                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm font-medium transition border-2 ${
+                  className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 ${
                     selectedFinish === finish.id
                       ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-300 bg-white hover:border-purple-400'
                   }`}
                 >
-                  <p className="text-xs font-semibold">{finish.name}</p>
+                  <p className="text-[11px] font-semibold">{finish.name}</p>
                   {finish.priceMultiplier !== 1 && (
-                    <p className="text-gray-600 text-xs">+${((finish.priceMultiplier - 1) * 0.15).toFixed(2)}</p>
+                    <p className="text-gray-600 text-[10px]">+${((finish.priceMultiplier - 1) * 0.15).toFixed(2)}</p>
                   )}
                 </button>
               ))}
@@ -242,73 +242,73 @@ export default function ProductDetail() {
           </div>
 
           {/* Sticker Size */}
-          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Size & Price</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+          <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select Size & Price</h3>
+            <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto pr-1">
               {product.specifications.sizeOptions.map(size => (
                 <button
                   key={size.id}
                   onClick={() => setSelectedSize(size.id)}
-                  className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm transition border-2 flex flex-col ${
+                  className={`w-full px-2 py-1 rounded text-xs transition border-2 flex flex-col items-center justify-center text-center ${
                     selectedSize === size.id
                       ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-300 bg-white hover:border-purple-400'
                   }`}
                 >
-                  <p className="font-semibold text-xs">{size.label}</p>
-                  <p className="text-gray-600 text-xs">+${(0.22).toFixed(2)}</p>
+                  <p className="font-semibold text-[11px]">{size.label}</p>
+                  <p className="text-gray-600 text-[10px]">+${(0.22).toFixed(2)}</p>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Border Cut */}
-          <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-            <h3 className="text-xs font-bold text-gray-700 uppercase mb-2">Select Border Cut</h3>
+          <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+            <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select Border Cut</h3>
             <div className="space-y-1">
               <button
                 onClick={() => setSelectedBorderCut('full-bleed')}
-                className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm font-medium transition border-2 relative ${
+                className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 relative ${
                   selectedBorderCut === 'full-bleed'
                     ? 'border-purple-500 bg-purple-50'
                     : 'border-gray-300 bg-white hover:border-purple-400'
                 }`}
               >
-                <p className="text-xs font-semibold">Full bleed cut</p>
-                <span className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">Popular</span>
+                <p className="text-[11px] font-semibold">Full bleed cut</p>
+                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[8px] px-1 py-0.5 rounded shadow-sm">Popular</span>
               </button>
               <button
                 onClick={() => setSelectedBorderCut('white')}
-                className={`w-full px-2 py-1 sm:px-3 sm:py-2 rounded text-xs sm:text-sm font-medium transition border-2 ${
+                className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 ${
                   selectedBorderCut === 'white'
                     ? 'border-purple-500 bg-purple-50'
                     : 'border-gray-300 bg-white hover:border-purple-400'
                 }`}
               >
-                <p className="text-xs font-semibold">White border cut</p>
+                <p className="text-[11px] font-semibold">White border cut</p>
               </button>
             </div>
           </div>
 
           {/* Quantity */}
-          <div className="backdrop-blur-md bg-white/5 rounded-lg p-3 border border-gray-300 shadow-lg">
-            <h3 className="text-xs font-bold text-black uppercase mb-3 flex items-center gap-2">
-              <Sliders size={16} className="text-black" />
+          <div className="backdrop-blur-md bg-white/5 rounded-lg p-1.5 border border-gray-300 shadow-sm">
+            <h3 className="text-[10px] font-bold text-black uppercase mb-1.5 flex items-center gap-1.5">
+              <Sliders size={12} className="text-black" />
               Select a quantity
             </h3>
-            <div className="space-y-1">
+            <div className="grid grid-cols-1 gap-1">
               {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
                 <button
                   key={q}
                   onClick={() => handleQuantityChange(q)}
-                  className={`w-full px-2 py-1.5 sm:py-2 rounded text-xs transition flex justify-between items-center gap-2 ${
+                  className={`w-full px-2 py-1 rounded text-[11px] transition flex justify-between items-center gap-1.5 ${
                     quantity === q
-                      ? 'border-2 border-yellow-400 bg-yellow-400/15 backdrop-blur-md'
-                      : 'border border-white/20 bg-white/10 backdrop-blur-md hover:border-white/30'
+                      ? 'border-2 border-yellow-400 bg-yellow-400/20'
+                      : 'border border-gray-200 bg-white/50 hover:border-gray-300'
                   }`}
                 >
                   <span className="font-medium text-black">{q.toLocaleString()}</span>
-                  <span className="text-xs font-semibold text-black">${(pricePerUnit * q + setupFee).toFixed(2)}</span>
+                  <span className="font-semibold text-black">${(pricePerUnit * q + setupFee).toFixed(2)}</span>
                 </button>
               ))}
             </div>
@@ -357,23 +357,23 @@ export default function ProductDetail() {
         )}
 
         {/* Action Buttons */}
-        <div className="space-y-2 sm:space-y-3">
-          <div className="grid grid-cols-2 gap-2 sm:gap-4">
+        <div className="space-y-1 sm:space-y-1.5">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             <button
               onClick={handleAddToCart}
-              className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
+              className="bg-white border border-gray-300 text-black py-2 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2 text-sm"
             >
-              <ShoppingCart size={20} />
+              <ShoppingCart size={18} />
               Add to Cart
             </button>
             <button
               onClick={handleCheckout}
-              className="bg-white border border-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
+              className="bg-white border border-gray-300 text-black py-2 rounded-lg font-semibold hover:bg-gray-50 transition text-sm"
             >
               🛒 Checkout
             </button>
           </div>
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-[10px] text-gray-600">
             Continue adding products or proceed to checkout when ready
           </p>
         </div>
