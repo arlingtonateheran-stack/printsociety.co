@@ -43,8 +43,25 @@ export default function AdminOrderDetail() {
   useEffect(() => {
     if (orderId) {
       fetchOrderDetails();
+      verifyTables();
     }
   }, [orderId]);
+
+  const verifyTables = async () => {
+    try {
+      const tables = ["orders", "proofs", "artwork_files"];
+      for (const table of tables) {
+        const { error } = await supabase.from(table).select("count", { count: "exact", head: true });
+        if (error) {
+          console.error(`[DEBUG] Table check failed for '${table}':`, JSON.stringify(error, null, 2));
+        } else {
+          console.log(`[DEBUG] Table check passed for '${table}'`);
+        }
+      }
+    } catch (e) {
+      console.error("[DEBUG] Unexpected error during table verification:", e);
+    }
+  };
 
   const fetchOrderDetails = async () => {
     try {
@@ -53,10 +70,10 @@ export default function AdminOrderDetail() {
       // Check if orderId is a valid UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId || "");
 
-      console.log(`Fetching order details for ${isUUID ? 'UUID' : 'number'}: ${orderId}`);
+      console.log(`[DEBUG] Fetching order details for ${isUUID ? 'UUID' : 'number'}: ${orderId}`);
 
       // Attempt full query with joins
-      const { data, error } = await supabase
+      const response = await supabase
         .from("orders")
         .select(`
           *,
@@ -66,24 +83,28 @@ export default function AdminOrderDetail() {
         .eq(isUUID ? "id" : "order_number", orderId)
         .maybeSingle();
 
+      const { data, error } = response;
+
       if (error) {
-        console.error("Supabase error (full query):", error);
+        console.error("[DEBUG] Supabase error (full query):", JSON.stringify(error, null, 2));
 
         // Fallback: try simple query without joins to see if relationship is the issue
-        console.log("Attempting fallback query without joins...");
-        const { data: fallbackData, error: fallbackError } = await supabase
+        console.log("[DEBUG] Attempting fallback query without joins...");
+        const fallbackResponse = await supabase
           .from("orders")
           .select("*")
           .eq(isUUID ? "id" : "order_number", orderId)
           .maybeSingle();
 
+        const { data: fallbackData, error: fallbackError } = fallbackResponse;
+
         if (fallbackError) {
-          console.error("Supabase error (fallback query):", fallbackError);
+          console.error("[DEBUG] Supabase error (fallback query):", JSON.stringify(fallbackError, null, 2));
           throw fallbackError;
         }
 
         if (fallbackData) {
-          console.warn("Order found without joins, but joined query failed. This usually means a missing relationship/FK in Supabase.");
+          console.warn("[DEBUG] Order found without joins, but joined query failed. This usually means a missing relationship/FK in Supabase.");
           setOrder({ ...fallbackData, proofs: [], artwork_files: [] });
           toast.warning("Order loaded without proofs/artwork due to database relationship issue.");
           return;
@@ -93,27 +114,28 @@ export default function AdminOrderDetail() {
       }
 
       if (!data) {
-        console.warn(`No order found with ${isUUID ? 'ID' : 'number'}: ${orderId}`);
+        console.warn(`[DEBUG] No order found with ${isUUID ? 'ID' : 'number'}: ${orderId}`);
         setOrder(null);
       } else {
+        console.log("[DEBUG] Order data successfully fetched:", data);
         setOrder(data);
       }
     } catch (error: any) {
-      console.error("Detailed error fetching order details:", error);
+      console.error("[DEBUG] Detailed error fetching order details:", error);
 
       let errorMessage = "Unknown error";
       if (typeof error === 'string') {
         errorMessage = error;
       } else if (error && typeof error === 'object') {
         errorMessage = error.message || error.details || error.hint || `Error code: ${error.code}`;
-        // If it's still an object-like string, try to get more info
-        if (errorMessage.includes('[object Object]') || errorMessage === '{}') {
-          errorMessage = `Database error ${error.code || ''}: ${JSON.stringify(error)}`;
+        // Force serialization if we still have an object/empty message
+        if (errorMessage.includes('[object Object]') || errorMessage === 'undefined' || !errorMessage) {
+          errorMessage = JSON.stringify(error);
         }
       }
 
       toast.error(`Failed to load order details: ${errorMessage}`, {
-        duration: 10000, // Show longer so user can read
+        duration: 15000, // Show for 15 seconds so user can copy
       });
     } finally {
       setIsLoading(false);
@@ -248,8 +270,18 @@ export default function AdminOrderDetail() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-gray-500">Order not found.</p>
+        <div className="flex flex-1 flex-col items-center justify-center p-8">
+          <p className="text-gray-500 mb-4">Order not found.</p>
+          <div className="max-w-md w-full p-4 bg-white rounded-lg shadow-sm border text-xs overflow-auto max-h-60">
+             <p className="font-bold mb-2">Debug Info (Admin Only):</p>
+             <pre>{JSON.stringify({ orderId, orderNumber: orderId, isUUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId || "") }, null, 2)}</pre>
+             <button
+               onClick={() => fetchOrderDetails()}
+               className="mt-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+             >
+               Retry Fetch
+             </button>
+          </div>
         </div>
         <Footer />
       </div>
