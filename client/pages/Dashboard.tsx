@@ -248,6 +248,47 @@ export default function Dashboard() {
 
   const handleAddressSave = async (address: any) => {
     try {
+      if (!authUser) throw new Error("You must be logged in to save an address");
+
+      // 1. Ensure user exists in public.users table to avoid FK violation
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", authUser.id)
+        .single();
+
+      if (!existingUser) {
+        console.log("User profile missing from public.users, creating...");
+        const { error: userInsertError } = await supabase
+          .from("users")
+          .insert([{
+            id: authUser.id,
+            email: authUser.email,
+            name: authUser.name || authUser.email.split('@')[0],
+            role: authUser.role || 'customer',
+            is_active: true,
+            is_verified: true
+          }]);
+
+        if (userInsertError) {
+          console.error("Failed to auto-create public user:", userInsertError);
+          throw new Error(`User profile missing and could not be created: ${userInsertError.message}`);
+        }
+
+        // Also ensure customer_profile exists
+        const { error: profileError } = await supabase
+          .from("customer_profiles")
+          .insert([{
+            user_id: authUser.id,
+            status: 'active'
+          }]);
+
+        if (profileError) {
+          console.warn("Could not create customer profile row:", profileError);
+          // Non-blocking, but good to have
+        }
+      }
+
       const payload = {
         user_id: authUser?.id,
         address_type: address.addressType,
@@ -287,8 +328,8 @@ export default function Dashboard() {
       // Refresh dashboard data to update addresses
       fetchDashboardData();
     } catch (error: any) {
-      console.error("Error saving address:", error);
-      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      console.error("Error saving address details:", error);
+      const errorMessage = error.message || error.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
       toast.error(`Failed to save address: ${errorMessage}`);
       throw error; // Re-throw for the modal to handle
     }

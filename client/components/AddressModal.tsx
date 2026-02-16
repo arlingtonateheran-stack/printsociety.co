@@ -89,8 +89,9 @@ export function AddressModal({ isOpen, onClose, onSave, address }: AddressModalP
       await onSave(formData);
       onClose();
     } catch (error: any) {
-      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      const errorMessage = error.message || error.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
       console.error("Error saving address:", errorMessage);
+      alert(`Error saving address: ${errorMessage}`);
     } finally {
       setIsSaving(false);
     }
