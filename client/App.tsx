@@ -35,6 +35,7 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminCustomerDetail from "./pages/admin/AdminCustomerDetail";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminTickets from "./pages/admin/AdminTickets";
+import AdminTicketDetail from "./pages/admin/AdminTicketDetail";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import Terms from "./pages/Terms";
@@ -226,6 +227,14 @@ export default function App() {
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminTickets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/tickets/:ticketId"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminTicketDetail />
                   </ProtectedRoute>
                 }
               />
