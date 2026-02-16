@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, CheckCircle, Loader } from "lucide-react";
-import { sendEmail } from "@/utils/email";
+import { sendEmail, EMAIL_TEMPLATES } from "@/utils/email";
 
 interface ContactFormProps {
   onSubmit?: (formData: {
@@ -76,37 +76,34 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
 
     try {
       // Send notification email to support team
+      const supportTemplate = EMAIL_TEMPLATES.supportTicket(
+        formData.name,
+        formData.subject,
+        formData.category,
+        formData.message,
+        false
+      );
+
       await sendEmail({
-        to: "support@printsociety.co", // Replace with actual support email
-        subject: `[Support Ticket] ${formData.subject} - ${formData.category}`,
-        html: `
-          <h2>New Support Ticket Received</h2>
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Category:</strong> ${formData.category}</p>
-          <p><strong>Priority:</strong> ${formData.priority}</p>
-          <p><strong>Order Number:</strong> ${formData.orderNumber || 'N/A'}</p>
-          <hr />
-          <p><strong>Message:</strong></p>
-          <p>${formData.message}</p>
-        `,
+        to: "support@printsociety.co",
+        subject: supportTemplate.subject,
+        html: supportTemplate.html,
         from: `Support Portal <support@printsociety.co>`
       });
 
       // Send confirmation email to customer
+      const customerTemplate = EMAIL_TEMPLATES.supportTicket(
+        formData.name,
+        formData.subject,
+        formData.category,
+        formData.message,
+        true
+      );
+
       await sendEmail({
         to: formData.email,
-        subject: `We've received your support request: ${formData.subject}`,
-        html: `
-          <p>Hi ${formData.name},</p>
-          <p>Thank you for contacting Print Society support. We have received your message and our team will get back to you within 24 hours.</p>
-          <p><strong>Ticket Details:</strong></p>
-          <ul>
-            <li><strong>Subject:</strong> ${formData.subject}</li>
-            <li><strong>Category:</strong> ${formData.category}</li>
-          </ul>
-          <p>Best regards,<br/>Print Society Support Team</p>
-        `,
+        subject: customerTemplate.subject,
+        html: customerTemplate.html,
         from: `Print Society <notifications@printsociety.co>`
       });
 
