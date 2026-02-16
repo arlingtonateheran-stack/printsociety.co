@@ -8,49 +8,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
-const sampleOrders = [
-  {
-    id: "ORD-001",
-    customer: "Acme Corp",
-    status: "proof-sent",
-    items: 5,
-    total: 450,
-    date: "2025-01-20",
-  },
-  {
-    id: "ORD-002",
-    customer: "Design Studio",
-    status: "in-production",
-    items: 3,
-    total: 280,
-    date: "2025-01-19",
-  },
-  {
-    id: "ORD-003",
-    customer: "Brand Co",
-    status: "ready-to-ship",
-    items: 8,
-    total: 720,
-    date: "2025-01-18",
-  },
-  {
-    id: "ORD-004",
-    customer: "Creative Labs",
-    status: "awaiting-artwork",
-    items: 2,
-    total: 180,
-    date: "2025-01-17",
-  },
-  {
-    id: "ORD-005",
-    customer: "Art House",
-    status: "approved",
-    items: 6,
-    total: 540,
-    date: "2025-01-16",
-  },
-];
-
 const statusColors: Record<string, string> = {
   "awaiting-artwork": "bg-gray-100 text-gray-800",
   "proof-sent": "bg-blue-100 text-blue-800",

@@ -260,6 +260,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-// Sample proofs mapping (to match the expected type)
-const sampleProofs = proofs;
