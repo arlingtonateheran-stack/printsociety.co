@@ -114,13 +114,18 @@ export default function Dashboard() {
           shippingAddresses: addresses.map((addr: any) => ({
             id: addr.id,
             label: addr.address_type === 'shipping' ? 'Shipping' : 'Billing',
+            firstName: addr.first_name,
+            lastName: addr.last_name,
+            company: addr.company,
             street: addr.street,
             street2: addr.street_2,
             city: addr.city,
             state: addr.state_province,
             zipCode: addr.zip_postal_code,
             country: addr.country,
-            isDefault: addr.is_default
+            phone: addr.phone,
+            isDefault: addr.is_default,
+            addressType: addr.address_type
           }))
         });
       }
@@ -262,7 +267,8 @@ export default function Dashboard() {
       if (address.id) {
         // If setting as default, unset others first
         if (address.isDefault) {
-          await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+          const { error: resetError } = await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+          if (resetError) throw resetError;
         }
         const { error } = await supabase.from("addresses").update(payload).eq("id", address.id);
         if (error) throw error;
@@ -270,7 +276,8 @@ export default function Dashboard() {
       } else {
         // If setting as default, unset others first
         if (address.isDefault) {
-          await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+          const { error: resetError } = await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+          if (resetError) throw resetError;
         }
         const { error } = await supabase.from("addresses").insert([payload]);
         if (error) throw error;
@@ -281,7 +288,9 @@ export default function Dashboard() {
       fetchDashboardData();
     } catch (error: any) {
       console.error("Error saving address:", error);
-      toast.error(`Failed to save address: ${error.message}`);
+      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      toast.error(`Failed to save address: ${errorMessage}`);
+      throw error; // Re-throw for the modal to handle
     }
   };
 
