@@ -87,8 +87,7 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
       await sendEmail({
         to: "support@printsociety.co",
         subject: supportTemplate.subject,
-        html: supportTemplate.html,
-        from: `Support Portal <support@printsociety.co>`
+        html: supportTemplate.html
       });
 
       // Send confirmation email to customer
@@ -103,8 +102,7 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
       await sendEmail({
         to: formData.email,
         subject: customerTemplate.subject,
-        html: customerTemplate.html,
-        from: `Print Society <notifications@printsociety.co>`
+        html: customerTemplate.html
       });
 
       onSubmit?.(formData);

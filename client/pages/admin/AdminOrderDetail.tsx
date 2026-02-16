@@ -215,8 +215,7 @@ export default function AdminOrderDetail() {
         await sendEmail({
           to: order.customer_email,
           subject: template.subject,
-          html: template.html,
-          from: `Print Society Design Team <design@printsociety.co>`
+          html: template.html
         });
       } catch (emailError) {
         console.error("Failed to send proof notification email:", emailError);
