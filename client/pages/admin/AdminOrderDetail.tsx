@@ -81,7 +81,10 @@ export default function AdminOrderDetail() {
       }
     } catch (error: any) {
       console.error("Error fetching order details:", error);
-      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      let errorMessage = error.message || error.details || error.hint || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      if (errorMessage === "{}" || errorMessage === "[object Object]") {
+        errorMessage = `Unknown error (Code: ${error.code || 'N/A'}). Check browser console.`;
+      }
       toast.error(`Failed to load order details: ${errorMessage}`);
     } finally {
       setIsLoading(false);
