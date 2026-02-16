@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS users (
   last_login TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 
 -- Authentication sessions
 CREATE TABLE IF NOT EXISTS auth_sessions (
@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
   last_active TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_auth_sessions_user_id ON auth_sessions(user_id);
-CREATE INDEX idx_auth_sessions_token ON auth_sessions(token);
+CREATE INDEX IF NOT EXISTS idx_auth_sessions_user_id ON auth_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_auth_sessions_token ON auth_sessions(token);
 
 -- Password reset tokens
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
-CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
 
 -- Email verification tokens
 CREATE TABLE IF NOT EXISTS email_verification_tokens (
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS email_verification_tokens (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_email_verification_tokens_user_id ON email_verification_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_email_verification_tokens_user_id ON email_verification_tokens(user_id);
 
 -- Login attempts (for rate limiting)
 CREATE TABLE IF NOT EXISTS login_attempts (
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_login_attempts_email_timestamp ON login_attempts(email, timestamp);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_email_timestamp ON login_attempts(email, timestamp);
 
 -- ============================================================================
 -- 2. CUSTOMER PROFILES & ADDRESSES
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_customer_profiles_user_id ON customer_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_customer_profiles_user_id ON customer_profiles(user_id);
 
 -- Customer tags
 CREATE TABLE IF NOT EXISTS customer_tags (
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS customer_tags (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_customer_tags_customer_id ON customer_tags(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_tags_customer_id ON customer_tags(customer_id);
 
 -- Addresses (billing & shipping)
 CREATE TABLE IF NOT EXISTS addresses (
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS addresses (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_addresses_user_id ON addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id);
 
 -- ============================================================================
 -- 3. PRODUCTS & CATEGORIES
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS product_categories (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_categories_slug ON product_categories(slug);
+CREATE INDEX IF NOT EXISTS idx_product_categories_slug ON product_categories(slug);
 
 -- Products
 CREATE TABLE IF NOT EXISTS products (
@@ -174,8 +174,8 @@ CREATE TABLE IF NOT EXISTS products (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_products_slug ON products(slug);
-CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
 
 -- Product images
 CREATE TABLE IF NOT EXISTS product_images (
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS product_images (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_images_product_id ON product_images(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
 
 -- Product options (materials, finishes, sizes, etc.)
 CREATE TABLE IF NOT EXISTS product_options (
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS product_options (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_options_product_id ON product_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_options_product_id ON product_options(product_id);
 
 -- Option values
 CREATE TABLE IF NOT EXISTS option_values (
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS option_values (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_option_values_option_id ON option_values(option_id);
+CREATE INDEX IF NOT EXISTS idx_option_values_option_id ON option_values(option_id);
 
 -- ============================================================================
 -- 4. PRICING RULES
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS pricing_rules (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_pricing_rules_product_id ON pricing_rules(product_id);
+CREATE INDEX IF NOT EXISTS idx_pricing_rules_product_id ON pricing_rules(product_id);
 
 -- ============================================================================
 -- 5. ORDERS & ORDER ITEMS
@@ -278,10 +278,10 @@ CREATE TABLE IF NOT EXISTS orders (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_orders_customer_id ON orders(customer_id);
-CREATE INDEX idx_orders_order_number ON orders(order_number);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_assigned_designer_id ON orders(assigned_designer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_assigned_designer_id ON orders(assigned_designer_id);
 
 -- Order line items
 CREATE TABLE IF NOT EXISTS order_line_items (
@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS order_line_items (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_order_line_items_order_id ON order_line_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_line_items_order_id ON order_line_items(order_id);
 
 -- Order timeline
 CREATE TABLE IF NOT EXISTS order_timeline (
@@ -311,7 +311,7 @@ CREATE TABLE IF NOT EXISTS order_timeline (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_order_timeline_order_id ON order_timeline(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_timeline_order_id ON order_timeline(order_id);
 
 -- ============================================================================
 -- 6. ARTWORK & PROOFS
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS artwork_files (
   uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_artwork_files_order_id ON artwork_files(order_id);
+CREATE INDEX IF NOT EXISTS idx_artwork_files_order_id ON artwork_files(order_id);
 
 -- Proofs
 CREATE TABLE IF NOT EXISTS proofs (
@@ -348,7 +348,7 @@ CREATE TABLE IF NOT EXISTS proofs (
   sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_proofs_order_id ON proofs(order_id);
+CREATE INDEX IF NOT EXISTS idx_proofs_order_id ON proofs(order_id);
 
 -- Proof comments
 CREATE TABLE IF NOT EXISTS proof_comments (
@@ -362,7 +362,7 @@ CREATE TABLE IF NOT EXISTS proof_comments (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_proof_comments_proof_id ON proof_comments(proof_id);
+CREATE INDEX IF NOT EXISTS idx_proof_comments_proof_id ON proof_comments(proof_id);
 
 -- ============================================================================
 -- 7. GALLERY MANAGEMENT
@@ -381,8 +381,8 @@ CREATE TABLE IF NOT EXISTS gallery (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_gallery_sort_order ON gallery(sort_order);
-CREATE INDEX idx_gallery_is_featured ON gallery(is_featured);
+CREATE INDEX IF NOT EXISTS idx_gallery_sort_order ON gallery(sort_order);
+CREATE INDEX IF NOT EXISTS idx_gallery_is_featured ON gallery(is_featured);
 
 -- Media assets
 CREATE TABLE IF NOT EXISTS media_assets (
@@ -398,7 +398,7 @@ CREATE TABLE IF NOT EXISTS media_assets (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_media_assets_uploaded_by_id ON media_assets(uploaded_by_id);
+CREATE INDEX IF NOT EXISTS idx_media_assets_uploaded_by_id ON media_assets(uploaded_by_id);
 
 -- ============================================================================
 -- 8. DISCOUNTS & PROMOTIONS
@@ -432,8 +432,8 @@ CREATE TABLE IF NOT EXISTS discounts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_discounts_code ON discounts(code);
-CREATE INDEX idx_discounts_is_active ON discounts(is_active);
+CREATE INDEX IF NOT EXISTS idx_discounts_code ON discounts(code);
+CREATE INDEX IF NOT EXISTS idx_discounts_is_active ON discounts(is_active);
 
 -- ============================================================================
 -- 9. SHIPPING & LOGISTICS
@@ -452,7 +452,7 @@ CREATE TABLE IF NOT EXISTS shipping_rules (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_shipping_rules_is_active ON shipping_rules(is_active);
+CREATE INDEX IF NOT EXISTS idx_shipping_rules_is_active ON shipping_rules(is_active);
 
 -- Shipping labels
 CREATE TABLE IF NOT EXISTS shipping_labels (
@@ -468,8 +468,8 @@ CREATE TABLE IF NOT EXISTS shipping_labels (
   generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_shipping_labels_order_id ON shipping_labels(order_id);
-CREATE INDEX idx_shipping_labels_tracking_number ON shipping_labels(tracking_number);
+CREATE INDEX IF NOT EXISTS idx_shipping_labels_order_id ON shipping_labels(order_id);
+CREATE INDEX IF NOT EXISTS idx_shipping_labels_tracking_number ON shipping_labels(tracking_number);
 
 -- ============================================================================
 -- 10. SEO & CONTENT
@@ -501,8 +501,8 @@ CREATE TABLE IF NOT EXISTS seo_meta (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_seo_meta_entity ON seo_meta(entity_id, entity_type);
-CREATE INDEX idx_seo_meta_slug ON seo_meta(slug);
+CREATE INDEX IF NOT EXISTS idx_seo_meta_entity ON seo_meta(entity_id, entity_type);
+CREATE INDEX IF NOT EXISTS idx_seo_meta_slug ON seo_meta(slug);
 
 -- H2 headings for SEO
 CREATE TABLE IF NOT EXISTS seo_h2_blocks (
@@ -512,7 +512,7 @@ CREATE TABLE IF NOT EXISTS seo_h2_blocks (
   sort_order INT DEFAULT 0
 );
 
-CREATE INDEX idx_seo_h2_blocks_seo_meta_id ON seo_h2_blocks(seo_meta_id);
+CREATE INDEX IF NOT EXISTS idx_seo_h2_blocks_seo_meta_id ON seo_h2_blocks(seo_meta_id);
 
 -- Internal links for SEO
 CREATE TABLE IF NOT EXISTS seo_internal_links (
@@ -523,7 +523,7 @@ CREATE TABLE IF NOT EXISTS seo_internal_links (
   sort_order INT DEFAULT 0
 );
 
-CREATE INDEX idx_seo_internal_links_seo_meta_id ON seo_internal_links(seo_meta_id);
+CREATE INDEX IF NOT EXISTS idx_seo_internal_links_seo_meta_id ON seo_internal_links(seo_meta_id);
 
 -- ============================================================================
 -- 11. SUPPORT TICKETS
@@ -542,9 +542,9 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_support_tickets_customer_id ON support_tickets(customer_id);
-CREATE INDEX idx_support_tickets_assigned_to_id ON support_tickets(assigned_to_id);
-CREATE INDEX idx_support_tickets_status ON support_tickets(status);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_customer_id ON support_tickets(customer_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_assigned_to_id ON support_tickets(assigned_to_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
 
 -- Ticket messages
 CREATE TABLE IF NOT EXISTS ticket_messages (
@@ -558,7 +558,7 @@ CREATE TABLE IF NOT EXISTS ticket_messages (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_ticket_messages_ticket_id ON ticket_messages(ticket_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_messages_ticket_id ON ticket_messages(ticket_id);
 
 -- Ticket internal notes
 CREATE TABLE IF NOT EXISTS ticket_internal_notes (
@@ -569,7 +569,7 @@ CREATE TABLE IF NOT EXISTS ticket_internal_notes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_ticket_internal_notes_ticket_id ON ticket_internal_notes(ticket_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_internal_notes_ticket_id ON ticket_internal_notes(ticket_id);
 
 -- ============================================================================
 -- 12. INVENTORY & STOCK
@@ -588,7 +588,7 @@ CREATE TABLE IF NOT EXISTS material_stock (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_material_stock_material_id ON material_stock(material_id);
+CREATE INDEX IF NOT EXISTS idx_material_stock_material_id ON material_stock(material_id);
 
 -- Stock movements
 CREATE TABLE IF NOT EXISTS stock_movements (
@@ -602,7 +602,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_stock_movements_material_id ON stock_movements(material_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_material_id ON stock_movements(material_id);
 
 -- ============================================================================
 -- 13. ADMIN ACTIVITY LOGGING
@@ -619,8 +619,8 @@ CREATE TABLE IF NOT EXISTS admin_activity_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_admin_activity_logs_admin_id ON admin_activity_logs(admin_id);
-CREATE INDEX idx_admin_activity_logs_created_at ON admin_activity_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_admin_activity_logs_admin_id ON admin_activity_logs(admin_id);
+CREATE INDEX IF NOT EXISTS idx_admin_activity_logs_created_at ON admin_activity_logs(created_at);
 
 -- ============================================================================
 -- 14. IMPORT/EXPORT JOBS
@@ -641,7 +641,7 @@ CREATE TABLE IF NOT EXISTS import_jobs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_import_jobs_status ON import_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_import_jobs_status ON import_jobs(status);
 
 CREATE TABLE IF NOT EXISTS export_jobs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -653,7 +653,7 @@ CREATE TABLE IF NOT EXISTS export_jobs (
   completed_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_export_jobs_status ON export_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_export_jobs_status ON export_jobs(status);
 
 -- ============================================================================
 -- 15. ROW LEVEL SECURITY (RLS) - BASIC SETUP
@@ -667,19 +667,23 @@ ALTER TABLE proofs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE addresses ENABLE ROW LEVEL SECURITY;
 
 -- Allow users to read their own data
+DROP POLICY IF EXISTS "Users can read own data" ON users;
 CREATE POLICY "Users can read own data" ON users
   FOR SELECT USING (auth.uid()::text = id::text OR auth.role() = 'authenticated');
 
 -- Customers can read their own orders
+DROP POLICY IF EXISTS "Customers can read own orders" ON orders;
 CREATE POLICY "Customers can read own orders" ON orders
   FOR SELECT USING (customer_id = (SELECT id FROM customer_profiles WHERE user_id = auth.uid()));
 
 -- Allow public read on gallery
 ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read gallery" ON gallery;
 CREATE POLICY "Allow public read gallery" ON gallery FOR SELECT USING (true);
 
 -- Allow public read on products
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read products" ON products;
 CREATE POLICY "Allow public read products" ON products FOR SELECT USING (true);
 
 -- ============================================================================
@@ -742,18 +746,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS users_updated_at ON users;
 CREATE TRIGGER users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS customer_profiles_updated_at ON customer_profiles;
 CREATE TRIGGER customer_profiles_updated_at BEFORE UPDATE ON customer_profiles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS products_updated_at ON products;
 CREATE TRIGGER products_updated_at BEFORE UPDATE ON products
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS orders_updated_at ON orders;
 CREATE TRIGGER orders_updated_at BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS seo_meta_updated_at ON seo_meta;
 CREATE TRIGGER seo_meta_updated_at BEFORE UPDATE ON seo_meta
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

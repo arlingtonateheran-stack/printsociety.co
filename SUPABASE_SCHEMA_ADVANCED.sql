@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS price_blocks (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_price_blocks_product ON price_blocks(product_id);
+CREATE INDEX IF NOT EXISTS idx_price_blocks_product ON price_blocks(product_id);
 
 -- ============================================================================
 -- MATERIAL OPTIONS
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS material_options (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_material_options_product ON material_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_material_options_product ON material_options(product_id);
 
 -- ============================================================================
 -- SIZE OPTIONS
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS size_options (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_size_options_product ON size_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_size_options_product ON size_options(product_id);
 
 -- ============================================================================
 -- QUANTITY TIERS
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS quantity_tiers (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_quantity_tiers_product ON quantity_tiers(product_id);
+CREATE INDEX IF NOT EXISTS idx_quantity_tiers_product ON quantity_tiers(product_id);
 
 -- ============================================================================
 -- FINISH OPTIONS
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS finish_options (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_finish_options_product ON finish_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_finish_options_product ON finish_options(product_id);
 
 -- ============================================================================
 -- FINISH PRICE BLOCKS (Finish-specific pricing)
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS finish_price_blocks (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_finish_price_blocks_finish ON finish_price_blocks(finish_id);
+CREATE INDEX IF NOT EXISTS idx_finish_price_blocks_finish ON finish_price_blocks(finish_id);
 
 -- ============================================================================
 -- PRODUCT OPTIONS (Size, Material, Finish, Rush, Custom)
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS product_options (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_options_product ON product_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_options_product ON product_options(product_id);
 
 -- ============================================================================
 -- RUSH TURNAROUND OPTIONS (Special case of options)
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS rush_options (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_rush_options_product ON rush_options(product_id);
+CREATE INDEX IF NOT EXISTS idx_rush_options_product ON rush_options(product_id);
 
 -- ============================================================================
 -- PRODUCT VARIANTS (Hard overrides for different product types)
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS product_variants (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_product_variants_product ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_variants_product ON product_variants(product_id);
 
 -- ============================================================================
 -- VARIANT PRICE BLOCKS
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS variant_price_blocks (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_variant_price_blocks_variant ON variant_price_blocks(variant_id);
+CREATE INDEX IF NOT EXISTS idx_variant_price_blocks_variant ON variant_price_blocks(variant_id);
 
 -- ============================================================================
 -- ORDERS
@@ -227,8 +227,8 @@ CREATE TABLE IF NOT EXISTS orders (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_orders_customer ON orders(customer_id);
-CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 
 -- ============================================================================
 -- ORDER ITEMS
@@ -247,8 +247,8 @@ CREATE TABLE IF NOT EXISTS order_items (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_order_items_order ON order_items(order_id);
-CREATE INDEX idx_order_items_product ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
 
 -- ============================================================================
 -- PROOFS (Design approvals)
@@ -266,8 +266,8 @@ CREATE TABLE IF NOT EXISTS proofs (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_proofs_order ON proofs(order_id);
-CREATE INDEX idx_proofs_status ON proofs(status);
+CREATE INDEX IF NOT EXISTS idx_proofs_order ON proofs(order_id);
+CREATE INDEX IF NOT EXISTS idx_proofs_status ON proofs(status);
 
 -- ============================================================================
 -- CUSTOM QUOTES
@@ -286,8 +286,8 @@ CREATE TABLE IF NOT EXISTS custom_quotes (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_custom_quotes_customer ON custom_quotes(customer_id);
-CREATE INDEX idx_custom_quotes_status ON custom_quotes(status);
+CREATE INDEX IF NOT EXISTS idx_custom_quotes_customer ON custom_quotes(customer_id);
+CREATE INDEX IF NOT EXISTS idx_custom_quotes_status ON custom_quotes(status);
 
 -- ============================================================================
 -- GALLERY (Images and videos for homepage/product pages)
@@ -307,8 +307,8 @@ CREATE TABLE IF NOT EXISTS gallery (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_gallery_active ON gallery(active);
-CREATE INDEX idx_gallery_display_order ON gallery(display_order);
+CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery(active);
+CREATE INDEX IF NOT EXISTS idx_gallery_display_order ON gallery(display_order);
 
 -- ============================================================================
 -- TRIGGERS for updated_at timestamps
@@ -322,21 +322,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at
   BEFORE UPDATE ON products
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_auth_users_updated_at ON auth_users;
 CREATE TRIGGER update_auth_users_updated_at
   BEFORE UPDATE ON auth_users
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_proofs_updated_at ON proofs;
 CREATE TRIGGER update_proofs_updated_at
   BEFORE UPDATE ON proofs
   FOR EACH ROW
@@ -346,6 +350,6 @@ CREATE TRIGGER update_proofs_updated_at
 -- INDEXES for performance
 -- ============================================================================
 
-CREATE INDEX idx_products_slug ON products(slug);
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_status ON products(status);
+CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);

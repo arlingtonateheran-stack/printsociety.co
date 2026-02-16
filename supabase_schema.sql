@@ -184,14 +184,21 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_gallery_updated_at ON gallery;
 CREATE TRIGGER update_gallery_updated_at BEFORE UPDATE ON gallery FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 -- 4. RLS (Row Level Security) - Basic Setup
 -- You might want to refine these based on your auth requirements.
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read-only access on products" ON products;
 CREATE POLICY "Allow public read-only access on products" ON products FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow admin full access on products" ON products;
 CREATE POLICY "Allow admin full access on products" ON products FOR ALL USING (true); -- Refine this for production
 
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
