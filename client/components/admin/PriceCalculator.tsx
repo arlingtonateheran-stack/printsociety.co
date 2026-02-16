@@ -72,10 +72,11 @@ export default function PriceCalculator() {
 
   const prices = calculatePrice();
 
-  const updateConfig = (key: string, value: number) => {
+  const updateConfig = (key: string, value: string) => {
+    const numValue = value === "" ? 0 : parseFloat(value);
     setConfig((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: numValue,
     }));
   };
 
@@ -97,8 +98,8 @@ export default function PriceCalculator() {
               <Input
                 type="number"
                 step="0.1"
-                value={config.width || ""}
-                onChange={(e) => updateConfig("width", parseFloat(e.target.value))}
+                value={isNaN(config.width ?? 0) ? "" : config.width}
+                onChange={(e) => updateConfig("width", e.target.value)}
                 className="text-sm"
               />
             </div>
@@ -109,8 +110,8 @@ export default function PriceCalculator() {
               <Input
                 type="number"
                 step="0.1"
-                value={config.height || ""}
-                onChange={(e) => updateConfig("height", parseFloat(e.target.value))}
+                value={isNaN(config.height ?? 0) ? "" : config.height}
+                onChange={(e) => updateConfig("height", e.target.value)}
                 className="text-sm"
               />
             </div>
@@ -123,8 +124,8 @@ export default function PriceCalculator() {
             </label>
             <Input
               type="number"
-              value={config.quantity || ""}
-              onChange={(e) => updateConfig("quantity", parseInt(e.target.value))}
+              value={isNaN(config.quantity ?? 0) ? "" : config.quantity}
+              onChange={(e) => updateConfig("quantity", e.target.value)}
               className="text-sm"
             />
           </div>
@@ -137,8 +138,8 @@ export default function PriceCalculator() {
             <Input
               type="number"
               step="0.01"
-              value={config.materialPricePerSqIn || ""}
-              onChange={(e) => updateConfig("materialPricePerSqIn", parseFloat(e.target.value))}
+              value={isNaN(config.materialPricePerSqIn ?? 0) ? "" : config.materialPricePerSqIn}
+              onChange={(e) => updateConfig("materialPricePerSqIn", e.target.value)}
               className="text-sm"
             />
           </div>
@@ -151,8 +152,8 @@ export default function PriceCalculator() {
             <Input
               type="number"
               step="0.01"
-              value={config.quantityTierPrice || ""}
-              onChange={(e) => updateConfig("quantityTierPrice", parseFloat(e.target.value))}
+              value={isNaN(config.quantityTierPrice ?? 0) ? "" : config.quantityTierPrice}
+              onChange={(e) => updateConfig("quantityTierPrice", e.target.value)}
               className="text-sm"
             />
           </div>
@@ -166,8 +167,8 @@ export default function PriceCalculator() {
               <Input
                 type="number"
                 step="0.01"
-                value={config.finishPrice || ""}
-                onChange={(e) => updateConfig("finishPrice", parseFloat(e.target.value))}
+                value={isNaN(config.finishPrice ?? 0) ? "" : config.finishPrice}
+                onChange={(e) => updateConfig("finishPrice", e.target.value)}
                 className="text-sm"
               />
             </div>
@@ -178,8 +179,8 @@ export default function PriceCalculator() {
               <Input
                 type="number"
                 step="0.01"
-                value={config.rushFee || ""}
-                onChange={(e) => updateConfig("rushFee", parseFloat(e.target.value))}
+                value={isNaN(config.rushFee ?? 0) ? "" : config.rushFee}
+                onChange={(e) => updateConfig("rushFee", e.target.value)}
                 className="text-sm"
               />
             </div>
@@ -192,8 +193,8 @@ export default function PriceCalculator() {
             <Input
               type="number"
               step="0.01"
-              value={config.fixedBlocksSum || ""}
-              onChange={(e) => updateConfig("fixedBlocksSum", parseFloat(e.target.value))}
+              value={isNaN(config.fixedBlocksSum ?? 0) ? "" : config.fixedBlocksSum}
+              onChange={(e) => updateConfig("fixedBlocksSum", e.target.value)}
               className="text-sm"
             />
           </div>

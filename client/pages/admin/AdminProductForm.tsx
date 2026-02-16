@@ -682,11 +682,11 @@ export default function AdminProductForm() {
                               type="number"
                               min="1"
                               max="100"
-                              value={product.designUploadSettings.maxFileSizeMB}
+                              value={isNaN(product.designUploadSettings.maxFileSizeMB) ? "" : product.designUploadSettings.maxFileSizeMB}
                               onChange={(e) =>
                                 updateDesignUploadSettings(
                                   "maxFileSizeMB",
-                                  parseInt(e.target.value)
+                                  e.target.value ? parseInt(e.target.value) : 0
                                 )
                               }
                             />
@@ -775,8 +775,8 @@ export default function AdminProductForm() {
                                   <Input
                                     type="number"
                                     step="0.01"
-                                    value={block.value as number}
-                                    onChange={(e) => updatePriceBlock(block.id, "value", parseFloat(e.target.value))}
+                                    value={isNaN(block.value as number) ? "" : block.value as number}
+                                    onChange={(e) => updatePriceBlock(block.id, "value", e.target.value ? parseFloat(e.target.value) : 0)}
                                     placeholder="$0.00"
                                   />
                                 )}
@@ -853,8 +853,8 @@ export default function AdminProductForm() {
                             <Input
                               type="number"
                               step="0.01"
-                              value={material.pricePerSqIn || ""}
-                              onChange={(e) => updateMaterial(material.id, "pricePerSqIn", parseFloat(e.target.value))}
+                              value={isNaN(material.pricePerSqIn || 0) ? "" : material.pricePerSqIn}
+                              onChange={(e) => updateMaterial(material.id, "pricePerSqIn", e.target.value ? parseFloat(e.target.value) : 0)}
                               placeholder="$0.00"
                               className="text-sm"
                             />
@@ -894,8 +894,8 @@ export default function AdminProductForm() {
                             <label className="block text-xs font-medium text-gray-600 mb-1">Min Qty</label>
                             <Input
                               type="number"
-                              value={tier.min}
-                              onChange={(e) => updateQuantityTier(tier.id, "min", parseInt(e.target.value))}
+                              value={isNaN(tier.min) ? "" : tier.min}
+                              onChange={(e) => updateQuantityTier(tier.id, "min", e.target.value ? parseInt(e.target.value) : 0)}
                               placeholder="1"
                               className="text-sm"
                             />
@@ -915,8 +915,8 @@ export default function AdminProductForm() {
                             <Input
                               type="number"
                               step="0.01"
-                              value={tier.pricePerUnit}
-                              onChange={(e) => updateQuantityTier(tier.id, "pricePerUnit", parseFloat(e.target.value))}
+                              value={isNaN(tier.pricePerUnit) ? "" : tier.pricePerUnit}
+                              onChange={(e) => updateQuantityTier(tier.id, "pricePerUnit", e.target.value ? parseFloat(e.target.value) : 0)}
                               placeholder="$0.00"
                               className="text-sm"
                             />
@@ -1109,13 +1109,13 @@ export default function AdminProductForm() {
                                             <Input
                                               type="number"
                                               step="0.01"
-                                              value={value.priceModifier}
+                                              value={isNaN(value.priceModifier) ? "" : value.priceModifier}
                                               onChange={(e) =>
                                                 updateOptionValue(
                                                   option.id,
                                                   value.id,
                                                   "priceModifier",
-                                                  parseFloat(e.target.value)
+                                                  e.target.value ? parseFloat(e.target.value) : 0
                                                 )
                                               }
                                               placeholder="0.00"
