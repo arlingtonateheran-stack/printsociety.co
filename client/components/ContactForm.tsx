@@ -89,8 +89,7 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
           <hr />
           <p><strong>Message:</strong></p>
           <p>${formData.message}</p>
-        `,
-        from: `Support Portal <support@printsociety.co>`
+        `
       });
 
       // Send confirmation email to customer
@@ -106,8 +105,7 @@ export function ContactForm({ onSubmit, relatedOrderId }: ContactFormProps) {
             <li><strong>Category:</strong> ${formData.category}</li>
           </ul>
           <p>Best regards,<br/>Print Society Support Team</p>
-        `,
-        from: `Print Society <notifications@printsociety.co>`
+        `
       });
 
       onSubmit?.(formData);

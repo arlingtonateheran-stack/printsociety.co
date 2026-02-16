@@ -18,7 +18,7 @@ export async function handleSendEmail(req: Request, res: Response) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        from: from || "Print Society <notifications@printsociety.co>",
+        from: from || "onboarding@resend.dev",
         to: Array.isArray(to) ? to : [to],
         subject,
         html,
