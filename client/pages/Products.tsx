@@ -1,4 +1,5 @@
 import { Search, ChevronDown, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { products as sampleProducts, categories, type ProductCategory } from "@shared/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

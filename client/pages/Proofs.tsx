@@ -1,47 +1,75 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, AlertCircle, CheckCircle, Clock, Lock } from 'lucide-react';
-import { sampleProofs, proofStatusColors, type ProofStatus } from '@shared/proofs';
+import { Search, AlertCircle, CheckCircle, Clock, Lock, Loader2 } from 'lucide-react';
+import { proofStatusColors, type ProofStatus } from '@shared/proofs';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 type FilterStatus = ProofStatus | 'all';
 
 export default function Proofs() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [proofs, setProofs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchProofs();
+    }
+  }, [isAuthenticated, user]);
+
+  const fetchProofs = async () => {
+    try {
+      setIsLoading(true);
+      let query = supabase
+        .from("proofs")
+        .select(`
+          *,
+          order:orders(*)
+        `);
+
+      if (user?.role !== 'admin') {
+        query = query.eq("order.customer_email", user?.email);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setProofs(data || []);
+    } catch (error) {
+      console.error("Error fetching proofs:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredProofs = useMemo(() => {
     if (!isAuthenticated || !user) return [];
 
-    let filtered = sampleProofs;
-
-    // Filter by customer email if not an admin
-    if (user.role !== 'admin') {
-      filtered = filtered.filter(p => p.customerEmail.toLowerCase() === user.email.toLowerCase());
-    }
+    let filtered = proofs;
 
     // Filter by status
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(p => p.currentStatus === filterStatus);
+      filtered = filtered.filter(p => p.status === filterStatus);
     }
 
     // Filter by search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase();
       filtered = filtered.filter(p =>
-        p.proofNumber.toLowerCase().includes(query) ||
-        p.customerName.toLowerCase().includes(query) ||
-        p.productName.toLowerCase().includes(query) ||
-        p.orderName.toLowerCase().includes(query)
+        (p.order?.order_number || "").toLowerCase().includes(q) ||
+        (p.order?.customer_name || "").toLowerCase().includes(q) ||
+        (p.order?.product_name || "").toLowerCase().includes(q)
       );
     }
 
     return filtered;
-  }, [searchQuery, filterStatus]);
+  }, [proofs, searchQuery, filterStatus]);
 
   const getStatusIcon = (status: ProofStatus) => {
     switch (status) {
@@ -66,10 +94,14 @@ export default function Proofs() {
     return diffDays;
   };
 
-  if (isLoading) {
+  if (authLoading || (isAuthenticated && isLoading)) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -187,18 +219,16 @@ export default function Proofs() {
                     to={`/proofs/${proof.id}`}
                     className="block"
                   >
-                    <div className={`border rounded-lg p-6 hover:shadow-lg transition ${
-                      isUrgent ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-primary'
-                    }`}>
+                    <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-primary transition bg-white">
                       <div className="grid md:grid-cols-6 gap-6">
                         {/* Proof Number & Product */}
                         <div className="md:col-span-2">
                           <div className="flex items-start gap-3">
-                            {getStatusIcon(proof.currentStatus)}
+                            {getStatusIcon(proof.status)}
                             <div>
-                              <p className="font-mono text-sm text-gray-600">{proof.proofNumber}</p>
-                              <h3 className="text-lg font-bold text-black mt-1">{proof.productName}</h3>
-                              <p className="text-sm text-gray-600">{proof.orderName}</p>
+                              <p className="font-mono text-sm text-gray-600">v{proof.version}</p>
+                              <h3 className="text-lg font-bold text-black mt-1">{proof.order?.product_name || 'Custom Print'}</h3>
+                              <p className="text-sm text-gray-600">{proof.order?.order_number}</p>
                             </div>
                           </div>
                         </div>
@@ -206,42 +236,32 @@ export default function Proofs() {
                         {/* Customer Info */}
                         <div>
                           <p className="text-xs text-gray-600 uppercase font-semibold">Customer</p>
-                          <p className="font-medium text-black mt-1">{proof.customerName}</p>
-                          <p className="text-xs text-gray-600 truncate">{proof.customerEmail}</p>
+                          <p className="font-medium text-black mt-1">{proof.order?.customer_name || 'Guest'}</p>
+                          <p className="text-xs text-gray-600 truncate">{proof.order?.customer_email}</p>
                         </div>
 
                         {/* Status */}
                         <div>
                           <p className="text-xs text-gray-600 uppercase font-semibold">Status</p>
                           <div className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
-                            proofStatusColors[proof.currentStatus].bg
-                          } ${proofStatusColors[proof.currentStatus].text}`}>
-                            {proofStatusColors[proof.currentStatus].label}
+                            proofStatusColors[proof.status as ProofStatus]?.bg || 'bg-blue-100'
+                          } ${proofStatusColors[proof.status as ProofStatus]?.text || 'text-blue-800'}`}>
+                            {proofStatusColors[proof.status as ProofStatus]?.label || proof.status}
                           </div>
                         </div>
 
-                        {/* Versions & Deadline */}
+                        {/* Versions */}
                         <div>
-                          <p className="text-xs text-gray-600 uppercase font-semibold">Versions</p>
-                          <p className="font-medium text-black mt-1">v{proof.currentVersion.versionNumber}</p>
-                          <p className="text-xs text-gray-600">
-                            {proof.totalRevisions}/{proof.maxRevisionsAllowed} revisions
-                          </p>
+                          <p className="text-xs text-gray-600 uppercase font-semibold">Version</p>
+                          <p className="font-medium text-black mt-1">v{proof.version}</p>
                         </div>
 
-                        {/* Deadline */}
-                        <div>
-                          <p className="text-xs text-gray-600 uppercase font-semibold">Deadline</p>
-                          {proof.approvalStatus === 'pending' ? (
-                            <div className={`mt-1 ${isUrgent ? 'text-red-600 font-bold' : 'text-gray-700'}`}>
-                              <p className="text-sm">{daysLeft} days left</p>
-                              <p className="text-xs">
-                                {proof.approvalDeadline.toLocaleDateString()}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-green-600 font-medium mt-1">✓ Approved</p>
-                          )}
+                        {/* Sent Date */}
+                        <div className="md:col-span-1">
+                          <p className="text-xs text-gray-600 uppercase font-semibold">Sent On</p>
+                          <p className="text-sm text-gray-700 mt-1">
+                            {new Date(proof.sent_at).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                     </div>

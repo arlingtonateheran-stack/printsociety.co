@@ -31,6 +31,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(50);
   const [selectedBorderCut, setSelectedBorderCut] = useState('full-bleed');
   const [uploadedDesign, setUploadedDesign] = useState<UploadedDesign | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchProductData();
@@ -51,7 +52,7 @@ export default function ProductDetail() {
           quantity_tiers(*),
           size_options(*),
           finish_options(*, finish_price_blocks(*)),
-          product_options(*)
+          product_options(*, option_values(*))
         `)
         .eq("slug", slug)
         .single();
@@ -96,7 +97,21 @@ export default function ProductDetail() {
           quantityMin: t.min_qty,
           quantityMax: t.max_qty || 10000,
           pricePerUnit: Number(t.price_per_unit)
-        }))
+        })),
+        options: (data.product_options || []).map((o: any) => ({
+          id: o.id,
+          name: o.name,
+          type: o.type,
+          required: o.required,
+          priceBehavior: o.price_behavior,
+          values: (o.option_values || []).map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            priceModifier: Number(v.price_modifier),
+            swatchImage: v.swatch_image
+          }))
+        })),
+        designUploadSettings: data.design_upload_settings || { enabled: true }
       };
 
       setProduct(mappedProduct);
@@ -115,6 +130,15 @@ export default function ProductDetail() {
     setSelectedMaterial(p.specifications?.defaultMaterial || '');
     setSelectedFinish(p.specifications?.defaultFinish || '');
     setQuantity(p.minQuantity || 50);
+
+    // Initialize dynamic options
+    const initialOptions: Record<string, string> = {};
+    p.options?.forEach((opt: any) => {
+      if (opt.values && opt.values.length > 0) {
+        initialOptions[opt.id] = opt.values[0].id;
+      }
+    });
+    setSelectedOptions(initialOptions);
   };
 
   if (isLoading) {
@@ -206,15 +230,25 @@ export default function ProductDetail() {
   };
 
   // Calculate pricing
-  const material = product.specifications.materialOptions.find(m => m.id === selectedMaterial);
-  const finish = product.specifications.finishOptions.find(f => f.id === selectedFinish);
+  const material = product.specifications.materialOptions.find((m: any) => m.id === selectedMaterial);
+  const finish = product.specifications.finishOptions.find((f: any) => f.id === selectedFinish);
   const priceMultiplier = (material?.priceMultiplier || 1) * (finish?.priceMultiplier || 1);
+
+  // Add modifiers from dynamic options
+  let optionsPriceModifier = 0;
+  product.options?.forEach((opt: any) => {
+    const selectedValueId = selectedOptions[opt.id];
+    const value = opt.values?.find((v: any) => v.id === selectedValueId);
+    if (value) {
+      optionsPriceModifier += value.priceModifier || 0;
+    }
+  });
 
   // Find pricing tier
   const tier = product.pricingTiers.find(
-    t => quantity >= t.quantityMin && quantity <= t.quantityMax
+    (t: any) => quantity >= t.quantityMin && quantity <= t.quantityMax
   );
-  const pricePerUnit = (tier?.pricePerUnit || product.basePrice) * priceMultiplier;
+  const pricePerUnit = ((tier?.pricePerUnit || product.basePrice || 0) + optionsPriceModifier) * priceMultiplier;
   const subtotal = pricePerUnit * quantity;
   const setupFee = 25;
   const total = subtotal + setupFee;
@@ -322,7 +356,7 @@ export default function ProductDetail() {
           <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
             <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select a Vinyl Finish</h3>
             <div className="space-y-1">
-              {product.specifications.finishOptions.map(finish => (
+              {product.specifications.finishOptions.map((finish: any) => (
                 <button
                   key={finish.id}
                   onClick={() => setSelectedFinish(finish.id)}
@@ -345,7 +379,7 @@ export default function ProductDetail() {
           <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
             <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select Size & Price</h3>
             <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto pr-1">
-              {product.specifications.sizeOptions.map(size => (
+              {product.specifications.sizeOptions.map((size: any) => (
                 <button
                   key={size.id}
                   onClick={() => setSelectedSize(size.id)}
@@ -362,33 +396,60 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Border Cut */}
-          <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
-            <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select Border Cut</h3>
-            <div className="space-y-1">
-              <button
-                onClick={() => setSelectedBorderCut('full-bleed')}
-                className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 relative ${
-                  selectedBorderCut === 'full-bleed'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-300 bg-white hover:border-purple-400'
-                }`}
-              >
-                <p className="text-[11px] font-semibold">Full bleed cut</p>
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[8px] px-1 py-0.5 rounded shadow-sm">Popular</span>
-              </button>
-              <button
-                onClick={() => setSelectedBorderCut('white')}
-                className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 ${
-                  selectedBorderCut === 'white'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-300 bg-white hover:border-purple-400'
-                }`}
-              >
-                <p className="text-[11px] font-semibold">White border cut</p>
-              </button>
+          {/* Dynamic Product Options */}
+          {product.options && product.options.length > 0 ? (
+            product.options.map((option: any) => (
+              <div key={option.id} className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+                <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">{option.name}</h3>
+                <div className="space-y-1">
+                  {option.values.map((val: any) => (
+                    <button
+                      key={val.id}
+                      onClick={() => setSelectedOptions(prev => ({ ...prev, [option.id]: val.id }))}
+                      className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 ${
+                        selectedOptions[option.id] === val.id
+                          ? 'border-purple-500 bg-purple-50'
+                          : 'border-gray-300 bg-white hover:border-purple-400'
+                      }`}
+                    >
+                      <p className="text-[11px] font-semibold">{val.name}</p>
+                      {val.priceModifier > 0 && (
+                        <p className="text-gray-600 text-[10px]">+${val.priceModifier.toFixed(2)}</p>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            /* Fallback to hardcoded Border Cut if no dynamic options */
+            <div className="bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+              <h3 className="text-[10px] font-bold text-gray-700 uppercase mb-1.5">Select Border Cut</h3>
+              <div className="space-y-1">
+                <button
+                  onClick={() => setSelectedBorderCut('full-bleed')}
+                  className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 relative ${
+                    selectedBorderCut === 'full-bleed'
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-gray-300 bg-white hover:border-purple-400'
+                  }`}
+                >
+                  <p className="text-[11px] font-semibold">Full bleed cut</p>
+                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[8px] px-1 py-0.5 rounded shadow-sm">Popular</span>
+                </button>
+                <button
+                  onClick={() => setSelectedBorderCut('white')}
+                  className={`w-full px-2 py-1 rounded text-xs font-medium transition border-2 ${
+                    selectedBorderCut === 'white'
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-gray-300 bg-white hover:border-purple-400'
+                  }`}
+                >
+                  <p className="text-[11px] font-semibold">White border cut</p>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Quantity */}
           <div className="backdrop-blur-md bg-white/5 rounded-lg p-1.5 border border-gray-300 shadow-sm">
@@ -397,7 +458,10 @@ export default function ProductDetail() {
               Select a quantity
             </h3>
             <div className="grid grid-cols-1 gap-1">
-              {[50, 100, 200, 300, 500, 1000, 2500].map(q => (
+              {(product.pricingTiers && product.pricingTiers.length > 0
+                ? product.pricingTiers.map((t: any) => t.quantityMin)
+                : [50, 100, 200, 300, 500, 1000, 2500]
+              ).map((q: number) => (
                 <button
                   key={q}
                   onClick={() => handleQuantityChange(q)}
@@ -418,7 +482,14 @@ export default function ProductDetail() {
         {/* Upload & Notes Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
           {/* Artwork Upload */}
-          <ArtworkUpload onUpload={handleDesignUpload} />
+          {product.designUploadSettings?.enabled !== false ? (
+            <ArtworkUpload onUpload={handleDesignUpload} />
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex flex-col items-center justify-center text-center">
+              <p className="text-sm font-semibold text-gray-500 uppercase">Design Upload Disabled</p>
+              <p className="text-xs text-gray-400">This product does not require artwork upload.</p>
+            </div>
+          )}
 
           {/* Order Notes */}
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">

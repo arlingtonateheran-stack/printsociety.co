@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { DashboardNav, DashboardSection } from "@/components/DashboardNav";
@@ -9,31 +9,99 @@ import { SavedProducts } from "@/components/SavedProducts";
 import { AccountSettings } from "@/components/AccountSettings";
 import {
   sampleUserAccount,
-  sampleOrders,
   sampleArtworkLibrary,
   sampleSavedProducts,
-  sampleProofs,
 } from "@shared/account";
-import { sampleProofs as proofs } from "@shared/proofs";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
 
 export default function Dashboard() {
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const [activeSection, setActiveSection] = useState<DashboardSection>("orders");
   const [user, setUser] = useState(sampleUserAccount);
-  const [orders, setOrders] = useState(sampleOrders);
+  const [orders, setOrders] = useState<any[]>([]);
   const [artwork, setArtwork] = useState(sampleArtworkLibrary);
   const [savedProducts, setSavedProducts] = useState(sampleSavedProducts);
+  const [isLoading, setIsLoading] = useState(true);
+  const [proofs, setProofs] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isAuthenticated && authUser) {
+      fetchDashboardData();
+    }
+  }, [isAuthenticated, authUser]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+
+      const [ordersRes, proofsRes] = await Promise.all([
+        supabase.from("orders").select("*").eq("customer_email", authUser?.email).order("created_at", { ascending: false }),
+        supabase.from("proofs").select("*, order:orders(*)").eq("order.customer_email", authUser?.email)
+      ]);
+
+      if (ordersRes.error) throw ordersRes.error;
+
+      // Map Supabase orders to the structure expected by MyOrders component
+      const mappedOrders = (ordersRes.data || []).map(o => ({
+        id: o.id,
+        orderNumber: o.order_number || o.id.substring(0, 8),
+        createdAt: new Date(o.created_at),
+        status: o.status === 'awaiting-artwork' ? 'pending-proof' :
+                o.status === 'proof-sent' ? 'pending-proof' :
+                o.status === 'approved' ? 'proof-approved' :
+                o.status === 'in-production' ? 'in-production' :
+                o.status === 'ready-to-ship' ? 'shipped' : 'delivered',
+        items: [{
+          id: o.product_id,
+          productId: o.product_id,
+          productName: o.product_name || 'Custom Product',
+          quantity: o.quantity || 1,
+          size: o.selected_size || '',
+          material: o.selected_material || '',
+          finish: o.selected_finish || '',
+          unitPrice: o.price_per_unit || 0,
+          subtotal: o.subtotal || 0
+        }],
+        total: o.total || o.total_amount || 0,
+        shippingAddress: {
+          name: o.customer_name || 'Customer',
+          street: o.shipping_address?.street || '',
+          city: o.shipping_address?.city || '',
+          state: o.shipping_address?.state || '',
+          zipCode: o.shipping_address?.zipCode || ''
+        }
+      }));
+
+      setOrders(mappedOrders);
+      setProofs(proofsRes.data || []);
+
+      if (authUser) {
+        setUser({
+          ...sampleUserAccount,
+          id: authUser.id,
+          email: authUser.email,
+          firstName: authUser.name?.split(' ')[0] || '',
+          lastName: authUser.name?.split(' ')[1] || ''
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Get pending and past proofs
   const pendingProofs = proofs.filter(
     (p) =>
-      p.currentStatus === "ready-for-approval" ||
-      p.currentStatus === "pending-review"
+      p.status === "sent" ||
+      p.status === "revised"
   );
   const pastProofs = proofs.filter(
     (p) =>
-      p.currentStatus === "approved" ||
-      p.currentStatus === "in-production" ||
-      p.currentStatus === "completed"
+      p.status === "approved"
   );
 
   const handleArtworkDelete = (id: string) => {
@@ -116,23 +184,23 @@ export default function Dashboard() {
           <ProofApprovalsSection
             pendingProofs={pendingProofs.map((p) => ({
               id: p.id,
-              proofNumber: p.proofNumber,
-              productName: p.productName,
-              currentStatus: p.currentStatus,
-              totalRevisions: p.totalRevisions,
-              maxRevisionsAllowed: p.maxRevisionsAllowed,
-              approvalDeadline: p.approvalDeadline,
-              firstSentAt: p.firstSentAt || new Date(),
+              proofNumber: `v${p.version}`,
+              productName: p.order?.product_name || 'Custom Product',
+              currentStatus: p.status === 'sent' ? 'ready-for-approval' : 'pending-review',
+              totalRevisions: p.version - 1,
+              maxRevisionsAllowed: 3,
+              approvalDeadline: new Date(new Date(p.sent_at).getTime() + 7 * 24 * 60 * 60 * 1000),
+              firstSentAt: new Date(p.sent_at),
             }))}
             pastProofs={pastProofs.map((p) => ({
               id: p.id,
-              proofNumber: p.proofNumber,
-              productName: p.productName,
-              currentStatus: p.currentStatus,
-              totalRevisions: p.totalRevisions,
-              maxRevisionsAllowed: p.maxRevisionsAllowed,
-              approvalDeadline: p.approvalDeadline,
-              firstSentAt: p.firstSentAt || new Date(),
+              proofNumber: `v${p.version}`,
+              productName: p.order?.product_name || 'Custom Product',
+              currentStatus: 'approved',
+              totalRevisions: p.version - 1,
+              maxRevisionsAllowed: 3,
+              approvalDeadline: new Date(p.sent_at),
+              firstSentAt: new Date(p.sent_at),
             }))}
           />
         );
@@ -152,6 +220,18 @@ export default function Dashboard() {
         return <MyOrders orders={orders} />;
     }
   };
+
+  if (authLoading || (isAuthenticated && isLoading)) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

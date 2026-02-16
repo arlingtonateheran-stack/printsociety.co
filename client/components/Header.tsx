@@ -28,7 +28,10 @@ export default function Header() {
           >
             Proofs
           </Link>
-          <Link to="#" className="hidden md:inline hover:opacity-80 transition">
+          <Link
+            to="/deals"
+            className="hidden md:inline hover:opacity-80 transition"
+          >
             Deals
           </Link>
           <Link
@@ -43,7 +46,7 @@ export default function Header() {
           >
             Sign Up
           </Link>
-          <Link to="#" className="hover:opacity-80 transition p-2">
+          <Link to="/cart" className="hover:opacity-80 transition p-2">
             <ShoppingCart size={18} className="md:w-5 md:h-5" />
           </Link>
         </nav>

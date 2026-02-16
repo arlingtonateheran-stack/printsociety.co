@@ -3,9 +3,10 @@ import Footer from "@/components/Footer";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Download, Plus } from "lucide-react";
-import { useState } from "react";
+import { Search, Filter, Download, Plus, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 const sampleOrders = [
   {
@@ -64,11 +65,39 @@ export default function AdminOrders() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredOrders = sampleOrders.filter((order) => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const orderId = order.id || "";
+    const orderNumber = order.order_number || "";
+    const customerName = order.customer_name || "";
+
     const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase());
+      orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -167,45 +196,62 @@ export default function AdminOrders() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredOrders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="hover:bg-gray-50 transition cursor-pointer"
-                      onClick={() => navigate(`/admin/orders/${order.id}`)}
-                    >
-                      <td className="px-6 py-4">
-                        <span className="font-mono font-semibold text-green-600 hover:underline">
-                          {order.id}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-900">{order.customer}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            statusColors[order.status] || "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {order.status.replace(/-/g, " ")}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-900">{order.items}</td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">
-                        ${order.total.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600 text-sm">{order.date}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/admin/orders/${order.id}`);
-                          }}
-                          className="text-green-600 hover:text-green-700 font-medium text-sm"
-                        >
-                          View →
-                        </button>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-20 text-center">
+                        <Loader2 className="h-10 w-10 animate-spin mx-auto text-green-600 mb-4" />
+                        <p className="text-gray-500">Loading orders...</p>
                       </td>
                     </tr>
-                  ))}
+                  ) : filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-20 text-center text-gray-500">
+                        No orders found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredOrders.map((order) => (
+                      <tr
+                        key={order.id}
+                        className="hover:bg-gray-50 transition cursor-pointer"
+                        onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      >
+                        <td className="px-6 py-4">
+                          <span className="font-mono font-semibold text-green-600 hover:underline">
+                            {order.order_number || order.id.substring(0, 8)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-900">{order.customer_name || order.customer_email}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              statusColors[order.status] || "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {(order.status || "awaiting-artwork").replace(/-/g, " ")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-900">{order.quantity || 1}</td>
+                        <td className="px-6 py-4 font-semibold text-gray-900">
+                          ${(order.total || order.total_amount || 0).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 text-sm">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/admin/orders/${order.id}`);
+                            }}
+                            className="text-green-600 hover:text-green-700 font-medium text-sm"
+                          >
+                            View →
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </Card>

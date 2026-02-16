@@ -12,9 +12,9 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="font-bold text-black">Company</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link to="#" className="hover:text-black transition">About</Link></li>
-              <li><Link to="#" className="hover:text-black transition">Blog</Link></li>
-              <li><Link to="#" className="hover:text-black transition">Press</Link></li>
+              <li><Link to="/about" className="hover:text-black transition">About</Link></li>
+              <li><Link to="/blog" className="hover:text-black transition">Blog</Link></li>
+              <li><Link to="/press" className="hover:text-black transition">Press</Link></li>
             </ul>
           </div>
 
@@ -22,9 +22,9 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="font-bold text-black">Support</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link to="#" className="hover:text-black transition">Help</Link></li>
-              <li><Link to="#" className="hover:text-black transition">Shipping</Link></li>
-              <li><Link to="#" className="hover:text-black transition">Returns</Link></li>
+              <li><Link to="/help" className="hover:text-black transition">Help</Link></li>
+              <li><Link to="/shipping-policy" className="hover:text-black transition">Shipping</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-black transition">Returns</Link></li>
             </ul>
           </div>
 

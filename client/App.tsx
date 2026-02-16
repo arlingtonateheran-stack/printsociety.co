@@ -42,6 +42,10 @@ import Quote from "./pages/Quote";
 import RefundPolicy from "./pages/RefundPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import Accessibility from "./pages/Accessibility";
+import Deals from "./pages/Deals";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import Press from "./pages/Press";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +76,10 @@ export default function App() {
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/shipping-policy" element={<ShippingPolicy />} />
               <Route path="/accessibility" element={<Accessibility />} />
+              <Route path="/deals" element={<Deals />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/press" element={<Press />} />
 
               {/* Auth Routes */}
               <Route path="/login" element={<Login />} />

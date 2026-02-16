@@ -265,7 +265,7 @@ export default function AdminProductForm() {
         supabase.from("quantity_tiers").select("*").eq("product_id", productId).order("display_order"),
         supabase.from("size_options").select("*").eq("product_id", productId).order("display_order"),
         supabase.from("finish_options").select("*, finish_price_blocks(*)").eq("product_id", productId).order("display_order"),
-        supabase.from("product_options").select("*").eq("product_id", productId).order("display_order")
+        supabase.from("product_options").select("*, option_values(*)").eq("product_id", productId).order("display_order")
       ]);
 
       setProduct({
@@ -315,19 +315,25 @@ export default function AdminProductForm() {
           type: o.type as any,
           required: o.required,
           priceBehavior: o.price_behavior as any,
-          values: [], // In a real app we'd fetch these too
+          defaultValue: o.default_value,
+          values: (o.option_values || []).map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            priceModifier: Number(v.price_modifier),
+            swatchImage: v.swatch_image
+          })),
           isExpanded: false
         })),
         rushOptions: [],
         variants: [],
-        designUploadSettings: {
+        designUploadSettings: baseProduct.design_upload_settings || {
           enabled: true,
           description: "Upload your custom sticker design",
           maxFileSizeMB: 5,
           allowedFormats: { png: true, jpg: true, jpeg: true, gif: true, svg: false }
         },
-        conditionLogic: { type: "all", description: "All conditions must be met" },
-        quantitySettings: { showSelectionPanel: false, fixedQuantity: null }
+        conditionLogic: baseProduct.condition_logic || { type: "all", description: "All conditions must be met" },
+        quantitySettings: baseProduct.quantity_settings || { showSelectionPanel: false, fixedQuantity: null }
       });
 
     } catch (error: any) {
@@ -573,6 +579,9 @@ export default function AdminProductForm() {
         sku: product.sku,
         description: product.description,
         status: product.status,
+        design_upload_settings: product.designUploadSettings,
+        condition_logic: product.conditionLogic,
+        quantity_settings: product.quantitySettings,
         updated_at: new Date().toISOString()
       };
 
@@ -688,30 +697,55 @@ export default function AdminProductForm() {
         }
 
         if (product.options.length > 0) {
-          const { error } = await supabase.from("product_options").insert(
-            product.options.map((o, idx) => ({
-              product_id: currentProductId,
-              name: o.name,
-              type: o.type === "radio" ? "select" : o.type,
-              required: o.required,
-              price_behavior: o.priceBehavior,
-              display_order: idx
-            }))
-          );
-          if (error) {
-            console.error("Product Options Insert Error:", error);
-            throw error;
+          for (let i = 0; i < product.options.length; i++) {
+            const option = product.options[i];
+            const { data: insertedOption, error: optionError } = await supabase
+              .from("product_options")
+              .insert([{
+                product_id: currentProductId,
+                name: option.name,
+                type: option.type === "radio" ? "select" : option.type,
+                required: option.required,
+                price_behavior: option.priceBehavior,
+                display_order: i
+              }])
+              .select()
+              .single();
+
+            if (optionError) {
+              console.error("Product Options Insert Error:", optionError);
+              throw optionError;
+            }
+
+            if (option.values && option.values.length > 0) {
+              const { error: valuesError } = await supabase
+                .from("option_values")
+                .insert(
+                  option.values.map((v, valIdx) => ({
+                    option_id: insertedOption.id,
+                    name: v.name,
+                    price_modifier: v.priceModifier,
+                    swatch_image: v.swatchImage,
+                    display_order: valIdx
+                  }))
+                );
+              if (valuesError) {
+                console.error("Option Values Insert Error:", valuesError);
+                throw valuesError;
+              }
+            }
           }
         }
 
         if (product.finishOptions.length > 0) {
-          for (const finish of product.finishOptions) {
+          for (let i = 0; i < product.finishOptions.length; i++) {
+            const finish = product.finishOptions[i];
             const { data: insertedFinish, error: finishError } = await supabase
               .from("finish_options")
               .insert([{
                 product_id: currentProductId,
                 name: finish.name,
-                display_order: 0
+                display_order: i
               }])
               .select()
               .single();

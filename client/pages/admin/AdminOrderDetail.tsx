@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import {
   Clock,
   CheckCircle,
@@ -16,6 +18,8 @@ import {
   MessageSquare,
   Edit,
   X,
+  Loader2,
+  ArrowLeft,
 } from "lucide-react";
 
 // Sample order data
@@ -101,24 +105,117 @@ const OrderStatusSteps = [
 
 export default function AdminOrderDetail() {
   const { orderId } = useParams();
-  const [order, setOrder] = useState(sampleOrder);
+  const navigate = useNavigate();
+  const [order, setOrder] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [proofMessage, setProofMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [internalNote, setInternalNote] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const currentStatusIndex = OrderStatusSteps.findIndex(
-    (step) => step.status === order.status
-  );
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderDetails();
+    }
+  }, [orderId]);
 
-  const handleStatusTransition = (newStatus: string) => {
-    setOrder({ ...order, status: newStatus as any });
+  const fetchOrderDetails = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("orders")
+        .select(`
+          *,
+          proofs(*),
+          artwork_files(*)
+        `)
+        .eq("id", orderId)
+        .single();
+
+      if (error) throw error;
+      setOrder(data);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      toast.error("Failed to load order details");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSendProof = () => {
-    if (proofMessage.trim() || selectedFile) {
-      alert(`Proof sent with message: ${proofMessage}${selectedFile ? ` and file: ${selectedFile.name}` : ""}`);
+  const currentStatusIndex = OrderStatusSteps.findIndex(
+    (step) => step.status === order?.status
+  );
+
+  const handleStatusTransition = async (newStatus: string) => {
+    try {
+      setIsUpdating(true);
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: newStatus })
+        .eq("id", order.id);
+
+      if (error) throw error;
+      setOrder({ ...order, status: newStatus as any });
+      toast.success("Order status updated");
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update order status");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleSendProof = async () => {
+    if (!proofMessage.trim() && !selectedFile) return;
+
+    try {
+      setIsUpdating(true);
+      let fileUrl = "";
+
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `proofs/${order.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('customer-designs')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('customer-designs')
+          .getPublicUrl(filePath);
+
+        fileUrl = publicUrlData.publicUrl;
+      }
+
+      const { error: proofError } = await supabase
+        .from("proofs")
+        .insert([{
+          order_id: order.id,
+          message_to_customer: proofMessage,
+          file_url: fileUrl,
+          version: (order.proofs?.length || 0) + 1,
+          status: 'sent'
+        }]);
+
+      if (proofError) throw proofError;
+
+      // Update order status to proof-sent if it was awaiting-artwork
+      if (order.status === 'awaiting-artwork') {
+        await supabase.from("orders").update({ status: 'proof-sent' }).eq("id", order.id);
+      }
+
+      toast.success("Proof sent successfully");
       setProofMessage("");
       setSelectedFile(null);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error("Error sending proof:", error);
+      toast.error("Failed to send proof");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -132,16 +229,54 @@ export default function AdminOrderDetail() {
     setSelectedFile(null);
   };
 
-  const handleAddNote = () => {
-    if (internalNote.trim()) {
-      const newNote = {
-        ...order,
-        internalNotes: (order.internalNotes ? order.internalNotes + "\n" : "") + internalNote,
-      };
-      setOrder(newNote);
+  const handleAddNote = async () => {
+    if (!internalNote.trim()) return;
+
+    try {
+      setIsUpdating(true);
+      const newNotes = (order.internal_notes ? order.internal_notes + "\n" : "") + internalNote;
+
+      const { error } = await supabase
+        .from("orders")
+        .update({ internal_notes: newNotes })
+        .eq("id", order.id);
+
+      if (error) throw error;
+
+      setOrder({ ...order, internal_notes: newNotes });
       setInternalNote("");
+      toast.success("Internal note added");
+    } catch (error) {
+      console.error("Error adding note:", error);
+      toast.error("Failed to add internal note");
+    } finally {
+      setIsUpdating(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-green-600" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-gray-500">Order not found.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -154,11 +289,18 @@ export default function AdminOrderDetail() {
           <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="mb-8">
+              <button
+                onClick={() => navigate("/admin/orders")}
+                className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 mb-6 font-medium"
+              >
+                <ArrowLeft size={18} />
+                Back to Orders
+              </button>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{order.id}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900">{order.order_number || order.id.substring(0, 8)}</h1>
                   <p className="text-gray-600 mt-1">
-                    {order.customerName} · Created {order.createdAt.toLocaleDateString()}
+                    {order.customer_name || order.customer_email} · Created {new Date(order.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
@@ -185,6 +327,7 @@ export default function AdminOrderDetail() {
                         <div key={step.status}>
                           <button
                             onClick={() => handleStatusTransition(step.status)}
+                            disabled={isUpdating}
                             className={`w-full p-4 rounded-lg border-2 transition flex items-start gap-4 ${
                               isActive
                                 ? "border-green-600 bg-green-50"
@@ -234,27 +377,25 @@ export default function AdminOrderDetail() {
                 <Card className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
                   <div className="space-y-4">
-                    {order.lineItems.map((item) => (
-                      <div key={item.id} className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <p className="font-semibold text-gray-900">{item.productName}</p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Qty: {item.quantity} · {item.material} · {item.finish} · {item.size}
-                            </p>
-                          </div>
-                          <p className="text-lg font-bold text-gray-900">${item.subtotal}</p>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-gray-900">{order.product_name}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Qty: {order.quantity} · {order.selected_material || 'Standard Vinyl'} · {order.selected_finish} · {order.selected_size}
+                          </p>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {item.quantity} × ${item.unitPrice} per unit
-                        </div>
+                        <p className="text-lg font-bold text-gray-900">${order.subtotal || 0}</p>
                       </div>
-                    ))}
+                      <div className="text-sm text-gray-600">
+                        {order.quantity} × ${order.price_per_unit || 0} per unit
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-4 pt-4 border-t flex justify-between">
                     <p className="font-semibold text-gray-900">Total:</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      ${order.lineItems.reduce((sum, item) => sum + item.subtotal, 0)}
+                      ${order.total || 0}
                     </p>
                   </div>
                 </Card>
@@ -274,32 +415,28 @@ export default function AdminOrderDetail() {
                   </Card>
                 )}
 
-                {order.artworkFiles.length > 0 && (
+                {order.design_file_url && (
                   <Card className="p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Artwork Files</h2>
                     <div className="space-y-2">
-                      {order.artworkFiles.map((file) => (
-                        <div
-                          key={file.id}
-                          className="p-3 bg-gray-50 rounded-lg flex items-center justify-between"
-                        >
-                          <div>
-                            <p className="font-medium text-gray-900">{file.fileName}</p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              Uploaded {file.uploadedAt.toLocaleString()}
-                            </p>
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              file.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
-                          >
-                            {file.status}
-                          </span>
+                      <div
+                        className="p-3 bg-gray-50 rounded-lg flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900">{order.design_file_name || 'design.pdf'}</p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Primary design file
+                          </p>
                         </div>
-                      ))}
+                        <a
+                          href={order.design_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold hover:bg-blue-200 transition"
+                        >
+                          Download
+                        </a>
+                      </div>
                     </div>
                   </Card>
                 )}
@@ -367,29 +504,41 @@ export default function AdminOrderDetail() {
                 ) : null}
 
                 {/* Proof History */}
-                {order.proofs.length > 0 && (
+                {order.proofs && order.proofs.length > 0 && (
                   <Card className="p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Proof History</h2>
                     <div className="space-y-4">
-                      {order.proofs.map((proof) => (
+                      {order.proofs.map((proof: any) => (
                         <div key={proof.id} className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-start justify-between mb-2">
                             <p className="font-semibold text-gray-900">Proof v{proof.version}</p>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                proof.status === "sent"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-green-100 text-green-800"
-                              }`}
-                            >
-                              {proof.status}
-                            </span>
+                            <div className="flex gap-2">
+                              {proof.file_url && (
+                                <a
+                                  href={proof.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-2 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-50"
+                                >
+                                  View File
+                                </a>
+                              )}
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  proof.status === "sent"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-green-100 text-green-800"
+                                }`}
+                              >
+                                {proof.status}
+                              </span>
+                            </div>
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
-                            Sent {proof.sentAt.toLocaleString()}
+                            Sent {new Date(proof.sent_at).toLocaleString()}
                           </p>
                           <p className="text-sm text-gray-600 italic">
-                            "{proof.messageToCustomer}"
+                            "{proof.message_to_customer}"
                           </p>
                         </div>
                       ))}
@@ -404,28 +553,29 @@ export default function AdminOrderDetail() {
                 <Card className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer</h3>
                   <div className="space-y-2 text-sm text-gray-600">
-                    <p className="font-semibold text-gray-900">{order.customerName}</p>
-                    <p>{order.customerEmail}</p>
-                    <p className="text-xs">View customer profile →</p>
+                    <p className="font-semibold text-gray-900">{order.customer_name || 'Guest'}</p>
+                    <p>{order.customer_email}</p>
                   </div>
                 </Card>
 
                 {/* Shipping Address */}
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p className="font-medium text-gray-900">
-                      {order.shippingAddress.firstName} {order.shippingAddress.lastName}
-                    </p>
-                    {order.shippingAddress.company && <p>{order.shippingAddress.company}</p>}
-                    <p>{order.shippingAddress.street}</p>
-                    <p>
-                      {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
-                      {order.shippingAddress.zipCode}
-                    </p>
-                    <p>{order.shippingAddress.phone}</p>
-                  </div>
-                </Card>
+                {order.shipping_address && (
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p className="font-medium text-gray-900">
+                        {order.shipping_address.firstName} {order.shipping_address.lastName}
+                      </p>
+                      {order.shipping_address.company && <p>{order.shipping_address.company}</p>}
+                      <p>{order.shipping_address.street}</p>
+                      <p>
+                        {order.shipping_address.city}, {order.shipping_address.state}{" "}
+                        {order.shipping_address.zipCode}
+                      </p>
+                      <p>{order.shipping_address.phone}</p>
+                    </div>
+                  </Card>
+                )}
 
                 {/* Internal Notes */}
                 <Card className="p-6">
@@ -440,16 +590,16 @@ export default function AdminOrderDetail() {
                     />
                     <button
                       onClick={handleAddNote}
-                      disabled={!internalNote.trim()}
+                      disabled={!internalNote.trim() || isUpdating}
                       className="w-full px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition text-sm"
                     >
                       Add Note
                     </button>
                   </div>
-                  {order.internalNotes && (
+                  {order.internal_notes && (
                     <div className="mt-4 pt-4 border-t">
                       <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded whitespace-pre-wrap">
-                        {order.internalNotes}
+                        {order.internal_notes}
                       </div>
                     </div>
                   )}
@@ -461,22 +611,17 @@ export default function AdminOrderDetail() {
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">Activity Timeline</h2>
               <div className="space-y-4">
-                {order.timeline.map((event, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <Clock size={16} className="text-green-600" />
-                      {idx < order.timeline.length - 1 && (
-                        <div className="w-0.5 h-12 bg-gray-300 my-2"></div>
-                      )}
-                    </div>
-                    <div className="pb-4">
-                      <p className="font-medium text-gray-900">{event.action}</p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {event.timestamp.toLocaleString()} by {event.actor}
-                      </p>
-                    </div>
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <Clock size={16} className="text-green-600" />
                   </div>
-                ))}
+                  <div className="pb-4">
+                    <p className="font-medium text-gray-900">Order created</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {new Date(order.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
             </Card>
           </div>
