@@ -575,8 +575,9 @@ export default function AdminProductForm() {
       };
 
       let currentProductId = productId;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentProductId || "");
 
-      if (isEditing && productId) {
+      if (isEditing && productId && isUuid) {
         const { error } = await supabase
           .from("products")
           .update(productPayload)
@@ -593,7 +594,8 @@ export default function AdminProductForm() {
       }
 
       // Save related data (Delete old and insert new for simplicity in sync)
-      if (isEditing) {
+      // Only delete if it was a real UUID existing record
+      if (isEditing && isUuid) {
         await Promise.all([
           supabase.from("price_blocks").delete().eq("product_id", currentProductId),
           supabase.from("material_options").delete().eq("product_id", currentProductId),
@@ -669,7 +671,7 @@ export default function AdminProductForm() {
             product.options.map((o, idx) => ({
               product_id: currentProductId,
               name: o.name,
-              type: o.type,
+              type: o.type === "radio" ? "select" : o.type, // Map radio to select for schema compatibility
               required: o.required,
               price_behavior: o.priceBehavior,
               display_order: idx
@@ -718,7 +720,13 @@ export default function AdminProductForm() {
       navigate("/admin/products");
     } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error(error.message || "Failed to save product");
+      let errorMessage = "Failed to save product";
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object') {
+        errorMessage = JSON.stringify(error);
+      }
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
