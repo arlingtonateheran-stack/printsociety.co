@@ -224,7 +224,8 @@ export default function AdminOrderDetail() {
                 Print Society Co · notifications@printsociety.co
               </p>
             </div>
-          `
+          `,
+          from: `Print Society Design Team <design@printsociety.co>`
         });
       } catch (emailError) {
         console.error("Failed to send proof notification email:", emailError);
