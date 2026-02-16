@@ -15,6 +15,7 @@ import {
   Truck,
   MessageSquare,
   Edit,
+  X,
 } from "lucide-react";
 
 // Sample order data
@@ -102,6 +103,7 @@ export default function AdminOrderDetail() {
   const { orderId } = useParams();
   const [order, setOrder] = useState(sampleOrder);
   const [proofMessage, setProofMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [internalNote, setInternalNote] = useState("");
 
   const currentStatusIndex = OrderStatusSteps.findIndex(
@@ -113,10 +115,21 @@ export default function AdminOrderDetail() {
   };
 
   const handleSendProof = () => {
-    if (proofMessage.trim()) {
-      alert(`Proof sent with message: ${proofMessage}`);
+    if (proofMessage.trim() || selectedFile) {
+      alert(`Proof sent with message: ${proofMessage}${selectedFile ? ` and file: ${selectedFile.name}` : ""}`);
       setProofMessage("");
+      setSelectedFile(null);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
   };
 
   const handleAddNote = () => {
@@ -303,9 +316,47 @@ export default function AdminOrderDetail() {
                         className="w-full p-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={3}
                       />
+
+                      {/* File Attachment */}
+                      <div className="space-y-2">
+                        {selectedFile ? (
+                          <div className="flex items-center justify-between p-2 bg-blue-100 border border-blue-200 rounded-lg text-sm">
+                            <div className="flex items-center gap-2 text-blue-800">
+                              <Upload size={16} />
+                              <span className="font-medium truncate max-w-[200px]">{selectedFile.name}</span>
+                              <span className="text-xs text-blue-600">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+                            </div>
+                            <button
+                              onClick={removeFile}
+                              className="text-blue-500 hover:text-blue-700 transition p-1"
+                            >
+                              <X size={16} />
+                              <span className="sr-only">Remove</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <input
+                              type="file"
+                              id="proof-file"
+                              className="hidden"
+                              onChange={handleFileChange}
+                              accept="image/*,application/pdf"
+                            />
+                            <label
+                              htmlFor="proof-file"
+                              className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:bg-blue-100 cursor-pointer transition text-sm font-medium"
+                            >
+                              <Upload size={18} />
+                              Attach proof file (PDF, Image)
+                            </label>
+                          </div>
+                        )}
+                      </div>
+
                       <button
                         onClick={handleSendProof}
-                        disabled={!proofMessage.trim()}
+                        disabled={!proofMessage.trim() && !selectedFile}
                         className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
                       >
                         <Send size={18} />
