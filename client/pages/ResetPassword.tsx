@@ -92,7 +92,14 @@ export default function ResetPassword() {
 
       <div className="relative w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Link to="/">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F1e00ee8c48924560b1c928d354e4521b%2Fdc0d573640c04a0f81b1a11991f519d2?format=webp&width=800&height=1200"
+              alt="Print Society Co"
+              className="h-16 w-auto mb-2"
+            />
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Create New Password</h1>
           <p className="text-gray-600 mt-1">Choose a strong password for your account</p>
         </div>
