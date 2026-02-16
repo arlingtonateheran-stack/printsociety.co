@@ -115,6 +115,8 @@ interface ProductData {
   quantitySettings: QuantitySettings;
 }
 
+import { products as sampleProducts } from "@shared/products";
+
 export default function AdminProductForm() {
   const navigate = useNavigate();
   const { productId } = useParams();
@@ -180,7 +182,67 @@ export default function AdminProductForm() {
   const fetchProductData = async () => {
     try {
       setIsLoading(true);
-      // Fetch base product
+
+      // Validate if productId is a valid UUID
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId || "");
+
+      if (!isUuid) {
+        // If it's not a UUID, check if it matches a sample product ID
+        const sampleProd = sampleProducts.find(p => p.id === productId);
+        if (sampleProd) {
+          // Map sample product to form data
+          setProduct({
+            name: sampleProd.name,
+            slug: sampleProd.slug,
+            category: sampleProd.category,
+            sku: sampleProd.id.substring(0, 8).toUpperCase(),
+            description: sampleProd.description,
+            status: "active",
+            pricingBlocks: [],
+            materialOptions: sampleProd.specifications.materialOptions.map(m => ({
+              id: m.id,
+              name: m.name,
+              pricePerSqIn: 0.12 * m.priceMultiplier
+            })),
+            quantityTiers: sampleProd.pricingTiers.map((t, idx) => ({
+              id: `qty-${idx}`,
+              min: t.quantityMin,
+              max: t.quantityMax,
+              pricePerUnit: t.pricePerUnit
+            })),
+            sizeOptions: sampleProd.specifications.sizeOptions.map(s => ({
+              id: s.id,
+              width: s.width,
+              height: s.height,
+              pricePerSqIn: 0.12
+            })),
+            finishOptions: sampleProd.specifications.finishOptions.map(f => ({
+              id: f.id,
+              name: f.name,
+              priceBlocks: []
+            })),
+            options: [],
+            rushOptions: [],
+            variants: [],
+            designUploadSettings: {
+              enabled: true,
+              description: "Upload your custom sticker design",
+              maxFileSizeMB: 5,
+              allowedFormats: { png: true, jpg: true, jpeg: true, gif: true, svg: false }
+            },
+            conditionLogic: { type: "all", description: "All conditions must be met" },
+            quantitySettings: { showSelectionPanel: false, fixedQuantity: null }
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        toast.error("Invalid Product ID format. Use the Product Catalog to select a product.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch base product from Supabase...
       const { data: baseProduct, error: productError } = await supabase
         .from("products")
         .select("*")
@@ -270,7 +332,8 @@ export default function AdminProductForm() {
 
     } catch (error: any) {
       console.error("Error fetching product:", error);
-      toast.error("Failed to load product data");
+      const errorMessage = error?.message || "Failed to load product data";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

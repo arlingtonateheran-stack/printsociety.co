@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
+import { products as sampleProducts } from "@shared/products";
+
 export default function AdminProducts() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,11 +29,22 @@ export default function AdminProducts() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setProducts(data || []);
+      if (error) {
+        // Fallback to sample data if database query fails or tables don't exist
+        console.warn("Supabase fetch failed, falling back to sample data", error);
+        setProducts(sampleProducts);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setProducts(data);
+      } else {
+        // If Supabase is connected but empty, use sample data for better DX
+        setProducts(sampleProducts);
+      }
     } catch (error: any) {
       console.error("Error fetching products:", error);
-      toast.error("Failed to load products");
+      setProducts(sampleProducts);
     } finally {
       setIsLoading(false);
     }

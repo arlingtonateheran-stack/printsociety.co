@@ -101,8 +101,10 @@ export default function ProductDetail() {
 
       setProduct(mappedProduct);
       initSelection(mappedProduct);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching product:", error);
+      const errorMessage = error?.message || "Error loading product detail";
+      // We don't toast here to keep UI clean, but could if needed
     } finally {
       setIsLoading(false);
     }
