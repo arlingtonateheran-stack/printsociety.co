@@ -584,34 +584,33 @@ export default function AdminProductForm() {
           .eq("id", productId);
         if (error) throw error;
       } else {
+        // Use upsert on slug to handle cases where a product with this slug already exists
+        // (common when saving sample products for the first time or re-saving them)
         const { data, error } = await supabase
           .from("products")
-          .insert([productPayload])
+          .upsert([productPayload], { onConflict: 'slug' })
           .select()
           .single();
+
         if (error) throw error;
         currentProductId = data.id;
       }
 
       // Save related data (Delete old and insert new for simplicity in sync)
-      // Only delete if it was a real UUID existing record
-      if (isEditing && isUuid) {
-        await Promise.all([
-          supabase.from("price_blocks").delete().eq("product_id", currentProductId),
-          supabase.from("material_options").delete().eq("product_id", currentProductId),
-          supabase.from("quantity_tiers").delete().eq("product_id", currentProductId),
-          supabase.from("size_options").delete().eq("product_id", currentProductId),
-          supabase.from("product_options").delete().eq("product_id", currentProductId),
-          supabase.from("finish_options").delete().eq("product_id", currentProductId)
-        ]);
-      }
+      // We always cleanup first to ensure no stale data remains
+      await Promise.all([
+        supabase.from("price_blocks").delete().eq("product_id", currentProductId),
+        supabase.from("material_options").delete().eq("product_id", currentProductId),
+        supabase.from("quantity_tiers").delete().eq("product_id", currentProductId),
+        supabase.from("size_options").delete().eq("product_id", currentProductId),
+        supabase.from("product_options").delete().eq("product_id", currentProductId),
+        supabase.from("finish_options").delete().eq("product_id", currentProductId)
+      ]);
 
       // Insert new related data
-      const relatedDataPromises = [];
-
-      if (product.pricingBlocks.length > 0) {
-        relatedDataPromises.push(
-          supabase.from("price_blocks").insert(
+      const insertRelatedData = async () => {
+        if (product.pricingBlocks.length > 0) {
+          const { error } = await supabase.from("price_blocks").insert(
             product.pricingBlocks.map((b, idx) => ({
               product_id: currentProductId,
               label: b.label,
@@ -620,26 +619,24 @@ export default function AdminProductForm() {
               applies_when: b.appliesWhen,
               display_order: idx
             }))
-          )
-        );
-      }
+          );
+          if (error) throw error;
+        }
 
-      if (product.materialOptions.length > 0) {
-        relatedDataPromises.push(
-          supabase.from("material_options").insert(
+        if (product.materialOptions.length > 0) {
+          const { error } = await supabase.from("material_options").insert(
             product.materialOptions.map((m, idx) => ({
               product_id: currentProductId,
               name: m.name,
               price_per_sq_in: m.pricePerSqIn,
               display_order: idx
             }))
-          )
-        );
-      }
+          );
+          if (error) throw error;
+        }
 
-      if (product.quantityTiers.length > 0) {
-        relatedDataPromises.push(
-          supabase.from("quantity_tiers").insert(
+        if (product.quantityTiers.length > 0) {
+          const { error } = await supabase.from("quantity_tiers").insert(
             product.quantityTiers.map((t, idx) => ({
               product_id: currentProductId,
               min_qty: t.min,
@@ -647,13 +644,12 @@ export default function AdminProductForm() {
               price_per_unit: t.pricePerUnit,
               display_order: idx
             }))
-          )
-        );
-      }
+          );
+          if (error) throw error;
+        }
 
-      if (product.sizeOptions.length > 0) {
-        relatedDataPromises.push(
-          supabase.from("size_options").insert(
+        if (product.sizeOptions.length > 0) {
+          const { error } = await supabase.from("size_options").insert(
             product.sizeOptions.map((s, idx) => ({
               product_id: currentProductId,
               width: s.width,
@@ -661,28 +657,25 @@ export default function AdminProductForm() {
               price_per_sq_in: s.pricePerSqIn,
               display_order: idx
             }))
-          )
-        );
-      }
+          );
+          if (error) throw error;
+        }
 
-      if (product.options.length > 0) {
-        relatedDataPromises.push(
-          supabase.from("product_options").insert(
+        if (product.options.length > 0) {
+          const { error } = await supabase.from("product_options").insert(
             product.options.map((o, idx) => ({
               product_id: currentProductId,
               name: o.name,
-              type: o.type === "radio" ? "select" : o.type, // Map radio to select for schema compatibility
+              type: o.type === "radio" ? "select" : o.type,
               required: o.required,
               price_behavior: o.priceBehavior,
               display_order: idx
             }))
-          )
-        );
-      }
+          );
+          if (error) throw error;
+        }
 
-      if (product.finishOptions.length > 0) {
-        // This is a bit more complex as finishes have their own price blocks
-        const finishInsertPromise = async () => {
+        if (product.finishOptions.length > 0) {
           for (const finish of product.finishOptions) {
             const { data: insertedFinish, error: finishError } = await supabase
               .from("finish_options")
@@ -710,22 +703,31 @@ export default function AdminProductForm() {
               if (blockError) throw blockError;
             }
           }
-        };
-        relatedDataPromises.push(finishInsertPromise());
-      }
+        }
+      };
 
-      await Promise.all(relatedDataPromises);
+      await insertRelatedData();
 
       toast.success(isEditing ? "Product updated successfully" : "Product created successfully");
       navigate("/admin/products");
     } catch (error: any) {
       console.error("Error saving product:", error);
       let errorMessage = "Failed to save product";
-      if (error?.message) {
+
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
         errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = error.details;
       } else if (typeof error === 'object') {
-        errorMessage = JSON.stringify(error);
+        try {
+          errorMessage = JSON.stringify(error);
+        } catch (e) {
+          errorMessage = "Unknown database error";
+        }
       }
+
       toast.error(errorMessage);
     } finally {
       setIsSaving(false);
