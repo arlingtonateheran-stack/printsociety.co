@@ -37,9 +37,11 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
 
-      const [ordersRes, proofsRes] = await Promise.all([
+      const [ordersRes, proofsRes, profileRes, addressesRes] = await Promise.all([
         supabase.from("orders").select("*").eq("customer_email", authUser?.email).order("created_at", { ascending: false }),
-        supabase.from("proofs").select("*, order:orders(*)").eq("order.customer_email", authUser?.email)
+        supabase.from("proofs").select("*, order:orders(*)").eq("order.customer_email", authUser?.email),
+        supabase.from("customer_profiles").select("*, user:users(*)").eq("user_id", authUser?.id).single(),
+        supabase.from("addresses").select("*").eq("user_id", authUser?.id)
       ]);
 
       if (ordersRes.error) throw ordersRes.error;
@@ -79,12 +81,47 @@ export default function Dashboard() {
       setProofs(proofsRes.data || []);
 
       if (authUser) {
+        const profile = profileRes.data;
+        const addresses = addressesRes.data || [];
+
+        // Map preferences from JSONB or use defaults
+        const defaultPrefs = {
+          emailNotifications: true,
+          proofApprovalReminders: true,
+          orderUpdates: true,
+          marketingEmails: false,
+        };
+
+        const commPrefs = profile?.communication_preferences || {};
+        const preferences = {
+          emailNotifications: commPrefs.emailNotifications ?? defaultPrefs.emailNotifications,
+          proofApprovalReminders: commPrefs.proofApprovalReminders ?? defaultPrefs.proofApprovalReminders,
+          orderUpdates: commPrefs.orderUpdates ?? defaultPrefs.orderUpdates,
+          marketingEmails: commPrefs.marketingEmails ?? defaultPrefs.marketingEmails,
+        };
+
         setUser({
           ...sampleUserAccount,
           id: authUser.id,
           email: authUser.email,
           firstName: authUser.name?.split(' ')[0] || '',
-          lastName: authUser.name?.split(' ')[1] || ''
+          lastName: authUser.name?.split(' ').slice(1).join(' ') || '',
+          phone: profile?.phone || '',
+          company: profile?.business_name || '',
+          createdAt: new Date(authUser.created_at || Date.now()),
+          lastLogin: new Date(authUser.last_login || Date.now()),
+          preferences,
+          shippingAddresses: addresses.map((addr: any) => ({
+            id: addr.id,
+            label: addr.address_type === 'shipping' ? 'Shipping' : 'Billing',
+            street: addr.street,
+            street2: addr.street_2,
+            city: addr.city,
+            state: addr.state_province,
+            zipCode: addr.zip_postal_code,
+            country: addr.country,
+            isDefault: addr.is_default
+          }))
         });
       }
     } catch (error: any) {
@@ -151,12 +188,45 @@ export default function Dashboard() {
     setArtwork((prev) => [...prev, newArtwork]);
   };
 
-  const handleSaveProduct = (settings: any) => {
-    setUser((prev) => ({
-      ...prev,
-      ...settings,
-      preferences: settings.preferences || prev.preferences,
-    }));
+  const handleUpdateAccountSettings = async (settings: any) => {
+    try {
+      const { firstName, lastName, phone, company, preferences } = settings;
+
+      const updatePromises = [];
+
+      // Update user name in users table
+      updatePromises.push(
+        supabase.from("users").update({
+          name: `${firstName} ${lastName}`.trim(),
+        }).eq("id", authUser?.id)
+      );
+
+      // Update customer profile
+      updatePromises.push(
+        supabase.from("customer_profiles").update({
+          business_name: company,
+          phone: phone,
+          communication_preferences: preferences
+        }).eq("user_id", authUser?.id)
+      );
+
+      const results = await Promise.all(updatePromises);
+      const errors = results.filter(r => r.error).map(r => r.error);
+
+      if (errors.length > 0) {
+        throw errors[0];
+      }
+
+      setUser((prev) => ({
+        ...prev,
+        ...settings,
+      }));
+
+      toast.success("Account settings updated successfully");
+    } catch (error: any) {
+      console.error("Error updating account settings:", error);
+      toast.error(`Failed to update settings: ${error.message}`);
+    }
   };
 
   const handleRemoveSavedProduct = (id: string) => {
@@ -169,6 +239,108 @@ export default function Dashboard() {
         p.id === id ? { ...p, isFavorite: !p.isFavorite } : p
       )
     );
+  };
+
+  const handleAddressSave = async (address: any) => {
+    try {
+      const payload = {
+        user_id: authUser?.id,
+        address_type: address.addressType,
+        first_name: address.firstName,
+        last_name: address.lastName,
+        company: address.company,
+        street: address.street,
+        street_2: address.street2,
+        city: address.city,
+        state_province: address.state,
+        zip_postal_code: address.zipCode,
+        country: address.country,
+        phone: address.phone,
+        is_default: address.isDefault
+      };
+
+      if (address.id) {
+        // If setting as default, unset others first
+        if (address.isDefault) {
+          await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+        }
+        const { error } = await supabase.from("addresses").update(payload).eq("id", address.id);
+        if (error) throw error;
+        toast.success("Address updated successfully");
+      } else {
+        // If setting as default, unset others first
+        if (address.isDefault) {
+          await supabase.from("addresses").update({ is_default: false }).eq("user_id", authUser?.id);
+        }
+        const { error } = await supabase.from("addresses").insert([payload]);
+        if (error) throw error;
+        toast.success("Address added successfully");
+      }
+
+      // Refresh dashboard data to update addresses
+      fetchDashboardData();
+    } catch (error: any) {
+      console.error("Error saving address:", error);
+      toast.error(`Failed to save address: ${error.message}`);
+    }
+  };
+
+  const handleAddressDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("addresses").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Address deleted successfully");
+
+      // Refresh dashboard data
+      fetchDashboardData();
+    } catch (error: any) {
+      console.error("Error deleting address:", error);
+      toast.error(`Failed to delete address: ${error.message}`);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+      toast.success("Verification email sent!");
+    } catch (error: any) {
+      toast.error(`Failed to send verification email: ${error.message}`);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth/callback?type=recovery`
+      });
+      if (error) throw error;
+      toast.success("Password reset email sent!");
+    } catch (error: any) {
+      toast.error(`Failed to send reset email: ${error.message}`);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      // Mark as inactive in users table
+      const { error } = await supabase.from("users").update({ is_active: false }).eq("id", authUser?.id);
+      if (error) throw error;
+
+      toast.success("Account deactivated. You will be signed out.");
+
+      // Sign out
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (error: any) {
+      toast.error(`Failed to delete account: ${error.message}`);
+    }
   };
 
   const renderContent = () => {
@@ -220,7 +392,15 @@ export default function Dashboard() {
         );
       case "settings":
         return (
-          <AccountSettings user={user} onSave={handleSaveProduct} />
+          <AccountSettings
+            user={user}
+            onSave={handleUpdateAccountSettings}
+            onAddressSave={handleAddressSave}
+            onAddressDelete={handleAddressDelete}
+            onVerifyEmail={handleVerifyEmail}
+            onChangePassword={handleChangePassword}
+            onDeleteAccount={handleDeleteAccount}
+          />
         );
       default:
         return <MyOrders orders={orders} />;
