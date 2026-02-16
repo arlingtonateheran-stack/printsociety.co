@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import PriceCalculator from "@/components/admin/PriceCalculator";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Plus, Trash2, ChevronDown, GripVertical, Upload, X } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 type PriceBlockType = "fixed" | "matrix" | "formula";
 
@@ -116,8 +118,10 @@ interface ProductData {
 export default function AdminProductForm() {
   const navigate = useNavigate();
   const { productId } = useParams();
-  const isEditing = Boolean(productId);
+  const isEditing = Boolean(productId) && productId !== "new";
 
+  const [isLoading, setIsLoading] = useState(isEditing);
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"basic" | "pricing" | "options" | "variants">("basic");
 
   const [product, setProduct] = useState<ProductData>({
@@ -166,6 +170,111 @@ export default function AdminProductForm() {
       fixedQuantity: null,
     },
   });
+
+  useEffect(() => {
+    if (isEditing && productId) {
+      fetchProductData();
+    }
+  }, [isEditing, productId]);
+
+  const fetchProductData = async () => {
+    try {
+      setIsLoading(true);
+      // Fetch base product
+      const { data: baseProduct, error: productError } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", productId)
+        .single();
+
+      if (productError) throw productError;
+
+      // Fetch related data in parallel
+      const [
+        { data: priceBlocks },
+        { data: materialOptions },
+        { data: quantityTiers },
+        { data: sizeOptions },
+        { data: finishOptions },
+        { data: productOptions }
+      ] = await Promise.all([
+        supabase.from("price_blocks").select("*").eq("product_id", productId).order("display_order"),
+        supabase.from("material_options").select("*").eq("product_id", productId).order("display_order"),
+        supabase.from("quantity_tiers").select("*").eq("product_id", productId).order("display_order"),
+        supabase.from("size_options").select("*").eq("product_id", productId).order("display_order"),
+        supabase.from("finish_options").select("*, finish_price_blocks(*)").eq("product_id", productId).order("display_order"),
+        supabase.from("product_options").select("*").eq("product_id", productId).order("display_order")
+      ]);
+
+      setProduct({
+        name: baseProduct.name || "",
+        slug: baseProduct.slug || "",
+        category: baseProduct.category || "",
+        sku: baseProduct.sku || "",
+        description: baseProduct.description || "",
+        status: baseProduct.status || "active",
+        pricingBlocks: (priceBlocks || []).map(b => ({
+          id: b.id,
+          label: b.label,
+          type: b.type as PriceBlockType,
+          value: b.value,
+          appliesWhen: b.applies_when
+        })),
+        materialOptions: (materialOptions || []).map(m => ({
+          id: m.id,
+          name: m.name,
+          pricePerSqIn: Number(m.price_per_sq_in)
+        })),
+        quantityTiers: (quantityTiers || []).map(t => ({
+          id: t.id,
+          min: t.min_qty,
+          max: t.max_qty,
+          pricePerUnit: Number(t.price_per_unit)
+        })),
+        sizeOptions: (sizeOptions || []).map(s => ({
+          id: s.id,
+          width: Number(s.width),
+          height: Number(s.height),
+          pricePerSqIn: Number(s.price_per_sq_in)
+        })),
+        finishOptions: (finishOptions || []).map(f => ({
+          id: f.id,
+          name: f.name,
+          priceBlocks: (f.finish_price_blocks || []).map((b: any) => ({
+            id: b.id,
+            label: b.label,
+            type: b.type as PriceBlockType,
+            value: b.value
+          }))
+        })),
+        options: (productOptions || []).map(o => ({
+          id: o.id,
+          name: o.name,
+          type: o.type as any,
+          required: o.required,
+          priceBehavior: o.price_behavior as any,
+          values: [], // In a real app we'd fetch these too
+          isExpanded: false
+        })),
+        rushOptions: [],
+        variants: [],
+        designUploadSettings: {
+          enabled: true,
+          description: "Upload your custom sticker design",
+          maxFileSizeMB: 5,
+          allowedFormats: { png: true, jpg: true, jpeg: true, gif: true, svg: false }
+        },
+        conditionLogic: { type: "all", description: "All conditions must be met" },
+        quantitySettings: { showSelectionPanel: false, fixedQuantity: null }
+      });
+
+    } catch (error: any) {
+      console.error("Error fetching product:", error);
+      toast.error("Failed to load product data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -387,12 +496,182 @@ export default function AdminProductForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting advanced product:", product);
-    // TODO: Connect to API
-    navigate("/admin/products");
+
+    try {
+      setIsSaving(true);
+      const productPayload = {
+        name: product.name,
+        slug: product.slug,
+        category: product.category,
+        sku: product.sku,
+        description: product.description,
+        status: product.status,
+        updated_at: new Date().toISOString()
+      };
+
+      let currentProductId = productId;
+
+      if (isEditing && productId) {
+        const { error } = await supabase
+          .from("products")
+          .update(productPayload)
+          .eq("id", productId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from("products")
+          .insert([productPayload])
+          .select()
+          .single();
+        if (error) throw error;
+        currentProductId = data.id;
+      }
+
+      // Save related data (Delete old and insert new for simplicity in sync)
+      if (isEditing) {
+        await Promise.all([
+          supabase.from("price_blocks").delete().eq("product_id", currentProductId),
+          supabase.from("material_options").delete().eq("product_id", currentProductId),
+          supabase.from("quantity_tiers").delete().eq("product_id", currentProductId),
+          supabase.from("size_options").delete().eq("product_id", currentProductId),
+          supabase.from("product_options").delete().eq("product_id", currentProductId),
+          supabase.from("finish_options").delete().eq("product_id", currentProductId)
+        ]);
+      }
+
+      // Insert new related data
+      const relatedDataPromises = [];
+
+      if (product.pricingBlocks.length > 0) {
+        relatedDataPromises.push(
+          supabase.from("price_blocks").insert(
+            product.pricingBlocks.map((b, idx) => ({
+              product_id: currentProductId,
+              label: b.label,
+              type: b.type,
+              value: b.value,
+              applies_when: b.appliesWhen,
+              display_order: idx
+            }))
+          )
+        );
+      }
+
+      if (product.materialOptions.length > 0) {
+        relatedDataPromises.push(
+          supabase.from("material_options").insert(
+            product.materialOptions.map((m, idx) => ({
+              product_id: currentProductId,
+              name: m.name,
+              price_per_sq_in: m.pricePerSqIn,
+              display_order: idx
+            }))
+          )
+        );
+      }
+
+      if (product.quantityTiers.length > 0) {
+        relatedDataPromises.push(
+          supabase.from("quantity_tiers").insert(
+            product.quantityTiers.map((t, idx) => ({
+              product_id: currentProductId,
+              min_qty: t.min,
+              max_qty: t.max,
+              price_per_unit: t.pricePerUnit,
+              display_order: idx
+            }))
+          )
+        );
+      }
+
+      if (product.sizeOptions.length > 0) {
+        relatedDataPromises.push(
+          supabase.from("size_options").insert(
+            product.sizeOptions.map((s, idx) => ({
+              product_id: currentProductId,
+              width: s.width,
+              height: s.height,
+              price_per_sq_in: s.pricePerSqIn,
+              display_order: idx
+            }))
+          )
+        );
+      }
+
+      if (product.options.length > 0) {
+        relatedDataPromises.push(
+          supabase.from("product_options").insert(
+            product.options.map((o, idx) => ({
+              product_id: currentProductId,
+              name: o.name,
+              type: o.type,
+              required: o.required,
+              price_behavior: o.priceBehavior,
+              display_order: idx
+            }))
+          )
+        );
+      }
+
+      if (product.finishOptions.length > 0) {
+        // This is a bit more complex as finishes have their own price blocks
+        const finishInsertPromise = async () => {
+          for (const finish of product.finishOptions) {
+            const { data: insertedFinish, error: finishError } = await supabase
+              .from("finish_options")
+              .insert([{
+                product_id: currentProductId,
+                name: finish.name,
+                display_order: 0
+              }])
+              .select()
+              .single();
+
+            if (finishError) throw finishError;
+
+            if (finish.priceBlocks && finish.priceBlocks.length > 0) {
+              const { error: blockError } = await supabase
+                .from("finish_price_blocks")
+                .insert(
+                  finish.priceBlocks.map(b => ({
+                    finish_id: insertedFinish.id,
+                    label: b.label,
+                    type: b.type,
+                    value: b.value
+                  }))
+                );
+              if (blockError) throw blockError;
+            }
+          }
+        };
+        relatedDataPromises.push(finishInsertPromise());
+      }
+
+      await Promise.all(relatedDataPromises);
+
+      toast.success(isEditing ? "Product updated successfully" : "Product created successfully");
+      navigate("/admin/products");
+    } catch (error: any) {
+      console.error("Error saving product:", error);
+      toast.error(error.message || "Failed to save product");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -1194,9 +1473,17 @@ export default function AdminProductForm() {
               <div className="flex gap-3 pt-6 border-t">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                  disabled={isSaving}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {isEditing ? "Save Changes" : "Create Product"}
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    isEditing ? "Save Changes" : "Create Product"
+                  )}
                 </button>
                 <button
                   type="button"

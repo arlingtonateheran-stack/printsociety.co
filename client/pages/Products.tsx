@@ -1,19 +1,48 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Search, ChevronDown } from "lucide-react";
-import { products, categories, type ProductCategory } from "@shared/products";
+import { Search, ChevronDown, Loader2 } from "lucide-react";
+import { products as sampleProducts, categories, type ProductCategory } from "@shared/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
+import { useState, useMemo, useEffect } from "react";
 
 type SortOption = "relevance" | "price-low" | "price-high" | "popular";
 
 export default function Products() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | "all"
   >("all");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("status", "active");
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setProducts(data);
+      } else {
+        setProducts(sampleProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts(sampleProducts);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -148,7 +177,12 @@ export default function Products() {
       {/* Products Grid */}
       <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          {filteredProducts.length > 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+              <p className="text-gray-500">Loading our catalog...</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProducts.map((product) => (
                 <Link
@@ -160,7 +194,7 @@ export default function Products() {
                     {/* Product Image */}
                     <div className="aspect-square bg-gray-100 overflow-hidden">
                       <img
-                        src={product.images[0]}
+                        src={product.images?.[0] || product.thumbnail_url || "https://images.unsplash.com/photo-1572375927902-1c09e2d93c3b?w=800&q=80"}
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition"
                       />
@@ -175,7 +209,7 @@ export default function Products() {
                         <h3 className="text-xl font-bold text-black mt-2">
                           {product.name}
                         </h3>
-                        <p className="text-gray-600 text-sm mt-2">
+                        <p className="text-gray-600 text-sm mt-2 line-clamp-2">
                           {product.description}
                         </p>
                       </div>
@@ -184,16 +218,16 @@ export default function Products() {
                       <div className="pt-2 border-t border-gray-200">
                         <p className="text-gray-600 text-sm">From</p>
                         <p className="text-2xl font-bold text-primary">
-                          ${product.basePrice.toFixed(2)}
+                          ${(product.basePrice || 0).toFixed(2)}
                         </p>
                         <p className="text-gray-500 text-xs">
-                          per unit (qty: {product.minQuantity}+)
+                          per unit (qty: {product.minQuantity || 1}+)
                         </p>
                       </div>
 
                       {/* Features */}
                       <ul className="text-xs text-gray-600 space-y-1">
-                        {product.features.slice(0, 2).map((feature, idx) => (
+                        {(product.features || []).slice(0, 2).map((feature: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">✓</span>
                             <span>{feature}</span>

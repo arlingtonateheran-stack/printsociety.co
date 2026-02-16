@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
-import { ShoppingCart, ChevronLeft, ChevronRight, Sliders } from 'lucide-react';
-import { products } from '@shared/products';
+import { ShoppingCart, ChevronLeft, ChevronRight, Sliders, Loader2 } from 'lucide-react';
+import { products as sampleProducts } from '@shared/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArtworkUpload from '@/components/ArtworkUpload';
 import { useCart } from '@/contexts/CartContext';
 import type { CartLineItem } from '@shared/cart';
+import { supabase } from '@/lib/supabase';
 
 interface UploadedDesign {
   file: File;
@@ -19,15 +20,112 @@ export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const product = products.find(p => p.slug === slug);
 
-  const [selectedSize, setSelectedSize] = useState(product?.specifications.defaultSize || '');
-  const [selectedMaterial, setSelectedMaterial] = useState(product?.specifications.defaultMaterial || '');
-  const [selectedFinish, setSelectedFinish] = useState(product?.specifications.defaultFinish || '');
+  const [product, setProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedMaterial, setSelectedMaterial] = useState('');
+  const [selectedFinish, setSelectedFinish] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(product?.minQuantity || 50);
+  const [quantity, setQuantity] = useState(50);
   const [selectedBorderCut, setSelectedBorderCut] = useState('full-bleed');
   const [uploadedDesign, setUploadedDesign] = useState<UploadedDesign | null>(null);
+
+  useEffect(() => {
+    fetchProductData();
+  }, [slug]);
+
+  const fetchProductData = async () => {
+    try {
+      setIsLoading(true);
+      // Try to find in sample data first for immediate UI if possible, or just fetch
+      const sampleProd = sampleProducts.find(p => p.slug === slug);
+
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          price_blocks(*),
+          material_options(*),
+          quantity_tiers(*),
+          size_options(*),
+          finish_options(*, finish_price_blocks(*)),
+          product_options(*)
+        `)
+        .eq("slug", slug)
+        .single();
+
+      if (error) {
+        if (sampleProd) {
+          setProduct(sampleProd);
+          initSelection(sampleProd);
+          return;
+        }
+        throw error;
+      }
+
+      // Map Supabase data to the structure expected by the component
+      const mappedProduct = {
+        ...data,
+        images: data.images || [data.thumbnail_url || "https://images.unsplash.com/photo-1572375927902-1c09e2d93c3b?w=800&q=80"],
+        specifications: {
+          defaultSize: data.size_options?.[0]?.id || "",
+          defaultMaterial: data.material_options?.[0]?.id || "",
+          defaultFinish: data.finish_options?.[0]?.id || "",
+          sizeOptions: (data.size_options || []).map((s: any) => ({
+            id: s.id,
+            label: `${s.width}" x ${s.height}"`,
+            width: s.width,
+            height: s.height
+          })),
+          materialOptions: (data.material_options || []).map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            priceMultiplier: m.price_per_sq_in ? (Number(m.price_per_sq_in) / 0.12) : 1 // Normalize to sample logic
+          })),
+          finishOptions: (data.finish_options || []).map((f: any) => ({
+            id: f.id,
+            name: f.name,
+            priceMultiplier: 1 // Finishes usually use blocks, but for simple UI we'll use 1
+          }))
+        },
+        minQuantity: data.quantity_tiers?.[0]?.min_qty || 50,
+        maxQuantity: 10000,
+        pricingTiers: (data.quantity_tiers || []).map((t: any) => ({
+          quantityMin: t.min_qty,
+          quantityMax: t.max_qty || 10000,
+          pricePerUnit: Number(t.price_per_unit)
+        }))
+      };
+
+      setProduct(mappedProduct);
+      initSelection(mappedProduct);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initSelection = (p: any) => {
+    setSelectedSize(p.specifications?.defaultSize || '');
+    setSelectedMaterial(p.specifications?.defaultMaterial || '');
+    setSelectedFinish(p.specifications?.defaultFinish || '');
+    setQuantity(p.minQuantity || 50);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return <Navigate to="/products" />;
