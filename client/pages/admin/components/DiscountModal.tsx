@@ -71,12 +71,16 @@ export function DiscountModal({ discount, onSuccess, trigger }: DiscountModalPro
         code: formData.code.toUpperCase().trim(),
         name: formData.name.trim(),
         discount_type: formData.discount_type,
-        discount_value: parseFloat(formData.discount_value),
+        discount_value: formData.discount_type === 'freeShipping' ? 0 : parseFloat(formData.discount_value),
         usage_limit: formData.usage_limit ? parseInt(formData.usage_limit) : null,
         starts_at: new Date(formData.starts_at).toISOString(),
         expires_at: new Date(formData.expires_at).toISOString(),
         is_active: formData.is_active,
       };
+
+      if (isNaN(payload.discount_value) && formData.discount_type !== 'freeShipping') {
+        throw new Error("Invalid discount value. Please enter a number.");
+      }
 
       if (discount?.id) {
         const { error } = await supabase
@@ -96,8 +100,18 @@ export function DiscountModal({ discount, onSuccess, trigger }: DiscountModalPro
       setIsOpen(false);
       onSuccess();
     } catch (error: any) {
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error occurred while saving the discount. Check for duplicate codes or missing values.";
+        }
+      }
+
       console.error("Error saving discount:", error);
-      toast.error(error.message || "Failed to save discount");
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }

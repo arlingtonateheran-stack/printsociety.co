@@ -28,8 +28,9 @@ export default function AdminDiscounts() {
       if (error) throw error;
       setDiscounts(data || []);
     } catch (error: any) {
+      const errorMessage = error.message || error.details || error.hint || "Failed to load discounts";
       console.error("Error fetching discounts:", error);
-      toast.error("Failed to load discounts");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +50,9 @@ export default function AdminDiscounts() {
       ));
       toast.success(`Discount ${!currentStatus ? 'activated' : 'deactivated'}`);
     } catch (error: any) {
-      toast.error("Failed to update status");
+      const errorMessage = error.message || error.details || error.hint || "Failed to update status";
+      console.error("Error updating status:", error);
+      toast.error(errorMessage);
     }
   };
 
@@ -67,7 +70,9 @@ export default function AdminDiscounts() {
       setDiscounts(discounts.filter(d => d.id !== id));
       toast.success("Discount deleted");
     } catch (error: any) {
-      toast.error("Failed to delete discount");
+      const errorMessage = error.message || error.details || error.hint || "Failed to delete discount";
+      console.error("Error deleting discount:", error);
+      toast.error(errorMessage);
     }
   };
 
