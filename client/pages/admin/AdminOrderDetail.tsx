@@ -6,6 +6,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { sendEmail, EMAIL_TEMPLATES } from "@/utils/email";
 import {
@@ -32,6 +33,7 @@ const OrderStatusSteps = [
 ];
 
 export default function AdminOrderDetail() {
+  const { user: currentUser } = useAuth();
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState<any>(null);
@@ -211,7 +213,10 @@ export default function AdminOrderDetail() {
           order_id: order.id,
           message_to_customer: proofMessage,
           file_url: fileUrl,
+          proof_file_url: fileUrl, // Support both column names
           version: (order.proofs?.length || 0) + 1,
+          proof_version: (order.proofs?.length || 0) + 1, // Support both column names
+          sent_by_id: currentUser?.id, // Support sent_by_id if it exists
           status: 'sent'
         }]);
 
