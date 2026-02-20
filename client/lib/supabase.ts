@@ -189,6 +189,30 @@ export interface FAQ {
   updated_at: string;
 }
 
+export interface ShippingBatch {
+  id: string;
+  batch_number: string;
+  carrier: 'usps' | 'ups' | 'fedex' | 'dhl';
+  status: 'created' | 'processing' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+  labels?: ShippingLabel[];
+}
+
+export interface ShippingLabel {
+  id: string;
+  order_id: string;
+  batch_id: string | null;
+  carrier: 'usps' | 'ups' | 'fedex' | 'dhl';
+  label_url: string;
+  tracking_number: string | null;
+  weight: number;
+  length: number;
+  width: number;
+  height: number;
+  generated_at: string;
+}
+
 // ============================================================================
 // STORAGE OPERATIONS
 // ============================================================================
@@ -700,4 +724,58 @@ export async function deleteFAQ(id: string) {
     .delete()
     .eq('id', id);
   if (error) throw error;
+}
+
+// ============================================================================
+// SHIPPING OPERATIONS
+// ============================================================================
+
+export async function getShippingBatches() {
+  const { data, error } = await supabase
+    .from('shipping_batches')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data as ShippingBatch[];
+}
+
+export async function createShippingBatch(batch: Omit<ShippingBatch, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('shipping_batches')
+    .insert([batch])
+    .select();
+  if (error) throw error;
+  return data?.[0] as ShippingBatch;
+}
+
+export async function createShippingLabels(labels: Omit<ShippingLabel, 'id' | 'generated_at'>[]) {
+  const { data, error } = await supabase
+    .from('shipping_labels')
+    .insert(labels)
+    .select();
+  if (error) throw error;
+  return data as ShippingLabel[];
+}
+
+export async function updateOrderTracking(orderId: string, trackingNumber: string, carrier: string) {
+  const trackingUrl = getTrackingUrl(carrier, trackingNumber);
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      tracking_number: trackingNumber,
+      tracking_url: trackingUrl,
+      status: 'shipped'
+    })
+    .eq('id', orderId);
+  if (error) throw error;
+}
+
+function getTrackingUrl(carrier: string, trackingNumber: string): string {
+  switch (carrier.toLowerCase()) {
+    case 'usps': return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${trackingNumber}`;
+    case 'ups': return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+    case 'fedex': return `https://www.fedex.com/apps/fedextrack/?tracknumbers=${trackingNumber}`;
+    case 'dhl': return `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}`;
+    default: return "";
+  }
 }
