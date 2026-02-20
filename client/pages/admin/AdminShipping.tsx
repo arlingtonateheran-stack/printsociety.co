@@ -5,7 +5,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Truck, Plus, Download, Copy, Check, Loader2, Search, Filter } from "lucide-react";
+import { Truck, Plus, Download, Copy, Check, Loader2, Search, Filter, RefreshCcw } from "lucide-react";
 import { supabase, ShippingBatch, extractErrorMessage, updateOrderTracking } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -81,7 +81,14 @@ export default function AdminShipping() {
 
     } catch (error) {
       console.error("Error fetching shipping data:", error);
-      toast.error(extractErrorMessage(error, "Failed to load shipping data"));
+      const message = extractErrorMessage(error, "Failed to load shipping data");
+
+      // Provide helpful context if tables are missing
+      if (message.includes("relation") && message.includes("does not exist")) {
+        toast.error("Database tables missing. Please ensure SHIPPING_TABLES.sql has been applied.");
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -212,20 +219,27 @@ export default function AdminShipping() {
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Shipping Station</h1>
-                <p className="text-gray-600 mt-1">Bulk label generation and shipment tracking</p>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Shipping Station</h1>
+                  <p className="text-gray-600 mt-1">Bulk label generation and shipment tracking</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={fetchShippingData}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCcw size={18} />}
+                    Refresh Queue
+                  </Button>
+                  <Button className="bg-green-600 hover:bg-green-700 gap-2">
+                    <Plus size={18} />
+                    New Batch
+                  </Button>
+                </div>
               </div>
-              <button
-                onClick={fetchShippingData}
-                disabled={isLoading}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"
-              >
-                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
-                Refresh Queue
-              </button>
-            </div>
 
             {/* Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -280,12 +294,13 @@ export default function AdminShipping() {
                 <Card className="p-0 overflow-hidden">
                   <div className="p-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
                     <h2 className="text-lg font-semibold text-gray-900">Shipping Queue</h2>
-                    <button
+                    <Button
+                      variant="link"
                       onClick={toggleAllOrders}
-                      className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+                      className="text-sm text-green-600 hover:text-green-700 font-medium h-auto p-0"
                     >
                       {orders.length > 0 && orders.every((o) => o.selected) ? "Deselect All" : "Select All"}
-                    </button>
+                    </Button>
                   </div>
 
                   <div className="overflow-x-auto">
@@ -317,7 +332,7 @@ export default function AdminShipping() {
                         ) : filteredOrders.length === 0 ? (
                           <tr>
                             <td colSpan={5} className="px-6 py-12 text-center">
-                              < Truck className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                              <Truck className="h-8 w-8 text-gray-300 mx-auto mb-2" />
                               <p className="text-gray-500">No orders ready for shipping</p>
                             </td>
                           </tr>
@@ -385,26 +400,26 @@ export default function AdminShipping() {
                   <p className="text-blue-100 text-sm mb-6">
                     Automatically generate shipping labels and tracking numbers for selected orders.
                   </p>
-                  <button
+                  <Button
                     onClick={handleGenerateLabels}
                     disabled={selectedCount === 0 || isProcessing}
-                    className="w-full px-4 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 disabled:opacity-50 transition font-bold text-sm flex items-center justify-center gap-2 shadow-sm"
+                    className="w-full bg-white text-blue-600 hover:bg-blue-50 font-bold"
                   >
                     {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Truck size={18} />}
                     Process {selectedCount} Shipments
-                  </button>
+                  </Button>
                 </Card>
 
                 {/* Print Options */}
                 <Card className="p-4 space-y-2 shadow-sm border-none bg-white">
-                  <button className="w-full px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm font-medium flex items-center justify-center gap-2">
+                  <Button variant="outline" className="w-full gap-2 text-sm font-medium">
                     <Copy size={16} className="text-gray-400" />
                     Copy Labels to Clipboard
-                  </button>
-                  <button className="w-full px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm font-medium flex items-center justify-center gap-2">
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2 text-sm font-medium">
                     <Download size={16} className="text-gray-400" />
                     Download Batch PDF
-                  </button>
+                  </Button>
                 </Card>
               </div>
             </div>
@@ -414,9 +429,9 @@ export default function AdminShipping() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Import External Tracking</h2>
                 <div className="flex gap-2">
-                  <button className="text-xs font-bold text-green-600 hover:text-green-700 uppercase tracking-wider">
+                  <Button variant="link" className="text-xs font-bold text-green-600 hover:text-green-700 uppercase tracking-wider h-auto p-0">
                     Download Template
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -432,14 +447,14 @@ ORD-1002, 1Z999AA10234567895"
                     className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 font-mono text-sm bg-gray-50"
                     rows={4}
                   />
-                  <button
+                  <Button
                     onClick={handleImportTracking}
                     disabled={!trackingPaste.trim() || isProcessing}
-                    className="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold text-sm flex items-center justify-center gap-2"
+                    className="mt-4 w-full bg-green-600 hover:bg-green-700 font-bold"
                   >
                     {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                     Update Order Tracking
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex flex-col">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -465,7 +480,7 @@ ORD-1002, 1Z999AA10234567895"
             <Card className="p-0 overflow-hidden shadow-sm border-none bg-white">
               <div className="p-4 border-b bg-white flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Shipment Batch History</h2>
-                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All History →</button>
+                <Button variant="link" className="text-sm text-blue-600 hover:text-blue-700 font-medium h-auto p-0">View All History →</Button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -507,9 +522,12 @@ ORD-1002, 1Z999AA10234567895"
                             {new Date(batch.created_at).toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <button className="text-green-600 hover:text-green-700 font-bold text-sm">
+                            <Button
+                              variant="ghost"
+                              className="text-green-600 hover:text-green-700 font-bold text-sm h-auto p-0"
+                            >
                               Details →
-                            </button>
+                            </Button>
                           </td>
                         </tr>
                       ))

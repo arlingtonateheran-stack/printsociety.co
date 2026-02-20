@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Truck, Box, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase, extractErrorMessage } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export default function ShippingQueueWidget() {
   const [shippingQueue, setShippingQueue] = useState<any[]>([]);
@@ -26,6 +27,7 @@ export default function ShippingQueueWidget() {
       setShippingQueue(data || []);
     } catch (error) {
       console.error("Error fetching shipping queue:", error);
+      // Don't show toast for widget error to avoid cluttering dashboard
     } finally {
       setIsLoading(false);
     }
