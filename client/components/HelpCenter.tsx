@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HelpArticle, FAQ, ArticleCategory } from "@shared/support";
+import { HelpArticle, FAQ, HelpCategory } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,50 +8,47 @@ import { Search, ThumbsUp, ThumbsDown, ChevronRight, BookOpen, HelpCircle } from
 interface HelpCenterProps {
   articles: HelpArticle[];
   faqs: FAQ[];
+  categories: HelpCategory[];
   selectedArticleId?: string;
   onArticleSelect?: (articleId: string) => void;
+  onBack?: () => void;
 }
 
 export function HelpCenter({
   articles,
   faqs,
+  categories,
   selectedArticleId,
   onArticleSelect,
+  onBack,
 }: HelpCenterProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<ArticleCategory | "all">("all");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | "all">("all");
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(
     selectedArticleId ? articles.find((a) => a.id === selectedArticleId) || null : null
   );
 
-  const categories: { id: ArticleCategory; label: string }[] = [
-    { id: "getting-started", label: "Getting Started" },
-    { id: "artwork-setup", label: "Artwork Setup" },
-    { id: "proofing", label: "Proofing" },
-    { id: "production", label: "Production" },
-    { id: "shipping", label: "Shipping" },
-    { id: "faq", label: "FAQs" },
-  ];
-
   const filteredArticles = articles.filter((article) => {
     const matchesSearch =
       article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      (article.excerpt || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" || article.category === selectedCategory;
+      selectedCategoryId === "all" || article.category_id === selectedCategoryId;
     return matchesSearch && matchesCategory;
   });
 
   const filteredFaqs = faqs.filter(
     (faq) =>
-      selectedCategory === "all" ||
-      selectedCategory === "faq" ||
-      faq.category === selectedCategory
+      selectedCategoryId === "all" ||
+      faq.category_id === selectedCategoryId
   );
 
   if (selectedArticle) {
-    return <ArticleDetail article={selectedArticle} onBack={() => setSelectedArticle(null)} />;
+    return <ArticleDetail article={selectedArticle} onBack={() => {
+      setSelectedArticle(null);
+      onBack?.();
+    }} />;
   }
 
   return (
@@ -73,9 +70,9 @@ export function HelpCenter({
       {/* Category Filter */}
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={() => setSelectedCategory("all")}
+          onClick={() => setSelectedCategoryId("all")}
           className={`px-4 py-2 rounded-full font-medium transition ${
-            selectedCategory === "all"
+            selectedCategoryId === "all"
               ? "bg-green-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -85,14 +82,14 @@ export function HelpCenter({
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            onClick={() => setSelectedCategoryId(cat.id)}
             className={`px-4 py-2 rounded-full font-medium transition ${
-              selectedCategory === cat.id
+              selectedCategoryId === cat.id
                 ? "bg-green-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            {cat.label}
+            {cat.name}
           </button>
         ))}
       </div>
@@ -114,9 +111,9 @@ export function HelpCenter({
                   onArticleSelect?.(article.id);
                 }}
               >
-                {article.imageUrl && (
+                {article.image_url && (
                   <img
-                    src={article.imageUrl}
+                    src={article.image_url}
                     alt={article.title}
                     className="w-full h-40 object-cover"
                   />
@@ -180,11 +177,11 @@ export function HelpCenter({
                       <span className="text-gray-600">Was this helpful?</span>
                       <button className="flex items-center gap-1 text-gray-500 hover:text-green-600 transition">
                         <ThumbsUp size={16} />
-                        {faq.helpful.yes}
+                        {faq.helpful_yes}
                       </button>
                       <button className="flex items-center gap-1 text-gray-500 hover:text-red-600 transition">
                         <ThumbsDown size={16} />
-                        {faq.helpful.no}
+                        {faq.helpful_no}
                       </button>
                     </div>
                   </div>
@@ -232,9 +229,9 @@ function ArticleDetail({ article, onBack }: ArticleDetailProps) {
         ← Back to Help
       </button>
 
-      {article.imageUrl && (
+      {article.image_url && (
         <img
-          src={article.imageUrl}
+          src={article.image_url}
           alt={article.title}
           className="w-full h-96 object-cover rounded-lg"
         />
@@ -243,15 +240,15 @@ function ArticleDetail({ article, onBack }: ArticleDetailProps) {
       <div>
         <h1 className="text-4xl font-bold mb-2">{article.title}</h1>
         <p className="text-gray-600">
-          By {article.author} •{" "}
-          {new Date(article.updatedAt).toLocaleDateString()} •{" "}
+          By {article.author || "Support Team"} •{" "}
+          {new Date(article.updated_at).toLocaleDateString()} •{" "}
           {article.views} views
         </p>
       </div>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2">
-        {article.tags.map((tag) => (
+        {(article.tags || []).map((tag) => (
           <span
             key={tag}
             className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
@@ -297,7 +294,7 @@ function ArticleDetail({ article, onBack }: ArticleDetailProps) {
             }`}
           >
             <ThumbsUp size={18} />
-            Yes ({article.helpful.yes})
+            Yes ({article.helpful_yes})
           </button>
           <button
             onClick={() => setHelpful("no")}
@@ -308,7 +305,7 @@ function ArticleDetail({ article, onBack }: ArticleDetailProps) {
             }`}
           >
             <ThumbsDown size={18} />
-            No ({article.helpful.no})
+            No ({article.helpful_no})
           </button>
         </div>
       </Card>

@@ -52,6 +52,7 @@ import Press from "./pages/Press";
 import AdminLogin from "./pages/AdminLogin";
 import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminPress from "./pages/admin/AdminPress";
+import AdminHelp from "./pages/admin/AdminHelp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -239,6 +240,14 @@ export default function App() {
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminPress />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/help"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminHelp />
                   </ProtectedRoute>
                 }
               />

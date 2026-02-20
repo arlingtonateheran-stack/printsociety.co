@@ -12,6 +12,7 @@ import {
   DollarSign,
   Image,
   FileText,
+  HelpCircle,
   LogOut,
 } from "lucide-react";
 
@@ -68,6 +69,12 @@ const adminNavItems = [
     label: "Media Kit",
     href: "/admin/press",
     icon: Image,
+    category: "Promotions",
+  },
+  {
+    label: "Help Center",
+    href: "/admin/help",
+    icon: HelpCircle,
     category: "Promotions",
   },
   {

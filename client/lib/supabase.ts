@@ -118,6 +118,48 @@ export interface PressItem {
   updated_at: string;
 }
 
+export interface HelpCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  icon: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HelpArticle {
+  id: string;
+  category_id: string | null;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  image_url: string | null;
+  author: string | null;
+  views: number;
+  helpful_yes: number;
+  helpful_no: number;
+  tags: string[];
+  status: 'draft' | 'published';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FAQ {
+  id: string;
+  category_id: string | null;
+  question: string;
+  answer: string;
+  sort_order: number;
+  views: number;
+  helpful_yes: number;
+  helpful_no: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // ============================================================================
 // STORAGE OPERATIONS
 // ============================================================================
@@ -503,6 +545,129 @@ export async function updatePressItem(id: string, updates: Partial<PressItem>) {
 export async function deletePressItem(id: string) {
   const { error } = await supabase
     .from('press_items')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// HELP OPERATIONS
+// ============================================================================
+
+export async function getHelpCategories() {
+  const { data, error } = await supabase
+    .from('help_categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as HelpCategory[];
+}
+
+export async function createHelpCategory(category: Omit<HelpCategory, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('help_categories')
+    .insert([category])
+    .select();
+  if (error) throw error;
+  return data?.[0] as HelpCategory;
+}
+
+export async function updateHelpCategory(id: string, updates: Partial<HelpCategory>) {
+  const { data, error } = await supabase
+    .from('help_categories')
+    .update(updates)
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data?.[0] as HelpCategory;
+}
+
+export async function deleteHelpCategory(id: string) {
+  const { error } = await supabase
+    .from('help_categories')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function getHelpArticles(publishedOnly: boolean = true) {
+  let query = supabase.from('help_articles').select('*, category:help_categories(*)').order('created_at', { ascending: false });
+  if (publishedOnly) {
+    query = query.eq('status', 'published');
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as (HelpArticle & { category: HelpCategory })[];
+}
+
+export async function getHelpArticleBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from('help_articles')
+    .select('*, category:help_categories(*)')
+    .eq('slug', slug)
+    .single();
+  if (error) throw error;
+  return data as (HelpArticle & { category: HelpCategory });
+}
+
+export async function createHelpArticle(article: Omit<HelpArticle, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('help_articles')
+    .insert([article])
+    .select();
+  if (error) throw error;
+  return data?.[0] as HelpArticle;
+}
+
+export async function updateHelpArticle(id: string, updates: Partial<HelpArticle>) {
+  const { data, error } = await supabase
+    .from('help_articles')
+    .update(updates)
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data?.[0] as HelpArticle;
+}
+
+export async function deleteHelpArticle(id: string) {
+  const { error } = await supabase
+    .from('help_articles')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function getFAQs() {
+  const { data, error } = await supabase
+    .from('help_faqs')
+    .select('*, category:help_categories(*)')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as (FAQ & { category: HelpCategory })[];
+}
+
+export async function createFAQ(faq: Omit<FAQ, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('help_faqs')
+    .insert([faq])
+    .select();
+  if (error) throw error;
+  return data?.[0] as FAQ;
+}
+
+export async function updateFAQ(id: string, updates: Partial<FAQ>) {
+  const { data, error } = await supabase
+    .from('help_faqs')
+    .update(updates)
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data?.[0] as FAQ;
+}
+
+export async function deleteFAQ(id: string) {
+  const { error } = await supabase
+    .from('help_faqs')
     .delete()
     .eq('id', id);
   if (error) throw error;

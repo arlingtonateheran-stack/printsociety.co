@@ -1,14 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { HelpCenter as HelpCenterComponent } from "@/components/HelpCenter";
 import { ContactForm } from "@/components/ContactForm";
-import { helpArticles, faqs } from "@shared/support";
+import { supabase, HelpArticle, FAQ, HelpCategory } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, LifeBuoy, Clock, AlertCircle } from "lucide-react";
+import { MessageCircle, LifeBuoy, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function HelpCenter() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const articleId = searchParams.get("article");
   const [showContactForm, setShowContactForm] = useState(false);
+  const [articles, setArticles] = useState<HelpArticle[]>([]);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [categories, setCategories] = useState<HelpCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHelpData();
+  }, []);
+
+  const fetchHelpData = async () => {
+    try {
+      setIsLoading(true);
+      const [articlesRes, faqsRes, categoriesRes] = await Promise.all([
+        supabase.from('help_articles').select('*').eq('status', 'published'),
+        supabase.from('help_faqs').select('*'),
+        supabase.from('help_categories').select('*').order('sort_order', { ascending: true })
+      ]);
+
+      if (articlesRes.error) throw articlesRes.error;
+      if (faqsRes.error) throw faqsRes.error;
+      if (categoriesRes.error) throw categoriesRes.error;
+
+      setArticles(articlesRes.data || []);
+      setFaqs(faqsRes.data || []);
+      setCategories(categoriesRes.data || []);
+    } catch (error: any) {
+      console.error("Error fetching help data:", error);
+      let errorMessage = error.message || "Failed to load help content";
+      if (errorMessage === "[object Object]") errorMessage = "Database error. Please ensure HELP_TABLES.sql has been applied.";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,13 +70,13 @@ export default function HelpCenter() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <Card className="p-6 text-center">
                   <div className="text-3xl font-bold text-green-600 mb-2">
-                    {helpArticles.length}
+                    {isLoading ? "..." : articles.length}
                   </div>
                   <p className="text-gray-600">Help Articles</p>
                 </Card>
                 <Card className="p-6 text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {faqs.length}
+                    {isLoading ? "..." : faqs.length}
                   </div>
                   <p className="text-gray-600">FAQ Questions</p>
                 </Card>
@@ -52,8 +90,21 @@ export default function HelpCenter() {
                 </Card>
               </div>
 
-              {/* Help Center Component */}
-              <HelpCenterComponent articles={helpArticles} faqs={faqs} />
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 className="h-12 w-12 animate-spin text-green-600 mb-4" />
+                  <p className="text-gray-500 font-medium">Loading help content...</p>
+                </div>
+              ) : (
+                <HelpCenterComponent
+                  articles={articles as any}
+                  faqs={faqs as any}
+                  categories={categories as any}
+                  selectedArticleId={articleId || undefined}
+                  onArticleSelect={(id) => setSearchParams({ article: id })}
+                  onBack={() => setSearchParams({})}
+                />
+              )}
 
               {/* Support CTA */}
               <Card className="p-8 bg-gradient-to-r from-green-600 to-green-700 text-white mt-12 rounded-lg">
