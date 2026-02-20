@@ -11,6 +11,7 @@ import {
   Search,
   DollarSign,
   Image,
+  FileText,
   LogOut,
 } from "lucide-react";
 

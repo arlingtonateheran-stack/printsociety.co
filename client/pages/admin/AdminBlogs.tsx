@@ -30,7 +30,16 @@ export default function AdminBlogs() {
       setPosts(data || []);
     } catch (error: any) {
       console.error("Error fetching blogs:", error);
-      toast.error("Failed to load blog posts");
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error. Check if the blog_posts table exists and has RLS policies.";
+        }
+      }
+      toast.error(`Failed to load blog posts: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase, PressItem } from "@/lib/supabase";
 import { Loader2, Download, FileText, Archive, Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Press() {
   const [assets, setAssets] = useState<PressItem[]>([]);
@@ -22,8 +23,18 @@ export default function Press() {
 
       if (error) throw error;
       setAssets(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching press items:", error);
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error. Check if the press_items table exists and has RLS policies.";
+        }
+      }
+      toast.error(`Error fetching press items: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

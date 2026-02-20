@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { supabase, BlogPost as BlogPostType } from "@/lib/supabase";
 import { Loader2, Calendar, User } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPostType[]>([]);
@@ -24,8 +25,18 @@ export default function Blog() {
 
       if (error) throw error;
       setPosts(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching blog posts:", error);
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error. Check if the blog_posts table exists and has RLS policies.";
+        }
+      }
+      toast.error(`Error fetching blog posts: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

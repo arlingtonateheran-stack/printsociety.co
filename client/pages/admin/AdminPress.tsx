@@ -29,7 +29,16 @@ export default function AdminPress() {
       setAssets(data || []);
     } catch (error: any) {
       console.error("Error fetching press assets:", error);
-      toast.error("Failed to load press items");
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error. Check if the press_items table exists and has RLS policies.";
+        }
+      }
+      toast.error(`Failed to load press items: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
