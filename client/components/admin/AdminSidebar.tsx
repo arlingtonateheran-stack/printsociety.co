@@ -58,6 +58,18 @@ const adminNavItems = [
     category: "Promotions",
   },
   {
+    label: "Blogs",
+    href: "/admin/blogs",
+    icon: FileText,
+    category: "Promotions",
+  },
+  {
+    label: "Media Kit",
+    href: "/admin/press",
+    icon: Image,
+    category: "Promotions",
+  },
+  {
     label: "Customers",
     href: "/admin/customers",
     icon: Users,

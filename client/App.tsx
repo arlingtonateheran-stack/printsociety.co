@@ -47,8 +47,11 @@ import Accessibility from "./pages/Accessibility";
 import Deals from "./pages/Deals";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import Press from "./pages/Press";
 import AdminLogin from "./pages/AdminLogin";
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AdminPress from "./pages/admin/AdminPress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +84,7 @@ export default function App() {
               <Route path="/deals" element={<Deals />} />
               <Route path="/about" element={<About />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogDetail />} />
               <Route path="/press" element={<Press />} />
 
               {/* Auth Routes */}
@@ -219,6 +223,22 @@ export default function App() {
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminDiscounts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/blogs"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminBlogs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/press"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPress />
                   </ProtectedRoute>
                 }
               />

@@ -90,6 +90,34 @@ export interface Discount {
   created_at: string;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  author_name: string | null;
+  category: string | null;
+  image_url: string | null;
+  status: 'draft' | 'published';
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PressItem {
+  id: string;
+  title: string;
+  description: string | null;
+  file_url: string;
+  file_type: string | null;
+  file_size: string | null;
+  category: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // ============================================================================
 // STORAGE OPERATIONS
 // ============================================================================
@@ -387,4 +415,95 @@ export async function getDiscountByCode(code: string) {
 
   if (error) throw error;
   return data as Discount;
+}
+
+// ============================================================================
+// BLOG OPERATIONS
+// ============================================================================
+
+export async function getBlogPosts(publishedOnly: boolean = true) {
+  let query = supabase.from('blog_posts').select('*').order('published_at', { ascending: false });
+  if (publishedOnly) {
+    query = query.eq('status', 'published');
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as BlogPost[];
+}
+
+export async function getBlogPostBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+  if (error) throw error;
+  return data as BlogPost;
+}
+
+export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .insert([post])
+    .select();
+  if (error) throw error;
+  return data?.[0] as BlogPost;
+}
+
+export async function updateBlogPost(id: string, updates: Partial<BlogPost>) {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .update(updates)
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data?.[0] as BlogPost;
+}
+
+export async function deleteBlogPost(id: string) {
+  const { error } = await supabase
+    .from('blog_posts')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// PRESS OPERATIONS
+// ============================================================================
+
+export async function getPressItems() {
+  const { data, error } = await supabase
+    .from('press_items')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as PressItem[];
+}
+
+export async function createPressItem(item: Omit<PressItem, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('press_items')
+    .insert([item])
+    .select();
+  if (error) throw error;
+  return data?.[0] as PressItem;
+}
+
+export async function updatePressItem(id: string, updates: Partial<PressItem>) {
+  const { data, error } = await supabase
+    .from('press_items')
+    .update(updates)
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data?.[0] as PressItem;
+}
+
+export async function deletePressItem(id: string) {
+  const { error } = await supabase
+    .from('press_items')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
 }
