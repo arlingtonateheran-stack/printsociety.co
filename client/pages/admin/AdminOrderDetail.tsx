@@ -161,9 +161,20 @@ export default function AdminOrderDetail() {
       if (error) throw error;
       setOrder({ ...order, status: newStatus as any });
       toast.success("Order status updated");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating status:", error);
-      toast.error("Failed to update order status");
+
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error occurred while updating status. Check for permissions.";
+        }
+      }
+
+      toast.error(`Failed to update order status: ${errorMessage}`);
     } finally {
       setIsUpdating(false);
     }
@@ -233,9 +244,20 @@ export default function AdminOrderDetail() {
       setProofMessage("");
       setSelectedFile(null);
       fetchOrderDetails();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending proof:", error);
-      toast.error("Failed to send proof");
+
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error occurred while sending the proof. Check for permissions or missing fields.";
+        }
+      }
+
+      toast.error(`Failed to send proof: ${errorMessage}`);
     } finally {
       setIsUpdating(false);
     }
@@ -268,9 +290,20 @@ export default function AdminOrderDetail() {
       setOrder({ ...order, internal_notes: newNotes });
       setInternalNote("");
       toast.success("Internal note added");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding note:", error);
-      toast.error("Failed to add internal note");
+
+      let errorMessage = "An unknown error occurred";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+        if (errorMessage === "{}" || errorMessage === "[object Object]") {
+          errorMessage = "Database error occurred while adding note. Check for permissions.";
+        }
+      }
+
+      toast.error(`Failed to add internal note: ${errorMessage}`);
     } finally {
       setIsUpdating(false);
     }
