@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card } from "@/components/ui/card";
-import { supabase, HelpArticle, FAQ, HelpCategory } from "@/lib/supabase";
+import { supabase, HelpArticle, FAQ, HelpCategory, extractErrorMessage } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,7 +40,14 @@ export default function AdminHelp() {
       setFaqs(faqsRes.data || []);
     } catch (error: any) {
       console.error("Error fetching help data:", error);
-      toast.error("Failed to load help data");
+      const message = extractErrorMessage(error, "Failed to load help data");
+
+      // Provide helpful context if tables are missing
+      if (message.includes("relation") && message.includes("does not exist")) {
+        toast.error("Database tables missing. Please ensure HELP_TABLES.sql has been applied.");
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +66,7 @@ export default function AdminHelp() {
       toast.success("Item deleted");
       fetchHelpData();
     } catch (error: any) {
-      toast.error("Failed to delete item");
+      toast.error(extractErrorMessage(error, "Failed to delete item"));
     }
   };
 

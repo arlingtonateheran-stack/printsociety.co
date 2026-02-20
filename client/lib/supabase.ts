@@ -5,6 +5,35 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_fD
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+/**
+ * Extracts a human-readable error message from various error object formats
+ */
+export function extractErrorMessage(error: any, defaultMessage: string = "An unknown error occurred"): string {
+  if (!error) return defaultMessage;
+
+  if (typeof error === 'string') return error;
+
+  if (error && typeof error === 'object') {
+    // Handle Supabase error object
+    const message = error.message || error.details || error.hint;
+    if (message && message !== "[object Object]" && message !== "{}") {
+      return message;
+    }
+
+    // Handle other object formats or stringification
+    try {
+      const stringified = JSON.stringify(error);
+      if (stringified !== "{}" && stringified !== "[object Object]") {
+        return stringified;
+      }
+    } catch (e) {
+      // Fall through to default
+    }
+  }
+
+  return defaultMessage;
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================

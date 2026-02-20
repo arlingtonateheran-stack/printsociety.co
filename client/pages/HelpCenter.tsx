@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { HelpCenter as HelpCenterComponent } from "@/components/HelpCenter";
 import { ContactForm } from "@/components/ContactForm";
-import { supabase, HelpArticle, FAQ, HelpCategory } from "@/lib/supabase";
+import { supabase, HelpArticle, FAQ, HelpCategory, extractErrorMessage } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { MessageCircle, LifeBuoy, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,9 +40,14 @@ export default function HelpCenter() {
       setCategories(categoriesRes.data || []);
     } catch (error: any) {
       console.error("Error fetching help data:", error);
-      let errorMessage = error.message || "Failed to load help content";
-      if (errorMessage === "[object Object]") errorMessage = "Database error. Please ensure HELP_TABLES.sql has been applied.";
-      toast.error(errorMessage);
+      const message = extractErrorMessage(error, "Failed to load help content");
+
+      // Provide helpful context if tables are missing
+      if (message.includes("relation") && message.includes("does not exist")) {
+        toast.error("Database tables missing. Please ensure HELP_TABLES.sql has been applied.");
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
